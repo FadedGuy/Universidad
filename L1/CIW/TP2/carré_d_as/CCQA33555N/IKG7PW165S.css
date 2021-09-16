@@ -1,0 +1,5 @@
+body  {text-align:center;}
+h1,p  {font-family: sans-serif; color: #1F67B3}
+h2    {font-family: sans-serif; color: #231F20;}
+table {width:100%; color: red;}
+td    {padding:30px; background-color:#231F20;}

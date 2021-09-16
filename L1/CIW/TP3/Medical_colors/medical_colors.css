@@ -1,0 +1,51 @@
+
+/* Remplacez tous les ?? par les bons selecteurs
+   de maniere a ce que le rendu corresponde
+   avec celui de l'enonce du TP. */
+
+/* Vous utiliserez des selecteurs d'elements, composes
+   et des pseudo-classes */
+
+body {background-color: snow;}
+
+/*------------------------------------------------------- Titres --*/
+h1 {color: blue;}
+
+h2 {color: darkBlue;}
+
+/* indication : frere adjacent indirect d'un titre... */
+p ~ h2 ~ h2 {color: darkRed;}
+
+/* indication : frere adjacent indirect d'un frere adjacent indirect... */
+p ~ h2 ~ h2 ~ h2 {color: darkGreen;}
+
+/*---------------------------------------------- Les paragraphes --*/
+p {color : darkCyan;}
+p ~ p {color : royalBlue;}
+p:first-of-type > b {color:mediumBlue;}
+
+/* indication : utilisez la pseudo-classe ":first-of-type" */
+h2:first-of-type + p {color:darkSlateBlue;}
+
+h2:first-of-type + p > u:first-of-type {color:orange;}
+h2:first-of-type + p > u ~ u {color:orangeRed;}
+
+h2:first-of-type + p > time {color:goldenRod;}
+h2:first-of-type + p > time ~ time ~ time {color:darkGoldenRod;}
+
+/* indication : utilisez la pseudo-classe ":nth-of-type" */
+h2:nth-of-type(2) ~ p {color:fireBrick;}
+
+/* indication : utilisez la pseudo-classe ":first-child" */
+h2:nth-of-type(2) + p > ul > li:first-child {color:mediumVioletRed;}
+
+del:first-child {color:tomato;}
+
+/* indication : utilisez la pseudo-classe ":only-child" */
+h2:nth-of-type(2) ~ p > ul:only-child {color:hotPink;}
+
+/* indication : utilisez la pseudo-classe ":last-of-type" */
+h2:last-of-type ~ p {color:green;}
+
+h2:last-of-type ~ p > a:first-of-type {color:DarkOliveGreen;}
+h2:last-of-type ~ p:last-of-type > a {color:lightSeaGreen;}

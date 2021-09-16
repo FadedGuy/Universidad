@@ -1,0 +1,10 @@
+header { 
+  background-color: rgb(74,72,67);
+  display: flex;
+}
+
+section{
+  background-color: aqua;
+  display: flex;
+}
+

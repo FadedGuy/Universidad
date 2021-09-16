@@ -1,0 +1,141 @@
+CONSTANTES
+	N 50
+procedure inverserVecteur(DON=init, fin:ENTIER, DONRES=v:TABLEAU[N] D'ENTIERS)
+VARIABLES
+	aux: ENTIER
+DEBUT
+	SI(init < fin) ALORS
+		aux <- v[init]
+		v[init] <- v[fin]
+		v[fin] <- aux
+		inverserVecteur(init+1, fin-1, v)
+FIN
+
+acker(2,2)
+	acker(1, acker(2,1)) -> acker(2,1)
+					acker(1, 0)
+						acker(0,1)
+							2
+		acker(0, acker(1,1)) -> acker(1,1)
+						acker(0, acker(1, 0)) -> acker(1,0)
+										acker(0,1)
+											2
+							3
+		4
+	
+7
+
+
+fonction som-div(DON=nb, nc:ENTIER):ENTIER
+DEBUT
+	SI (nb = 1) ALORS
+		RETOURNER(1)
+	SI (nc MOD nb = 0) ALORS
+		RETOURNER(nc + som-div(nb, nc-1))
+	SINON
+		RETOURNER(som-div(nb,nc-1))	
+FIN
+
+fonction parfait(DON=nb:ENTIER):BOOLEEN
+DEBUT
+	RETOURNER(som-div(nb,nb/2)=nb)
+FIN
+		
+
+t = [9,2,11,7,4]
+trierTas(t, 5)
+	organiserTas(t,5) 
+		remonter(t,2) 
+		remonter(t,3) [11,2,9,7,4]
+			remonter(t, 1)
+		remonter(t,4) [11,7,9,2,4]
+			remonter(t,2)
+		remonter(t,5)
+	
+	Pour i=5 [4,7,9,2,11]
+		descendre(t, 1, 4) fg=2 fd=3 fm=3 [9,7,4,2,11]
+			descendre(t, 3, 4)
+	 i=4 [2,7,4,9,11]
+		descendre(t,1,3) fg=2 fd=3 fm=2 [7,2,4,9,11]
+			descendre(t, 2, 3)
+	 i=3 [4,2,7,9,11]
+		descendre(t,1,2) fg=2 fd=3 fm=2
+	 i=2 [2,4,7,9,11]
+		descendre(t,1,1)
+	
+
+CONSTANTES
+	N 50
+procedure doubles(DON=na:ENTIER, DONRES=nb:ENTIER, vect:TABLEAU[N] D'ENTIERS)
+	SI(na < nb)ALORS
+		si(vect[na] = vect[na+1]) ALORS
+			vect[na+1] <- vect[na+2]
+			doubles(na+1, nb, vect)
+	nb <- na
+		
+
+CONSTANTES
+	N 50
+procedure miroir(DON=nb, nI:ENTIER; DON-RES=vect: TABLEAU[N] DE CHARACTERES)
+	SI(nI < nb)ALORS
+		vect[nb] <- vect[nI]
+		miroir(nb-1, nI+1, vect)
+
+
+CONSTANTES
+	N 50
+procedure ouex(DON=Vord, Word:TABLEAU[N] D'ENTIER, n, m:ENTIER; RES=VoeuxW:TABLEAU[N*2] D'ENTIER)
+VARIABLES
+	i,j,k:ENTIER
+DEBUT
+	i <- 1
+	j <- 1
+	k <- 1
+	TANTQUE((i<=n) et (j<=m))FAIRE
+		SI(Vord[i] = Word[j])ALORS
+			i <- i+1
+			j <- j+1
+		SINON
+			SI(Vord[i] < Word[j])ALORS
+				VoeuxW[k] <- Vord[i]
+				i <- i+1
+				k <- k+1
+			SINON
+				VoeuxW[k] <- Word[j]
+				j <- j+1
+				k <- k+1
+	SI(i<=n)ALORS
+		POUR i A n FAIRE
+			VoeuxW[k] <- Vord[i]
+			k <- k+1	
+	SINON
+		POUR j A m FAIRE
+			VoeuxW[k] <- Word[j]
+			k <- k+1
+FIN
+
+CONSTANTES 
+	N 50
+fonction rech-dich(DON=vect:TABLEAU[N] D'ENTIER, n, val, inf, sup: ENTIER):ENTIER
+VARIABLES
+	mid:ENTIER
+DEBUT
+	SI(inf < sup)ALORS
+		mid <- inf+sup DIV 2
+		SI(val = vect[mid])ALORS
+			RETOURNER(mid)
+			
+		SINON
+			SI(val < vect[mid])ALORS
+				RETOURNER(rech-dich(vect, n, val, inf, mid-1))
+			SINON
+				rech-dich(vect, n, val, mid+1, sup)
+	RETOURNER(-1)	
+FIN
+
+des-sous(30,20,5) <- des-sous(10,20,5) (1) + des-sous(30, 10, 5) (5)
+			des-sous(10,5,5)	des-sous(20,10,5) (4) + des-sous(30,5,5) (1)
+				1			des-sous(10,10,5) (3) + des-sous(10,5,5) (1)	1
+								1+des-sous(10,5,5)	1
+									1
+ 6	

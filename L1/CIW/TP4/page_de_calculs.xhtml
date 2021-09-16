@@ -1,0 +1,29 @@
+<!DOCTYPE HTML>
+<html lang="fr" xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta charset="utf-8" />
+  <title>Des calculs en Javascript</title>
+  <script type="text/javascript" src="./fonctions_de_calculs.js"></script>
+</head>
+
+<body>
+  <p>Des calculs sont fait au cours de l'affichage de cette page.</p>
+  <p>(Ouvrez la console pour voir messages et erreurs).</p>
+  <script>
+
+    // affichage dans la console
+    let entier = 2;
+    let resultat = carre(entier); // appel de ma fonction "carre";
+    let message = "le carre de " + entier + " est " + resultat;
+    console.log(message); // affichage dans la console
+
+    // interaction avec des boites de dialogue
+    let valeur = parseInt( window.prompt("Entrez un entier") );   // saisie de la valeur
+    let auCube = cube(valeur);
+    window.alert("le cube de " + valeur + " est " + auCube ); // affichage
+  
+  </script>
+</body>
+
+</html>

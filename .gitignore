@@ -1,2 +1,7 @@
-
-
+*.vscode
+*.exe
+*.pdf
+*.zip
+*.apk
+*.tgz
+*.aia

@@ -1,0 +1,27 @@
+<!DOCTYPE HTML>
+<html lang="fr" xmlns="http://www.w3.org/1999/xhtml" oncontextmenu="return changeCouleurDeFond()">
+
+<head>
+    <meta charset="utf-8" />
+    <title>Coleur diverse</title>
+</head>
+
+<body>
+  <p>Cliquer sur le bouton droit de la souris pour colorer le fond avec un couler aleatoire</p>
+</body>
+
+<script>
+  function changeCouleurDeFond(){
+    console.log("Changing color... Bip, bup");
+    let r, g, b;
+
+    r = Math.floor(Math.random() * 255);
+    g = Math.floor(Math.random() * 255); 
+    b = Math.floor(Math.random() * 255);
+    document.body.style.backgroundColor = "rgb("+r+","+g+","+b+")";
+    
+    return false;
+  }
+</script>
+
+</html>

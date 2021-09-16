@@ -1,0 +1,48 @@
+<!DOCTYPE HTML>
+<html lang="fr" xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta charset="utf-8" />
+    <title>Ton ami Didou !</title>
+    <script type="text/javascript" src="./didou.js"></script>
+</head>
+
+<body>
+  <h1>Ton ami Didou !</h1>
+    <p>Didou, dessine-moi <b id="id_quoi">un animal...</b></p>
+    <p><img id="id_image" src="images/didou.jpg" height="350px"/></p>
+    <label>Méthode 1 : </label>
+    <input type="button" value="un chien" onclick="changeImageM1('images/chien.jpg', 'un chien !')"
+    />
+    <input type="button" value="un loup" onclick="changeImageM1('images/loup.jpg', 'un loup !')"
+    />
+    <br/>
+    <label>Méthode 2 : </label>
+    <input type="button" value="une chouette" onclick="changeImageM2('id_image', 'id_quoi', 'images/chouette.jpg', 'une chouette')"
+    />
+    <input type="button" value="une singe" onclick="changeImageM2('id_image', 'id_quoi', 'images/singe.jpg', 'une singe')"
+    />
+    <br/>
+    <label>Méthode 3 : </label>
+    <input type="button" value="un mouton" onclick="changeImageM3('images/mouton.jpg', 'un mouton')"
+    />
+    <input type="button" value="un dauphin" onclick="changeImageM3('images/dauphin.jpg', 'un dauphin')"
+    />
+    <br/>
+    <input type="button" value="Remise a l'etat initial" onclick="changeInitial('id_image', 'id_quoi', 'images/didou.jpg', 'une animal...')"
+    />
+ </body>
+
+  <script>
+  var bodyTag = document.body;
+  var p1Tag   = bodyTag.childNodes[3];
+  var bTag    = p1Tag.lastChild;
+  var p2Tag   = bodyTag.childNodes[5];
+  var imgTag  = p2Tag.firstChild;
+
+  console.log("p1Tag  : "+ p1Tag.innerHTML);
+  console.log("bTag   : "+ bTag.innerHTML);
+  console.log("imgTag : "+ imgTag.src);
+  </script>
+
+</html>

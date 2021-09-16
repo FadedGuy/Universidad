@@ -1,0 +1,13 @@
+fieldset{
+  margin-top: 15px;
+}
+
+fieldset legend{
+  font-weight: bold;
+}
+
+label{
+  display: inline-block;
+  text-align: right;
+  width: 150px;
+}

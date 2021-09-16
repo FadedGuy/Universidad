@@ -1,0 +1,47 @@
+<!DOCTYPE HTML>
+<html lang="fr" xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta charset="utf-8" />
+  <title>Accueil</title>
+  <link rel="stylesheet" href="Pages_libres/Styles/style.css" charset="utf-8" />
+</head>
+
+<body>
+  <header>
+    <nav>
+        <div class="navbar">
+            <a class="activePage" href="accueil.xhtml">Accueil</a>
+            <a href="Page_imposée/Livre_Petit/livre_v2.xhtml">Partie impose</a>
+            <div class="dropdown">
+                <button class="dropbtn">Partie livre ↓</button>
+                <div class="dropdown-content">
+                    <a href="Pages_libres/1_presentation.xhtml">Presentation</a>
+                    <a href="Pages_libres/2_galerie.xhtml">Galerie</a>
+                    <a href="Pages_libres/3_inscription.xhtml">Inscription</a>
+                </div>
+            </div>
+            <div class="navTour">
+              <a href="Pages_libres/3_inscription.xhtml">← Page précédente</a>
+              <a href="Pages_libres/1_presentation.xhtml">Page suivante →</a>
+            </div>
+        </div>
+    </nav>
+  </header>
+
+  <article>
+    <p>Je m'appelle Kevin Aceves et je suis le développeur de ce site web pour le cours de CIW.</p>
+    <p>Vous trouverez ci-dessous deux sections, à gauche la "partie imposée", et à droite la "partie livre". Les deux ont une petite description de chaque partie.</p>
+    <div class="partieImpose">
+      <p>Dans cette partie, nous avons intégré un exercice qui a été fait précédemment, dans lequel nous avons utilisé la mise en page flexible pour accommoder les
+         éléments de la page. Entre nous, il s'agit d'un livre sur les OVNI.</p>
+      <button class="btnImpose" onclick="window.location.href='Page_imposée/Livre_Petit/livre_v2.xhtml'">Partie Impose</button>
+    </div>
+    <div class="partieLivre">
+      <p>Dans cette partie, nous avons eu l'occasion non seulement de nous exprimer, mais aussi d'intégrer deux exercices en un et de faire un formulaire</p>
+      <button class="btnLivre" onclick="window.location.href='Pages_libres/1_presentation.xhtml'">Partie Livre</button>
+    </div>  
+  </article>
+</body>
+
+</html>

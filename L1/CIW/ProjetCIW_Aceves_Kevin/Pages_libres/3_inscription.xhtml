@@ -1,0 +1,94 @@
+<!DOCTYPE HTML>
+<html lang="fr" xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta charset="utf-8" />
+  <title>Inscription</title>
+  <script type="text/javascript" src="Scripts/formulaire.js"></script>
+  <link rel="stylesheet" href="Styles/formulaire.css" charset="utf-8" />
+  <link rel="stylesheet" href="Styles/style.css" charset="utf-8" />
+</head>
+
+<body>
+    <header>
+        <nav>
+            <div class="navbar">
+                <a href="../accueil.xhtml">Accueil</a>
+                <a href="../Page_imposée/Livre_Petit/livre_v2.xhtml">Partie impose</a>
+                <div class="dropdown">
+                    <button class="dropbtn">Partie livre ↓</button>
+                    <div class="dropdown-content">
+                        <a href="1_presentation.xhtml">Presentation</a>
+                        <a href="2_galerie.xhtml">Galerie</a>
+                        <a class="activePage" href="3_inscription.xhtml">Inscription</a>
+                    </div>
+                </div>
+                <div class="navTour">
+                    <a href="2_galerie.xhtml">← Page précédente</a>
+                    <a href="../accueil.xhtml">Page suivante →</a>
+                  </div>
+            </div>
+        </nav>
+    </header>
+
+    <article>
+        <h1>Formulaire d'inscription</h1>
+        <form method="get" action="https://httpbin.org/get">
+            <fieldset>
+                <legend>Identité</legend>
+                <label for="iden_civilite">Civilité : </label>
+                <select id="iden_civilite" name="iden_civilite">
+                    <option value="Madame">Mme</option>
+                    <option value="Monsieur">M.</option>
+                </select>
+                <br/>
+                <label for="iden_prenom">Prénom :</label>
+                <input type="text" id="iden_prenom" name="iden_prenom"/>
+                <br/>
+                <label for="iden_nom">Nom :</label>
+                <input type="text" id="iden_nom" name="iden_nom"/>
+                <br/>
+                <label for="iden_date">Date de naissance :</label>
+                <input type="date" id="iden_date" name="iden_date"/>
+                <br/>
+                <label for="iden_email">Email :</label>
+                <input type="email" id="iden_email" name="iden_email"/>
+            </fieldset>
+            <fieldset>
+                <legend>Adresse de facturation</legend>
+                <label for="fact_adresse">Adresse :</label>
+                <input type="text" id="fact_adresse" name="fact_adresse"/>
+                <br/>
+                <label for="fact_code_postal">Code Postal :</label>
+                <input type="number" id="fact_code_postal" name="fact_code_postal" max="99999"/>
+                <br/>
+                <label for="fact_ville">Ville :</label>
+                <input type="text" id="fact_ville" name="fact_ville"/>
+            </fieldset>
+            <aside class="asideC">En cliquant sur la case "idem que facturation", vous copiez les informations dont vous disposez à partir de l'adresse de facturation. <br/> Le code postal n'accepte que 5 chiffres au maximum</aside>
+            <fieldset>
+                <legend>Adresse de livraison</legend>
+                <label for="meme_fact">Idem que facturation :</label>
+                <input type="checkbox" id="meme_fact" onclick="memeAdresse()"/>
+                <br/>
+                <label for="livr_adresse">Adresse :</label>
+                <input type="text" id="livr_adresse" name="livr_adresse"/>
+                <br/>
+                <label for="livr_code_postal">Code Postal :</label>
+                <input type="number" id="livr_code_postal" name="livr_code_postal" max="99999"/>
+                <br/>
+                <label for="livr_ville">Ville :</label>
+                <input type="text" id="livr_ville" name="livr_ville"/>
+                <br/>
+            </fieldset>
+            <br/>
+            <input type="submit" value="Envoyer"/>
+        </form>
+    </article>
+    <footer>
+        <p>Ce site a été construit comme un projet pour le cours de CIW, tous droits réservés. Aucune donnée n'est sauvegardée.
+          <br/>Auteur : Kevin Aceves.</p>
+     </footer>
+</body>
+
+</html>

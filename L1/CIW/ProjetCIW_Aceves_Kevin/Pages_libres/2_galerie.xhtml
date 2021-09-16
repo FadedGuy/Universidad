@@ -1,0 +1,72 @@
+<!DOCTYPE HTML>
+<html lang="fr" xmlns="http://www.w3.org/1999/xhtml" oncontextmenu="return changeCouleur()">
+
+<head>
+  <meta charset="utf-8" />
+  <title>Galerie</title>
+  <script type="text/javascript" src="Scripts/galerie.js"></script>
+  <link rel="stylesheet" href="Styles/style.css" charset="utf-8" />
+</head>
+
+<body>
+  <header>
+    <nav>
+        <div class="navbar">
+            <a href="../accueil.xhtml">Accueil</a>
+            <a href="../Page_imposée/Livre_Petit/livre_v2.xhtml">Partie impose</a>
+            <div class="dropdown">
+                <button class="dropbtn">Partie livre ↓</button>
+                <div class="dropdown-content">
+                    <a href="1_presentation.xhtml">Presentation</a>
+                    <a class="activePage" href="2_galerie.xhtml">Galerie</a>
+                    <a href="3_inscription.xhtml">Inscription</a>
+                </div>
+            </div>
+            <div class="navTour">
+              <a href="1_presentation.xhtml">← Page précédente</a>
+              <a href="3_inscription.xhtml">Page suivante →</a>
+            </div>
+        </div>
+    </nav>
+  </header> 
+
+  <article>
+    <h1>Ton ami Didou !</h1>
+    <p>Didou, dessine-moi <b id="id_quoi">un animal...</b></p>
+    <p><img id="id_image" src="Images/didou.jpg" height="350px"/></p>
+    <aside class="asideC">
+      <ul>
+        <li>Si vous appuyez sur l'un des boutons à gauche, cela changera l'image et le mot sur la page.</li>
+        <li>Le bouton "remise a letat initial" fait ce qu'il dit.</li>
+        <li>Si vous cliquez avec le bouton droit de la souris n'importe où sur la page, la couleur de fond sera modifiée</li>
+      </ul>
+    </aside>
+    <label>Méthode 1 : Navigation</label>
+    <input type="button" value="un chien" onclick="changeImageM1('Images/chien.jpg', 'un chien !')"
+    />
+    <input type="button" value="un loup" onclick="changeImageM1('Images/loup.jpg', 'un loup !')"
+    />
+    <br/>
+    <label>Méthode 2 : Accès direct</label>
+    <input type="button" value="une chouette" onclick="changeImageM2('id_image', 'id_quoi', 'Images/chouette.jpg', 'une chouette !')"
+    />
+    <input type="button" value="un singe" onclick="changeImageM2('id_image', 'id_quoi', 'Images/singe.jpg', 'une singe !')"
+    />
+    <br/>
+    <label>Méthode 3 : querySelector</label>
+    <input type="button" value="un mouton" onclick="changeImageM3('Images/mouton.jpg', 'un mouton !')"
+    />
+    <input type="button" value="un dauphin" onclick="changeImageM3('Images/dauphin.jpg', 'un dauphin !')"
+    />
+    <br/>
+    <input type="button" value="Remise à l'état initial" onclick="changeImageM3('Images/didou.jpg', 'un animal...')"
+    />
+  </article>
+
+  <footer>
+    <p>Ce site a été construit comme un projet pour le cours de CIW, tous droits réservés.
+      <br/>Auteur : Kevin Aceves.</p>
+  </footer>
+
+</body>
+</html>

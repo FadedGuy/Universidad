@@ -1,0 +1,28 @@
+
+header img {
+  height: 100px;
+  vertical-align: bottom;
+}
+
+/* Pour colorer les blocs, activez les règles en 
+   supprimant les caractères '_'.
+*/
+ 
+header { background-color: lightskyblue;}
+_section { background-color: lightgrey;}
+_section aside { background-color: tomato;}
+_section article { background-color: orange;}
+_footer { background-color: grey;}
+_footer div { background-color: lightgreen;}
+
+/* Positionnement des blocs */
+
+
+/* Header */
+
+
+/* Section */
+
+
+/* Footer */
+

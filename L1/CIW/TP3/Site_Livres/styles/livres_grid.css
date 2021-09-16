@@ -1,0 +1,93 @@
+/* Pour colorer les blocs, activez les règles en 
+   supprimant les caractères '_'.
+*/
+
+header { 
+  background-color: rgb(74,72,67);
+  display: grid;
+  grid-gap: 15px;
+  grid: 2 / 2;
+}
+
+section { 
+  display: grid;
+  padding: 15px 30px 0 30px;
+  color: #4B4D4F;
+}
+_section aside { background-color: tomato;}
+_section article { background-color: orange;}
+
+footer { 
+  display: grid;
+  padding: 5px 5px 0 5px;
+}
+
+_footer div { background-color: lightgreen;}
+
+/* Positionnement des blocs */
+
+
+/* Header */
+header img{
+  height: 100px;
+  vertical-align: top;
+  grid-row: 1;
+  grid-column: 1;
+}
+
+header h1{
+  color: white;
+  font-size: 20px;
+  font-weight: normal;
+  margin: 25px 0px 25px 50px;
+  
+}
+
+header a{
+  color: white;
+  font-size: 15px;
+  font-weight: bold;
+  text-decoration: none;
+  padding: 5px 20px 0;
+  margin-left: 5px; 
+}
+
+header a.actif{
+  border-bottom: 4px solid orange;
+}
+
+/* Section */
+section aside{
+  padding-right: 30px;
+}
+
+section article h2{
+  font-size: 15px;
+  font-weight: normal;
+}
+
+section article h3{
+  font-size: 13px;
+  font-weight: normal;
+  color: gray;
+}
+
+section article h3 a{
+  text-decoration: none;
+  color: black;
+  font-size: 13px;
+} 
+
+section article h4{
+  font-weight: normal;
+}
+
+section article h5{
+  font-weight: normal;
+  border-bottom: 1px solid gray;
+}
+
+/* Footer */
+footer div{
+  padding: 5px;
+}
