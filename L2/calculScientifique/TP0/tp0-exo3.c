@@ -1,22 +1,17 @@
 #include <stdio.h>
+#include <math.h>
 
 double sin_approx(double x, int N)
 {
-    double un=1, res=0, num = x*x;
-
-    for(int n = 2; n <= N; n++){
-        double num = x*x, den = ((2*n)+1)*(2*n);
-        //num = x^2
-        //den = (2n+1)(2n)
-        num = num*un;
-        un = num/den;
-        if(n % 2 != 0){
-            un = un * -1;
+    double res = x;
+    for(int i = 1; i <= N; i++){
+        double num = x*x, den = (((2*i)+1) * (2*i));
+        if(i % 2 == 0){
+            res += ((num/den)*res);
+        }else{
+            res -= ((num/den)*res);
         }
-
-        res += un;
     }
-
     return res;
 }
 
@@ -27,5 +22,7 @@ int main()
     printf("Donne x: ");
     scanf("%f", &x);
 
-    printf("%f\n", sin_approx(x,N));
+    // printf("Sin = %lf\n", sin(x));
+    // printf("Approximation = %lf\n", sin_approx(x,N));
+    printf("Difference = %lf", sin(x) - sin_approx(x,N));
 }
