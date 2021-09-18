@@ -1,0 +1,47 @@
+\documentclass[]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[french]{babel}
+
+\title{Programmer des composants actifs dans le web sémantique}
+\author{William Portillon}
+\date{1 November 2015}
+
+\begin{document}
+
+\maketitle
+
+\begin{center}
+	\textbf{\large{Résumé}}
+	
+\end{center}
+
+Cet article, montre la possibilité d'utiliser XML comme langage de programmation des composants actifs dans le web sémantique, pour unifier la description de leur partie structurelle et celle de leur fonctionnement. Un modèle d activité de composants actifs est présenté, il permet d'avoir accès en cours d'exécution  à une description sémantisée de leur fonctionnement pour pouvoir répondre à des requêtes sur leurs actions.
+
+\section{Les composants actifs dans le web sémantique} 
+
+Les modèles actuels du web sémantique permettent de munir les pages d'une représentation structurelle sémantisée [1] pour répondre à des requêtes sur la signification de l'information qu'ils manipulent [2, 3]. Au contraire, les composants actifs dans le web (services, agent, etc.) avec lesquels les utilisateurs ordinaires vont interagir sont caractérisés par << un fonctionnement >> [4]. Contrairement au  script CGI  qui ne fait que traiter, manipuler ou produire l'information contenue sur le web, ce fonctionnement fait partie intégrante de l'information. Le web sémantique doit donc permettre de représenter et de manipuler des connaissances non seulement structurelles, mais aussi de nature fonctionnelle, c est-à-dire de représenter le fonctionnement des composants actifs qui y agissent. Plusieurs modèles de description de services web ont été proposés, comme WSDL [5], WSMF [6] ou DAML-S [7] comme extension des protocoles de base pour les services (SOAP [8], UDDI1 et WSDL [5]) afin de permettre aux agents de trouver, invoquer, surveiller ou composer en services plus complexes des ressources Web offrant tels services et vérifiant telles propriétés. Mais dans tous ces modèles, la description du service est séparée de l'information manipule. Au contraire, dans un composant actif, la structure et le fonctionnement doivent être intégrés au sein d'une même représentation, pour lui permettre d'interagir avec l'utilisateur en vue de pouvoir répondre à des requêtes sémantisées aussi bien sur la structure [9, 3] de l'information que sur le fonctionnement  du composant. Il faut donc pouvoir programmer directement en XML les composants actifs. Dans cet article, sera décrit  le principe général de fonctionnement des composants dans le modèle retenu.
+
+\section{Principe général}
+
+Le modèle d'exécution retenu pour les composants actifs décrits en XML s'appuie sur la notion << d'observateur >>. Un observateur est un composant logiciel externe qui recherche dans le document
+XML des éléments spécifiques, conformément  un schéma de description ou  une DTD (qui définit la syntaxe  respecter), et les interprète pour effectuer des actions particulières. Nous pouvons alors opposer les observateurs statiques qui ne modifient pas le document de manière proactive [10, 4](par exemple un observateur produisant une interface utilisateur ou un observateur de réponse aux requêtes structurelles sémantisées)  à l'observateur dynamique qui considère le document passé en paramètre comme la description du composant à l'instant t et qui construit sa description à l'instant suivant t+1 en fonction des éléments spécifiques décrivant le fonctionnement de ce composant actif. L'excution d'un composant consiste donc en la réécriture du document XML à chaque cycle en fonction de concepts spécifiques, comme dans les algèbres évoluantes [11] ou << Maude >> [12]. La description du composant en XML est sérialisée [13]  à chaque cycle d'exécution pour que tous les observateurs puissent interpréter le  nouveau  document. Ces composants sont proactifs : ils peuvent s'exécuter en dehors de toute interaction avec l'utilisateur.
+Le modèle d'exécution basé sur les observateurs permet de décrire des documents à la fois structurés et dynamiques. Toutefois, il s'appuie sur l'hypothèse que les observateurs sont robustes : si un élément recherché n'est pas trouvé dans un document ou si le document n'est pas conforme  à la syntaxe de l'observateur, alors aucune action n'est effectue par cet observateur.
+
+\section{Conclusion}
+
+Le web sémantique aujourd'hui s'est beaucoup orienté vers la description de l'information structurelle sémantisée et prend peu en compte l'étude du fonctionnement des services et, plus généralement, des composants actifs interagissant avec les utilisateurs. Ces composants sont aujourd'hui généralement << enchassés >>  dans les documents sous la forme d'applets, et non intégrés avec le document. Cet article, propose le principe général d'un modèle d'activité  de composants actifs qui permet d'attacher, sur les aspects structurels riches, des aspects liés au fonctionnement. Il est alors possible, en utilisant ce modèle, de décrire et d'exécuter les composants actifs sous la forme de pages web en XML. Le modèle proposé reste relativement simple et il est suffisamment générique pour permet
+tre de représenter une large classe de composants actifs.
+
+\cite{expOnto}
+\cite{w3c}
+\cite{semanticsWS}
+\cite{rewritingLogic}
+\cite{commsProc}
+\cite{wsdl}
+
+\bibliographystyle{ieeetr}
+\bibliography{biblio}
+
+\end{document}
+
+

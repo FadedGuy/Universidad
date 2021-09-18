@@ -1,0 +1,29 @@
+\begin{thebibliography}{1}
+
+\bibitem{expOnto}
+B.~S. C.~Reynaud and H.~Gagliardi, ``Une experience de representation d'une
+  ontologie dans le mediateur picsel,'' {\em IC 2001}, 2001.
+
+\bibitem{w3c}
+W3C, ``Simple object access protocol (soap),'' 2000.
+\newblock http ://www.w3.org/TR/SOAP.
+
+\bibitem{semanticsWS}
+F.~H. A.~Ankolenkar and K.~Sycara, ``Concurrent semantics for the web services
+  specification language daml-s,'' in {\em The Fifth International Conference
+  on Coordination Models and Languages}.
+
+\bibitem{rewritingLogic}
+J.~Mesegue, ``Rewriting logic and maude : Concepts and applications,'' {\em RTA
+  2000}, 2000.
+
+\bibitem{commsProc}
+C.~Hoare, {\em Communicating Sequential Processes}.
+\newblock 1986.
+
+\bibitem{wsdl}
+G.~M. E.~Christensen, F.~Curbera and S.~Weerawarana, ``Web services description
+  language (wsdl),'' 2001.
+\newblock http ://www.w3.org/TR/wsdl.
+
+\end{thebibliography}

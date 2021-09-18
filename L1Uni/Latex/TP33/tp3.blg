@@ -1,0 +1,55 @@
+This is BibTeX, Version 0.99d (TeX Live 2017/Debian)
+Capacity: max_strings=100000, hash_size=100000, hash_prime=85009
+The top-level auxiliary file: tp3.aux
+The style file: ieeetr.bst
+Database file #1: biblio.bib
+Name 1 in "C. Reynaud, B. Safar, and H. Gagliardi" has a comma at the end for entry expOnto
+while executing---line 969 of file ieeetr.bst
+Name 1 in "A. Ankolenkar, F. Hutch, and K. Sycara" has a comma at the end for entry semanticsWS
+while executing---line 969 of file ieeetr.bst
+Warning--empty year in semanticsWS
+Warning--empty publisher in commsProc
+Name 1 in "E. Christensen, F. Curbera, G. Meredith, and S. Weerawarana" has a comma at the end for entry wsdl
+while executing---line 969 of file ieeetr.bst
+You've used 6 entries,
+            1876 wiz_defined-function locations,
+            507 strings with 4167 characters,
+and the built_in function-call counts, 902 in all, are:
+= -- 74
+> -- 36
+< -- 0
++ -- 15
+- -- 9
+* -- 46
+:= -- 143
+add.period$ -- 9
+call.type$ -- 6
+change.case$ -- 5
+chr.to.int$ -- 0
+cite$ -- 8
+duplicate$ -- 48
+empty$ -- 114
+format.name$ -- 9
+if$ -- 216
+int.to.chr$ -- 0
+int.to.str$ -- 6
+missing$ -- 5
+newline$ -- 24
+num.names$ -- 6
+pop$ -- 38
+preamble$ -- 1
+purify$ -- 0
+quote$ -- 0
+skip$ -- 14
+stack$ -- 0
+substring$ -- 0
+swap$ -- 4
+text.length$ -- 0
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 0
+warning$ -- 2
+while$ -- 6
+width$ -- 7
+write$ -- 51
+(There were 3 error messages)
