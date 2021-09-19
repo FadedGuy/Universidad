@@ -1,32 +1,50 @@
 let nombre, err;
 let message = '', eEnt,eImpar, eInf10, eSup20;
+
 do {
   err = '';
   message = message + 'Entrez un entier impair dans [10,20]';
   nombre = prompt(message);
   eEnt = parseInt(nombre) == nombre;
   if(!eEnt){
-    err = '1 erreur: ' + nombre + ' nest pas entier !';
+    err = '1 erreur: ' + nombre + ' n\'est pas entier !';
   }
+  
   eImpar = nombre % 2 == 1;
   if(!eImpar){
     if(err == ''){
-      err = '1 erreur: ' + nombre + ' nest pas impair !';
+      err = '1 erreur: ' + nombre + ' n\'est pas impair !';
     }else{
-      err = '2 erreurs: ' + nombre + ' nest ni entier ni impair !'
+      err = '2 erreurs: ' + nombre + ' n\'est ni entier ni impair !'
     }
   }
+
   eInf10 = nombre >= 10;
   if(!eInf10){
     if(err == ''){
-      err = '1 erreur: ' + nombre + ' nest pas superieur a 10 !';
+      err = '1 erreur: ' + nombre + ' n\'est pas superieur a 10 !';
+    }else if(err.search('entier') && !err.search('impair')){
+      err = '2 erreurs: ' + nombre + ' n\'est ni entier ni superieur a 10 !'
+    }else if(err.search('impair') && !err.search('entier')){
+      err = '2 erreurs: ' + nombre + ' n\'est ni impair ni superieur a 10 !'
     }else{
-      err = '2 erreurs: ' + nombre + ' nest ni entier ni impair !'
+      err = '3 erreurs: ' + nombre + ' n\'est ni entier ni impair ni superieur a 10 !'
     }
   }
-
+  
   eSup20 = nombre <= 20;
-
+  if(!eSup20){
+    if(err == ''){
+      err = '1 erreur: ' + nombre + ' n\'est pas inferieur a 20 !';
+    }else if(err.search('entier') && !err.search('impair')){
+      err = '2 erreurs: ' + nombre + ' n\'est ni entier ni inferieur a 20 !'
+    }else if(err.search('impair') && !err.search('entier')){
+      err = '2 erreurs: ' + nombre + ' n\'est ni impair ni inferieur a 20 !'
+    }else{
+      err = '3 erreurs: ' + nombre + ' n\'est ni entier ni impair ni inferieur a 20 !'
+    }
+  }
+  
   message = err +'\n';
 } while (!(eInf10 && eSup20 && eEnt && eImpar));
 
