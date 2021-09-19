@@ -24,12 +24,11 @@ int main()
     printf("Donne d: ");
     scanf("%f", &d);
 
-    float a0 = 0, b0 = 0;
-    float a = a0, b = b0;
+    float an = 0, bn = 0;
     for(int i = 1; i <=n; i++){
-        a = a - b + c;
-        b = (2*a*b) + d;
+        an = (an*an) - (bn*bn) + c; 
+        bn = (2*an*bn) + d;
     }
 
-    printf("%f\n", a+b);
+    printf("res: %f\n", sqrt((an*an) + (bn*bn)));
 }
