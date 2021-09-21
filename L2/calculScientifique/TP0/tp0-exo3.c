@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <math.h>
 
+#define PI 3.141593
+
 double fact(long num){
     double res = 1;
     for(int i = 2; i <= num; i++){
@@ -12,15 +14,15 @@ double fact(long num){
 
 double sin_approx(double x, int N)
 {
-    //PETITE
+    // Essai du remarque mais il marche pas pour certains valeurs
     // double res = x;
     // for(int i = 1; i <= N; i++){
-    //     int sign = pow(-1, i);
-    //     double num = x*x;
-    //     num = num*sign;
+    //     int sign = pow((-1), i);
+    //     double num = (x*x) * sign;
     //     double den = ((2*i)+1)*(2*i);
-    //     res += num/den;
-    //     // printf("%lf\n", num/den);
+
+    //     printf("%lf\n", num/den * res); 
+    //     res += num/den * res;
     // }
 
     //TEL QUE
@@ -41,20 +43,32 @@ int main()
     float x;
     printf("Donne x: ");
     scanf("%f", &x);
-    printf("Sin = %lf\n",sin(x));
-    printf("Approximation sin = %lf\n",sin_approx(x,N));
-    printf("Difference = %lf\n", sin(x) - sin_approx(x,N));
+    float xOriginal = x;
+
+    //Normalisation au rang -2PI <= x <= 2PI
+    while(x > 2*PI || x < -2*PI){
+        if(x > 0){
+            x -= 2*PI;
+        }else{
+            x += 2*PI;
+        }
+    }
+
+    printf("sin(%f) = %lf\n", xOriginal, sin(xOriginal));
+    printf("sin_approx(%f) = %lf\n", x, sin_approx(x,N));
+    printf("Difference = %lf\n", sin(xOriginal) - sin_approx(x,N));
     
-    // printf("Difference = %lf\n", sin(x) - sin_approx(x,1));
-    // printf("Difference = %lf\n", sin(x) - sin_approx(x,2));
-    // printf("Difference = %lf\n", sin(x) - sin_approx(x,4));
-    // printf("Difference = %lf\n", sin(x) - sin_approx(x,8));
+    // printf("Difference = %lf\n", sin(xOriginal) - sin_approx(x,1));
+    // printf("Difference = %lf\n", sin(xOriginal) - sin_approx(x,2));
+    // printf("Difference = %lf\n", sin(xOriginal) - sin_approx(x,4));
+    // printf("Difference = %lf\n", sin(xOriginal) - sin_approx(x,8));
 
     /*****************
      * RESULTATS AVEC LES VALEURS A 6 DECIMALS
      * Le rang de cette approximation est -2PI <= x <= 2PI
-     * Apres de cette rang, les valeurs sont bon, mais il faut que
-     * sont converti
+     * Apres de cette rang, les valeurs sont correct, 
+     * mais il faut normaliser
+     * 
      * N = 1, x = 0, d = 0 
      * N = 2, x = 0, d = 0
      * N = 4, x = 0, d = 0
@@ -70,9 +84,9 @@ int main()
      * N = 4, x = PI/6 (0.52359), d = -0.000000
      * N = 8, x = PI/6 (0.52359), d = -0.000000
      * 
-     * N = 1, x = 10PI (31.41592), d = 5136.293755
-     * N = 2, x = 10PI (31.41592), d = -249879.855413
-     * N = 4, x = 10PI (31.41592), d = -76402981.808341
-     * N = 8, x = 10PI (31.41592), d = -61607359552.289543
+     * N = 1, x = 10PI (31.41592), d = 35.058344
+     * N = 2, x = 10PI (31.41592), d = -46.546328
+     * N = 4, x = 10PI (31.41592), d = -11.899386
+     * N = 8, x = 10PI (31.41592), d = -0.010981
      ****************/
 }

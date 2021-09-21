@@ -13,6 +13,8 @@ int main()
     float interet = tauxAnnuelAvec * (emprunt), rembourse = mensualite-interet;
 
     printf("Mois    Mensualite  Interets    CapitalRembourse    CapitalDu\n");
+    // Le resultat final c'est le meme, seulmente il y a une difference
+    // avec les decimals utilise
     for(int i = 1; i <= ans*12; i++)
     {
         printf("%d   |   %.2f   |   %.2f   |   %.2f   |   %.2f\n", i, mensualite, interet, rembourse, emprunt-rembourse);

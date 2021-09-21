@@ -17,5 +17,5 @@ int main()
         a = an;
     }
 
-    printf("res: %f\n", sqrt((an*an) + (bn*bn)));
+    printf("sqrt(a^2_1000 + b^2_1000) = %f\n", sqrt((an*an) + (bn*bn)));
 }
