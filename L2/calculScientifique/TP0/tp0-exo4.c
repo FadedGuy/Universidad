@@ -4,21 +4,19 @@
 int main()
 {
     long emprunt = 200000;
-    float tauxAnnuelHors = 1.32;
+    double tauxAnnuelHors = 1.32;
     int ans = 20;
 
-    float tauxAnnuelAvec = pow((1 + tauxAnnuelHors/100), (float)1/12) - 1;
-    float mensualite = ((emprunt * tauxAnnuelAvec) * pow(1 + tauxAnnuelAvec, (float)12*ans))/ (pow(1 + tauxAnnuelAvec, (float)12*ans) - 1);
+    double tauxAnnuelAvec = pow((1 + tauxAnnuelHors/100), (double)1/12) - 1;
+    double mensualite = ((emprunt * tauxAnnuelAvec) * pow(1 + tauxAnnuelAvec, (double)12*ans))/ (pow(1 + tauxAnnuelAvec, (double)12*ans) - 1);
     
-    float interet = tauxAnnuelAvec * (emprunt), rembourse = mensualite-interet;
+    double interet = 0, rembourse = 0;
 
     printf("Mois    Mensualite  Interets    CapitalRembourse    CapitalDu\n");
-    // Le resultat final c'est le meme, seulmente il y a une difference
-    // avec les decimals utilise
     for(int i = 1; i <= ans*12; i++)
     {
-        printf("%d   |   %.2f   |   %.2f   |   %.2f   |   %.2f\n", i, mensualite, interet, rembourse, emprunt-rembourse);
         interet = tauxAnnuelAvec * (emprunt - rembourse);
         rembourse += mensualite-interet;
+        printf("%d   |   %.2f   |   %.2f   |   %.2f   |   %.2f\n", i, mensualite, interet, rembourse, emprunt-rembourse);
     }
 }
