@@ -1,5 +1,4 @@
 #include "interpolation.h"
-#include <stdio.h>
 
 double base_lagrange(double x, int i, double *X, int n)
 {
