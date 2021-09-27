@@ -1,3 +1,5 @@
+//Filter with regions and map
+
 // Lance l'exécution quand tout est chargé
 window.addEventListener('load', go);
 
@@ -114,9 +116,13 @@ state = {
   // version avec boucle for
   filterDepartments_for: function(depArray) {
     if (this.currentFilter == '') return depArray;
+    let filtered = [];     
+    for(let i = 0; i < depArray.length; i++){
+      if(depArray[i][0].toUpperCase().includes(this.currentFilter.toUpperCase())){
+        filtered.push(depArray[i]);
+      }
 
-    let filtered = depArray; // TODO: filtrer les éléments en ne gardant que ceux
-                              // qui contiennent la chaîne de caractère depFilter
+    }
     return filtered;
   },
 };
