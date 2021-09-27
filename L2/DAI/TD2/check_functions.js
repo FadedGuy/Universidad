@@ -34,7 +34,7 @@ function checkAllowedChars(str) {
       return false;
     }
   }
-  return true; // TODO
+  return str.length > 0; // TODO
 }
 
 // Vérifie si str contient au moins min caractères autorisés par isCharFunc
