@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <title>Affichage des départements français</title>
+  <meta charset="UTF-8" />
+  <link rel="stylesheet" type="text/css" href="monstyle.css" />
+  <!-- Bootstrap -->
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" />
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
+  <style>
+    td {
+      padding: 0 1rem;
+    }
+
+  </style>
+</head>
+
+<body>
+  <!-- Mise en page avec bootstrap 4
+  https://getbootstrap.com/docs/4.1/components/input-group/ -->
+  <div class="container mt-3">
+    <div class="input-group mt-3 mb-3">
+      <form>
+        <h2>Liste des départements</h2>
+        <div class="input-group mb-3">
+          <div class="input-group-prepend">
+            <span class="input-group-text">Mode d'affichage</span>
+          </div>
+          <select onchange="actions.changeMode({e:event})" class="custom-select">
+            <option value="asList_for" selected="selected">Liste (for)</option>
+            <option value="asList_map">Liste (map)</option>
+            <option value="asTable_for">Tableau (for)</option>
+            <option value="asTable_map">Tableau (map)</option>
+          </select>
+        </div>
+        <div class="input-group mb-3">
+          <div class="input-group-prepend">
+            <span class="input-group-text">Filtre</span>
+          </div>
+          <input type="text" onkeyup="actions.filter({e: event})" class="form-control" />
+          <div class="input-group-append">
+            <div class="input-group-text">
+              <input type="checkbox" onchange="actions.filterRegions({e: event})" />
+            </div>
+          </div>
+          <div class="input-group-append">
+            <span class="input-group-text">Inclure régions</span>
+          </div>
+        </div>
+      </form>
+    </div>
+    <div id="app"> </div>
+  </div>
+  <!-- Inclusion des scripts -->
+  <script type="text/javascript" src="./departements_donnees.js"></script>
+  <script type="text/javascript" src="./departements_affichage.js"></script>
+</body>
+
+</html>
