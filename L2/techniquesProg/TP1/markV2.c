@@ -2,31 +2,31 @@
 
 int main()
 {
-    int note = -1;
+    int note;
 
-    while(!(note >= 0 && note <= 20))
+    do
     {
         printf("mark: ");
         scanf("%d", &note);
         while(getchar() != '\n');
-    }
+    }while(!(note >= 0 && note <= 20));
 
     if(note >= 0 && note < 10)
     {
         printf("failing\n");
     }
-    else if(note >= 10 && note < 12)
+    if(note >= 10 && note < 12)
     {
         printf("satisfactory\n");
     }
-    else if(note >= 12 && note < 16)
+    if(note >= 12 && note < 16)
     {
         printf("good\n");
     }
-    else if(note >= 16 && note <= 20)
+    if(note >= 16 && note <= 20)
     {
         printf("excellent\n");
     }
 
-    return 0; 
+    return 0;
 }
