@@ -1,0 +1,10 @@
+(define USD 1.064)
+(define GBP 0.852)
+(define JPY 120.494)
+(define RUB 61.974)
+(define CNY 7.319)
+(define INR 71.098)
+
+(define (convert euro monaie )
+   (* euro monaie)
+  )

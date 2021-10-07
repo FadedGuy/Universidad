@@ -1,0 +1,8 @@
+(define (menu opt1 opt2 opt3)
+  (display "MENU") (newline)
+  (display "----") (newline) (newline)
+  (display "1 : ") (display opt1) (newline)
+  (display "2 : ") (display opt2) (newline)
+  (display "3 : ") (display opt3) (newline) (newline)
+  (display "Votre choix : ") (read)
+  )

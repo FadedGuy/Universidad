@@ -1,5 +1,3 @@
-; 100, 50, 10 plus grande, multiple de 10
-
 (define (emballer-100 nb)
   (quotient nb 100)
   )
@@ -27,7 +25,19 @@
   (- nb (* (emballer-10 nb) 10))
   )
 
-(define (emballer_tout nb)
-  (emballer_10 (emballer_50 (emballer_100 nb)))
-  (display "Emballage terminé !") (newline)
+(define (emballer_tout)
+  (display "Saisie quantite des disquettes : ")
+  (let ((disq (read))
+        )
+    (if (= 0 (remainder disq 10))
+        (begin
+          (emballer_10 (emballer_50 (emballer_100 disq)))
+          (display "Emballage terminé !") (newline)
+          )
+        (begin
+          (display "Saisie incorrect, c'est pas une multiple de 10 ! ")(newline)
+         )
+          )
+    
+   )
   )
