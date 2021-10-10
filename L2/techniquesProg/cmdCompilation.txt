@@ -1,0 +1,1 @@
+gcc -std=c89 -pedantic -Wall -Werror -g -o hello-world.out hello-world.c

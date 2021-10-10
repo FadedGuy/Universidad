@@ -9,10 +9,10 @@ int main()
 
     do
     {
+        printf("max: ");
         scanf("%lu", &max);
         while(getchar() != '\n');
-        printf("%lu\n", max);
-    }while(max < 0);
+    }while(!(max >= 0 && max < UINT_MAX));
     
     for(i = 0; i <= max; i++)
     {

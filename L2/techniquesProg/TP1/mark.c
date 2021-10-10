@@ -11,22 +11,30 @@ int main()
         while(getchar() != '\n');
     }
 
-    if(note >= 0 && note < 10)
+    if(note >= 0)
     {
-        printf("failing\n");
+        if(note < 10)
+        {
+            printf("failing\n");            
+        }
+        else
+        {
+            if(note < 12)
+            {
+                printf("satisfactory\n");
+            }
+            else
+            {
+                if(note < 16)
+                {
+                    printf("good\n");
+                }
+                else
+                { 
+                    printf("excellent\n");
+                }
+            }
+        }
     }
-    else if(note >= 10 && note < 12)
-    {
-        printf("satisfactory\n");
-    }
-    else if(note >= 12 && note < 16)
-    {
-        printf("good\n");
-    }
-    else if(note >= 16 && note <= 20)
-    {
-        printf("excellent\n");
-    }
-
     return 0; 
 }
