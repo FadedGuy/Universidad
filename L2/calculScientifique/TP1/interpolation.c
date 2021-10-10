@@ -1,4 +1,5 @@
 #include "interpolation.h"
+#include <stdio.h>
 
 double base_lagrange(double x, int i, double *X, int n)
 {
@@ -32,9 +33,9 @@ void differences_divises(double *N, double *X, double *Y, int n)
 
     for(int i = 1; i < n; i++)
     {
-        for(int j = n-1; j > i; j--)
+        for(int j = n-1; j >= i; j--)
         {
-            N[i+n] = eval_p_dd(X[j], N, X, n);
+            N[j] = ((N[j] - N[j-1]) / (X[j] - X[j-1]));
         }
     }
 }
@@ -49,4 +50,5 @@ double eval_p_dd(double x, double *N, double *X, int n)
         q = q * (x-X[i-1]);
         p = p + (q * N[i]);
     }
+    return p;
 }

@@ -18,15 +18,20 @@ int main()
         fscanf(pFile, "%lg", &X[i]);
         fscanf(pFile, "%lg", &Y[i]);
 
-        //printf("%d %f\n", X[i], Y[i]);
+        // printf("%lg %lg\n", X[i], Y[i]);
     }
 
-    double N[nbElements*2];
+    double N[nbElements];
     differences_divises(N, X, Y, nbElements);
-    for(int i = 0; i < nbElements; i++)
-    {
-        printf("%lg %lg\n", N[i], N[i+nbElements]);
-    }
 
+    double est = 1998;
+    printf("Estimation de population pour %lg est : %lg\n", est, eval_p_dd(est, N, X, nbElements));
+
+    // Verifier que tous les points sont bon, mais il existe l'erreur 
+    // d'intepolation polynomiale a partir du troisieme terme.
+    // for(int i = 0; i < nbElements; i++)
+    // {
+    //     printf("%lg %lg\n", Y[i], eval_p_dd(X[i], N, X, nbElements));
+    // }
     return 0;
 }
