@@ -12,7 +12,7 @@ int main()
     double X[nbElements];
     double Y[nbElements];
 
-    printf("%d points\n", nbElements);
+    // printf("%d points\n", nbElements);
     for(int i = 0; i < nbElements; i++)
     {
         fscanf(pFile, "%lg", &X[i]);
@@ -25,13 +25,14 @@ int main()
     differences_divises(N, X, Y, nbElements);
 
     double est = 1998;
-    printf("Estimation de population pour %lg est : %lg\n", est, eval_p_dd(est, N, X, nbElements));
+    printf("\nEstimation de population pour %lg est : %lg\n", est, eval_p_dd(est, N, X, nbElements));
 
     // Verifier que tous les points sont bon, mais il existe l'erreur 
     // d'intepolation polynomiale a partir du troisieme terme.
+    // printf("Annee,Population  Estimation\n");
     // for(int i = 0; i < nbElements; i++)
     // {
-    //     printf("%lg %lg\n", Y[i], eval_p_dd(X[i], N, X, nbElements));
+    //     printf("%lg,%lg   %lg\n", X[i], Y[i], eval_p_dd(X[i], N, X, nbElements));
     // }
     return 0;
 }
