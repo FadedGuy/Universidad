@@ -1,24 +1,3 @@
-
-/*Bibliotheque 
-    name tab[100] char
-    days tab[7] enum // monday, tuesday, wednesday, thursday, friday, saturday, sunday
-    nDays entier -> len(days)
-    books books_s[100]
-        name tab[100] char
-        authors tab[10][100] char
-        nAuthors entier -> len(authors[])
-        publisher tab[100] char
-        year entier
-        isbn entier
-    nBooks entier -> len(books)
-
-    book_print(book) Affiche les informations sur book
-    library_print(library) Affiche les informations sur library et appelle book_print(book) sur
-                            tous les livres
-    
-
-*/
-
 #include <stdio.h>
 
 struct book_s
@@ -45,7 +24,12 @@ struct library_s
     int nBooks;
 };
 
-void book_print(struct book_s book)
+typedef struct library_s library_t;
+typedef struct book_s book_t;
+typedef enum day_e day_t;
+
+/*void book_print(struct book_s book)*/
+void book_print(book_t book)
 {   
     int i;
     printf("(\"%s\" ,(", book.name);
@@ -60,7 +44,8 @@ void book_print(struct book_s book)
     printf("), \"%s\", %d, %ld)", book.publisher, book.year, book.isbn);
 }
 
-void library_print(struct library_s library)
+/*void library_print(struct library_s library)*/
+void library_print(library_t library)
 {
     int i;
     printf("(\"%s\", (", library.name);
@@ -107,9 +92,11 @@ void library_print(struct library_s library)
     printf("))\n");
 }
 
+
 int main()
 {
 
+    /*
     struct library_s sciencesLibrary = {"Sciences Library", 
                                        {monday, tuesday, wednesday, thursday},
                                         4, 
@@ -158,5 +145,56 @@ int main()
 
     library_print(sciencesLibrary);
     library_print(novelLibrary);
+    */
+
+    library_t sciencesLibraryt = {"Sciences Library", 
+                                       {monday, tuesday, wednesday, thursday},
+                                        4, 
+                                        {
+                                            {
+                                                "The C Programming Language", 
+                                                {"Brian W. Kernighan", "Dennis M. Ritchie"}, 
+                                                2, 
+                                                "Prentice Hall", 
+                                                1988, 
+                                                9780131103627
+                                            },
+                                            {
+                                                "C: The Complete Reference",
+                                                {"Herbert Schildt"},
+                                                1,
+                                                "McGraw-Hill Education",
+                                                2000,
+                                                9780072121247
+                                            }
+                                        }, 
+                                2};
+
+    library_t novelLibraryt = {"Novel Library", 
+                                    {tuesday, wednesday, thursday, friday},
+                                    4,
+                                    {
+                                        {
+                                            "Harry Potter and the Philospher's Stone",
+                                            {"J. K. Rowling"},
+                                            1,
+                                            "Bloomsbury",
+                                            1977,
+                                            9780747532699
+                                        }, 
+                                        {
+                                            "Harry Potter and the Chamber of Secrets",
+                                            {"J. K. Rowling"},
+                                            1,
+                                            "Bloomsbury",
+                                            1988,
+                                            9780747538493
+                                        }
+                                    },
+                                    2};
+
+    library_print(sciencesLibraryt);
+    library_print(novelLibraryt);
+
     return  0;
 }
