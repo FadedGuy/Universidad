@@ -1,8 +1,6 @@
 #include "polynome.h"
 
-//Sera il mieux de creer un nouvelle fonction pour savoir si l'allocation memoire avec p etait possible? 
-//On peut factoriser le code.
-
+//Creer une polynome nul
 POLYNOME nul()
 {
     POLYNOME p;
@@ -15,8 +13,7 @@ POLYNOME nul()
     }
     else 
     {
-        //Est-il possible d'utiliser . en lieu de  -> ? 
-        p -> degre = 0;
+        p->degre = 0;
         for(int i = 0 ; i <= MAX_SIZE; i++)
         {
             p -> coefficient[i] = 0;
@@ -26,6 +23,7 @@ POLYNOME nul()
     return p;
 }
 
+//Construire un polynome non nul
 POLYNOME construire(POLYNOME p1, float a0)
 {
     POLYNOME p;
@@ -51,21 +49,44 @@ POLYNOME construire(POLYNOME p1, float a0)
         {
             p -> degre = p1 -> degre+1;
             p -> coefficient[0] = a0;
+            //Decaler les coefficient qui existe deja
+            for(int i = 1; i <= p1->degre; i++)
+            {
+                p -> coefficient[i] = p1 -> coefficient[i-1];
+            }
+            //Mettre le reste des coefficients a 0
+            for(int i = p1->degre+2; i <= MAX_SIZE; i++)
+            {
+                p->coefficient[i] = 0; 
+            }
         }
     }
+    return p;
 }
 
+//Tester si un polynome est nul
 BOOL estNul(POLYNOME p1)
 {
-
+    if(p1 != NULL && p1 -> degre != 0)
+    {
+        return FALSE;
+    }
+    for(int i = 0; i <= p1->degre; i++)
+    {
+        if(p1->coefficient[i] != 0)
+            return FALSE;
+    }
+    return TRUE;
 }
 
-int degre(POLYNOME p1)
+//Calculer le degre du polynome
+float degre(POLYNOME p1)
 {
-
+    return p1->degre;    
 }
 
-int coefficient(POLYNOME p1, int i)
+//Calculer le coefficient i du polynome
+float coefficient(POLYNOME p1, int i)
 {
-
+    return i < MAX_SIZE ? p1->coefficient[i] : 0;
 }

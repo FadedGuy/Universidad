@@ -19,5 +19,5 @@ POLYNOME construire(POLYNOME p1, float a0);
 BOOL estNul(POLYNOME p);
 
 //Normalement il doit etre float mais la spec dit int
-int degre(POLYNOME p);
-int coefficient(POLYNOME p, int index);
+float degre(POLYNOME p);
+float coefficient(POLYNOME p, int index);
