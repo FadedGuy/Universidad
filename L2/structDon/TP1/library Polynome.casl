@@ -1,0 +1,27 @@
+library  Polynome
+from Basic/Numbers                 get     Int , Rat
+from Basic/SimpleDatatypes     get     Boolean
+
+spec  POLYNOME  =
+      Rat and Int and Boolean
+then
+      sort  Polynome
+      ops   
+     Nul : Polynome ;
+     Construire : Polynome * Rat  -> Polynome ;       	
+	estNul 	: Polynome    	    -> Boolean;   	
+	Degre		: Polynome 	    -> Int;           
+	Coefficient	: Polynome   * Int   -> Int     	
+
+forall p1:Polynome; a0, x0:Rat; i:Int
+. estNul(Nul) = True
+. Degre(Nul) = 0
+. Coefficient (Nul,i) = 0
+. estNul(Construire(p1,a0)) = True <=>   estNul(p1)= True   /\   a0 = 0
+. Degre (Construire(p1,a0)) = 0   <=>  estNul(p1)= True   
+. Degre (Construire(p1,a0)) = Degre(p1)+1   <=>  estNul(p1)= False 
+. Coefficient (Construire(p1,a0), 0)  = a0
+. estNul(p1) = True  => ( i>0   => Coefficient (Construire(p1,a0), i) = 0 )
+. estNul(p1) = False  =>    ( i>= 1 /\  i <=  Degre(p1) +1  =>  Coefficient (Construire(p1,a0), i) = Coefficient(p1,i-1)  )
+. estNul(p1) = False  =>   ( i> Degre(p1) +1 => Coefficient (Construire(p1,a0),i) = 0  )
+end
