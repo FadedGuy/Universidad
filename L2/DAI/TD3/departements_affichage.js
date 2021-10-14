@@ -1,5 +1,3 @@
-//Filter with regions and map
-
 // Lance l'exécution quand tout est chargé
 window.addEventListener('load', go);
 
@@ -34,6 +32,8 @@ actions = {
     model.samPresent({filterRegions: checkValue});
   }
 };
+
+
 //-------------------------------------------------------------------- Model ---
 // Unique source de vérité de l'application
 //
@@ -65,6 +65,8 @@ model = {
     state.samRender(this);
   }
 };
+
+
 //-------------------------------------------------------------------- State ---
 // État de l'application avant affichage
 //
@@ -88,6 +90,7 @@ state = {
       // TODO: Choisir ci-dessous la fonction de filtrage
       this.depFiltered = this.filterDepartments_for(model.departments);
       // this.depFiltered = this.filterDepartments_map(model.departments);
+        //this.depFilter = this.filterDepartments_filter(model.departements);
     }
 
     representation = view.occurences(model, this);
@@ -114,16 +117,27 @@ state = {
   // Filtrage des départements
 
   // version avec boucle for
-  filterDepartments_for: function(depArray) {
-    if (this.currentFilter == '') return depArray;
-    let filtered = [];     
-    for(let i = 0; i < depArray.length; i++){
-      if(depArray[i][0].toUpperCase().includes(this.currentFilter.toUpperCase())){
-        filtered.push(depArray[i]);
-      }
+  filterDepartments_for: function(departements) {
+    if(this.currentFilter.trim() == "") return departements;
+    let depsFiltered = [];
+    let curFilter = this.currentFilter.toUpperCase();
+    for(let i = 0; i < departements.length; i++)
+    {
+      //Dep 0       Region 2
+      let pass = false;
+      let dep = departements[i][0].toUpperCase();
+      let reg = departements[i][2].toUpperCase();
 
+      if(dep.includes(curFilter) || (reg.includes(curFilter) && this.currentFilterRegions)) 
+        depsFiltered.push(departements[i])
     }
-    return filtered;
+
+    return depsFiltered;
+  },
+
+  // version avec fonction filter
+  filterDepartments_filter: function(departements){
+    return this.filterDepartments_for(departements);
   },
 };
 //--------------------------------------------------------------------- View ---
