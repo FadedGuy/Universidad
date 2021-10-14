@@ -1,12 +1,35 @@
+(define lim0 9710)
+(define lim1 26818)
+(define lim2 71898)
+(define lim3 152260)
+(define taux0 .14)
+(define taux1 .30)
+(define taux2 .41)
+(define taux3 .45)
+
+(define (res_taux num lim taux) (* (- num lim) taux))
+
 (define (impots R N)
-  (let ((QF (/ R N)))    
-    
+  (let ((QF (/ R N)))
+   (if (> QF lim3)
+       ;Recursif pour n'avoir pas autant des appel a la fonction dans une meme ligne
+       (* (+ (res_taux lim1 lim0 taux0) (res_taux lim2 lim1 taux1) (res_taux lim3 lim2 taux2) (res_taux QF lim3 taux3)) N)
+       (if (> QF lim2)
+           (* (+ (res_taux lim1 lim0 taux0) (res_taux lim2 lim1 taux1) (res_taux QF lim2 taux2)) N)
+           (if (> QF lim1)
+               (* (+ (res_taux lim1 lim0 taux0) (res_taux QF lim1 taux1)) N)
+               (if (> QF lim0)
+                   (* (res_taux QF lim0 taux0) N)
+                   0
+               )
+           )
+       )
     )
   )
+)
 
-;
-;if ( 0 < QF< 9710){ taux 0 }
-;if ( 9710 < QF< 26818){ taux 14 }
-;if ( 26818 < QF< 71898){ taux 30 }
-;if ( 0 < QF< 9710){ taux 41 }
-;if ( 0 < QF< 9710){ taux 45}
+(impots 9500 1)
+(impots 25150 1)
+(impots 61420 1)
+(impots 120412 1)
+(impots 250125 1)
