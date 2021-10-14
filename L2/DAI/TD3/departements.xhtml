@@ -30,11 +30,12 @@
           <div class="input-group-prepend">
             <span class="input-group-text">Mode d'affichage</span>
           </div>
-          <select onchange="actions.changeMode({e:event})" class="custom-select">
-            <option value="asList_for" selected="selected">Liste (for)</option>
+          <select onchange="actions.changeMode({e:event})" class="custom-select" id="affichage">
+            <option value="asList_for">Liste (for)</option>
             <option value="asList_map">Liste (map)</option>
             <option value="asTable_for">Tableau (for)</option>
             <option value="asTable_map">Tableau (map)</option>
+            <option value="asEtiquettes">Étiquettes</option>
           </select>
         </div>
         <div class="input-group mb-3">

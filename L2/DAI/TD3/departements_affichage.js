@@ -108,6 +108,9 @@ state = {
       case "asTable_map":
         representation += view.asTable_map(model, this);
         break;
+      case "asEtiquettes":
+        representation += view.asEtiquettes(model, this);
+        break;
       default:
         representation += view.error(model.mode);
     }
@@ -224,6 +227,23 @@ view = {
           </tr>
         `).join(``)}
       </table>
+    `;
+  },
+
+  asEtiquettes: function(model, state){
+    return `
+      <style>
+        abbr.etiquette { text-decoration: none;
+                        border: 1px solid #404040;
+                        margin: 0 0px;
+                        padding: 0 2px;
+                        background-color: #404040;
+                        color: white;
+                        font-weight: bold;}
+      </style>
+      ${state.depFiltered.map((v) => `
+          <abbr class="etiquette" title="${v[2]}">${v[0]}</abbr>
+        `).join(``)}
     `;
   },
 
