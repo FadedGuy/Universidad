@@ -61,14 +61,7 @@ library_t* library_create()
 
 void book_free(book_t *book)
 {
-    int i;
-    free(book->name);
-    for(i = 0; i < book->nAuthors; i++)
-    {
-        free(book->authors[i]);
-    }
     free(book->authors);
-    free(book->publisher);
     free(book);
 }
 
@@ -86,28 +79,14 @@ void library_free(library_t *library)
 
 int book_add_author(book_t *book, char *author)
 {
-    /*int i;
-    if(book->nAuthors == 0)
+    book->authors= realloc(book->authors, (book->nAuthors+1)*sizeof(char*));
+    if(book->authors == NULL)
     {
-        book->authors=(char**) malloc(sizeof(char));
-        book->authors[book->nAuthors]=(char*) malloc(strlen(author) * sizeof(char));
-        //strcpy(book->authors[book->nAuthors], author);
-        for(i = 0; i < strlen(author); i++)
-        {
-            book->authors[book->nAuthors][i]=author[i];
-        }
+        return -1;
     }
-    else
-    {
-        book->authors=(char**) realloc(book->authors, book->nAuthors+1*sizeof(char));
-        book->authors[book->nAuthors]=(char*) malloc(strlen(author) * sizeof(char));
-        for(i = 0; i < strlen(author); i++)
-        {
-            book->authors[book->nAuthors][i]=author[i];
-        }
-    }
+    book->authors[book->nAuthors] = author;
     book->nAuthors++;
-    return 0;*/
+    return 0;
 }
 
 int main()
@@ -116,9 +95,12 @@ int main()
     library_t *libreria = library_create();
 
     book_add_author(libro, "Juan");
-
-    //Error with multiple book_add
-    //book_add_author(libro, "Jose Jose");
+    book_add_author(libro, "Jose Jose");
+    book_add_author(libro, "Jose Jose");
+    book_add_author(libro, "Jose Jose");
+    book_add_author(libro, "Jose Jose");
+    book_add_author(libro, "Jose Jose");
+    
     printf("%d %s %s", libro->nAuthors, libro->authors[0], libro->authors[1]);
 
 
