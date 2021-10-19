@@ -67,25 +67,44 @@ void book_free(book_t *book)
 
 void library_free(library_t *library)
 {
-    int i;
-    free(library->name);
     free(library->days);
-    for(i=0; i < library->nBooks; i++)
-    {
-        free(library->books);
-    }
+    free(library->books);
     free(library);
 }
 
 int book_add_author(book_t *book, char *author)
 {
-    book->authors= realloc(book->authors, (book->nAuthors+1)*sizeof(char*));
+    book->authors = realloc(book->authors, (book->nAuthors+1)*sizeof(char*));
     if(book->authors == NULL)
     {
         return -1;
     }
     book->authors[book->nAuthors] = author;
     book->nAuthors++;
+    return 0;
+}
+
+int library_add_day(library_t *library, day_t day)
+{
+    library->days = realloc(library->days, (library->nDays+1)*sizeof(day_t));
+    if(library->days == NULL)
+    {
+        return -1;
+    }
+    library->days[library->nDays] = day;
+    library->nDays++;
+    return 0;
+}
+
+int library_add_book(library_t *library, book_t book)
+{
+    library->books = realloc(library->books, (library->nBooks+1)*sizeof(book_t));
+    if(library->books == NULL)
+    {
+        return -1;
+    }
+    library->books[library->nBooks] = book;
+    library->nBooks++;
     return 0;
 }
 
@@ -96,14 +115,16 @@ int main()
 
     book_add_author(libro, "Juan");
     book_add_author(libro, "Jose Jose");
-    book_add_author(libro, "Jose Jose");
-    book_add_author(libro, "Jose Jose");
-    book_add_author(libro, "Jose Jose");
-    book_add_author(libro, "Jose Jose");
-    
-    printf("%d %s %s", libro->nAuthors, libro->authors[0], libro->authors[1]);
 
+    library_add_day(libreria, tuesday);
+    library_add_book(libreria, (*libro));
 
+    /* Tests 
+    printf("Author 1: %s\n", libro->authors[0]);
+    printf("Author 2: %s\n", libro->authors[1]);
+    printf("Day open: %s\n", days_str[libreria->days[0]]);
+    printf("Author 1 book 1: %s\n", libreria->books[0].authors[0]);
+    */
 
     book_free(libro);
     library_free(libreria);
