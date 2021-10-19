@@ -29,6 +29,6 @@ int main(int argc, char *argv[])
     }
     mirror(argv[1], res);
     /*printf("\"%s\"\n", res);*/
-    fprintf(stdin,"\"%s\"\n", res);
+    fprintf(stdout,"\"%s\"\n", res);
     return 0;
 }
