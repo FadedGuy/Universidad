@@ -16,7 +16,7 @@ int main(int argc, char* argv[])
         return 1;
     }
 
-    fd = open(argv[1], O_WRONLY | O_CREAT, 0644);
+    fd = open(argv[1], O_WRONLY | O_CREAT | O_APPEND, 0700);
     if(fd == -1)
     {
         fprintf(stderr, "Unable to open the file\n");        
@@ -24,6 +24,7 @@ int main(int argc, char* argv[])
     }
 
     nBytes = write(fd, argv[2], strlen(argv[2]));
+    write(fd, "\n", 1); /*Saut de ligne, on peut enregistrer si on veux nBytes*/
     if(nBytes == -1)
     {
         fprintf(stderr, "Unable to write to file\n");
