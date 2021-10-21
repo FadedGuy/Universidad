@@ -83,14 +83,14 @@ state = {
   samRepresentAndDisplay: function(model) {
     let representation = 'Oops, should not see this...';
 
-    if ( this.currentFilter !== model.depFilter
-      || this.currentFilterRegions !== model.filterRegions) {
+    if ( this.currentFilter !== model.depFilter || 
+        this.currentFilterRegions !== model.filterRegions) {
+
       this.currentFilter = model.depFilter;
       this.currentFilterRegions = model.filterRegions;
       // TODO: Choisir ci-dessous la fonction de filtrage
-      this.depFiltered = this.filterDepartments_for(model.departments);
-      // this.depFiltered = this.filterDepartments_map(model.departments);
-        //this.depFilter = this.filterDepartments_filter(model.departements);
+      // this.depFiltered = this.filterDepartments_filter(model.departements);
+      this.depFiltered = this.filterDepartments_for(model.departments); 
     }
 
     representation = view.occurences(model, this);
@@ -126,8 +126,6 @@ state = {
     let curFilter = this.currentFilter.toUpperCase();
     for(let i = 0; i < departements.length; i++)
     {
-      //Dep 0       Region 2
-      let pass = false;
       let dep = departements[i][0].toUpperCase();
       let reg = departements[i][2].toUpperCase();
 
@@ -138,10 +136,10 @@ state = {
     return depsFiltered;
   },
 
-  // version avec fonction filter
-  filterDepartments_filter: function(departements){
-    return this.filterDepartments_for(departements);
-  },
+  filterDepartments_filter: function(departements) {
+    if(this.currentFilter.trim() == "") return departements;
+    return departements.filter(v => v[0].toUpperCase.includes(this.currentFilter.toUpperCase()));
+  },  
 };
 //--------------------------------------------------------------------- View ---
 // Génération du HTML et affichage
