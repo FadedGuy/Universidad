@@ -7,6 +7,7 @@
           (add (incrementer a) (decrementer b))
           a
       )
+      1
   )
 )
 
@@ -16,6 +17,7 @@
           (sou (decrementer a) (decrementer b))
           a
       )
+      1
   )
 )
 
@@ -29,18 +31,21 @@
    )
 )
 
-(define (div a b)
+(define (div a b) ; b >= a a-b/b
   (if (non_zero? b)
-      (if (sup_egal? b 2)
-          (sou a (div a (decrementer b)))
-          a
+      (if (sup_egal? b a)
+          (if (and (sup_egal? b a) (sup_egal? a b))
+              1
+              0
+          )
+          (add (div (sou a b) b) 1)
       )
-      0
+      
   )
 )
 
 (trace div)
-(div 4 2)
+(div 3 0)
 (untrace div)
 
 ;(calculet)
