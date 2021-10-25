@@ -11,7 +11,9 @@ function go() {
   console.log('GO !');
 
   // liste de tâches initiales
-  const initialTodos = [ `À faire hier`, `À faire aujourd'hui`, `À faire demain` ];
+  const initialTodos = [{ text: `À faire hier`       , done: true  },
+                        { text: `À faire aujourd'hui`, done: false },
+                        { text: `À faire demain`     , done: false }];
 
   // Initialise le modèle avec une liste de tâches
   actions.initAndGo({ items: initialTodos });
@@ -35,6 +37,22 @@ actions = {
     model.samPresent({do: 'addItem', item: item});
   },
 
+  doneItem(data){
+      model.samPresent({do: 'doneItem', index: data.index});
+  },
+
+  removeDoneItems(){
+    model.samPresent({do: 'removeDoneItems'});
+  },
+
+  toggleEditMode(){
+    model.samPresent({do:'toggleEditMode'});
+  },
+
+  editItem(data){
+    const text = data.e.target.value;
+    model.samPresent({do: 'editItem', text: text, index: data.index});
+  }
   //TODO: Ajouter les autres actions ici
 };
 //-------------------------------------------------------------------- Model ---
@@ -42,23 +60,33 @@ actions = {
 //
 model = {
   items: [],
+  isEditMode: false,
 
   // Demande au modèle de se mettre à jour en fonction des données qu'on
   // lui présente.
   // l'argument data est un objet confectionné dans les actions.
   // Les propriétés de data désignent la modification à faire sur le modèle.
   samPresent(data) {
-
     switch (data.do) {
       case 'init': 
         this.items = data.items || []; // Astuce : si data.items est undefined, renvoie []
         break;
       case 'addItem':
-        this.items.push(data.item);
-
-        console.dir(this.items.length+' élément(s) : ', this.items); // TODO: pourra être supprimé...
+        this.items.push({text:data.item, done:false});
         break;
-    }
+      case 'doneItem':
+        this.items[data.index].done = !this.items[data.index].done;
+        break;
+      case 'removeDoneItems':
+        this.items = this.items.filter(v => !v.done);
+        break;
+      case 'toggleEditMode':
+        this.isEditMode = !this.isEditMode;
+        break;
+      case 'editItem':
+        this.items[data.index].text = data.text;
+        break;
+      }
 
     // Demande à l'état de l'application de prendre en compte la modification
     // du modèle
@@ -69,9 +97,10 @@ model = {
 // État de l'application avant affichage
 //
 state = {
+  hasDoneItems: true,
 
   samUpdate(model) {
-
+    this.hasDoneItems = (model.items.find(v => v.done) == undefined ? false : true)
     this.samRepresent(model);
     // this.samNap(model);
   },
@@ -103,7 +132,7 @@ view = {
 
     //TODO: compléter l'interface afin qu'elle affiche les tâches et qu'on puisse les gérer
 
-    const li_items = this.listItemsUI(model,state);
+    const li_items = model.isEditMode ? this.editItemsUI(model, state) : this.listItemsUI(model,state);
 
     return `
       <h2> Todo List </h2>
@@ -112,11 +141,24 @@ view = {
       <ul>
       	${li_items}
       </ul>
+      <button onclick="actions.removeDoneItems()" ${!state.hasDoneItems? `disabled="disabled"` : ''}>Remove done items</button>
+      <button onclick="actions.toggleEditMode()" ${model.items.length > 0 ? '' : `disabled="disabled"`}>${model.isEditMode ? "Todo Mode" : "Edit Mode"}</button>
       `;
   },
 
   listItemsUI(model, state) {
-    const li_items = `<li>À remplir</li>`; // TODO: remplir avec les éléments de model.items
+    const li_items = `${model.items.map((v, index) => 
+                      `<li onclick="actions.doneItem({index:${index}})" ${v.done ? `class="done"` : ''}> 
+                        ${v.text} 
+                      </li>`)
+                      .join('')}`; // TODO: remplir avec les éléments de model.items
+    return li_items;
+  },
+
+  editItemsUI(model, state){
+    const li_items = `${model.items.map((v, index) => `<li><input value="${v.text}" 
+                                                      onchange="actions.editItem({e:event, index:${index}})"/>
+                                                      </li>`).join('')}`
     return li_items;
   },
 
