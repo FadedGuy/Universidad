@@ -6,7 +6,6 @@ int main(int argc, char *argv[])
     FILE *file = NULL;
     int ret = EOF;
     char *pEnd;
-    long decimal = 0, binary = 0, i = 1;
 
     if(argc != 3)
     {
@@ -21,10 +20,10 @@ int main(int argc, char *argv[])
     }
 
     printf("Old umask = %#o\n", umask());
-    
-    // uMaskCal = ((6-((argv[2][0]-'0')))*100) + ((6-((argv[2][1]-'0')))*10) + (6-((argv[2][2]-'0'))); 
-    // printf("%d\n", uMaskCal);
-    umask(uMaskCal);
+
+    //Quelque chose comme ca
+    int n = 0666 & (~0+strtol(argv[2], NULL, 8));
+    umask(n);
 
     file = fopen(argv[1], "w");
     if(file == NULL)
