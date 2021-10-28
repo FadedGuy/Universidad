@@ -43,7 +43,7 @@
                  (display " ")
                  (display op2)
                  (display ", résultat : ")
-                 (display ((eval op (interaction-environment) ) op1 op2))
+                 (display ((eval op (interaction-environment)) op1 op2))
                  (newline)
                  (calculet))))
             ((equal? op 'fin) (display "arret calculette"))

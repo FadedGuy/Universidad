@@ -1,3 +1,4 @@
+(load "grafcalc.ss") ;loads graphic calculator
 (load "libcalc.ss") ;loads libcalc file
 (#%require racket/trace)
 
@@ -31,7 +32,7 @@
    )
 )
 
-(define (div a b) ; b >= a a-b/b
+(define (div a b) 
   (if (non_zero? b)
       (if (sup_egal? b a)
           (if (and (sup_egal? b a) (sup_egal? a b))
@@ -40,12 +41,21 @@
           )
           (add (div (sou a b) b) 1)
       )
-      
+      'indefini
   )
 )
 
+(trace add)
+(add 3 2)
+(untrace add)
+(trace sou)
+(sou 3 2)
+(untrace sou)
+(trace mul)
+(mul 3 2)
+(untrace mul)
 (trace div)
-(div 3 0)
+(div 3 2)
 (untrace div)
 
 ;(calculet)
