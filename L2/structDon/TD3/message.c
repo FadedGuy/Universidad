@@ -9,40 +9,27 @@ message creer()
         fprintf(stderr, "Allocation impossible\n");
         exit(EXIT_FAILURE); 
     }
+    srand(time(NULL));
+    newMsg->id = rand();
+    strcpy(newMsg->msg, "");
 
     newMsg->vide = TRUE;
     newMsg->transmis = FALSE;
     newMsg->recu = FALSE;
-    newMsg->id = 1;
-    strcpy(newMsg->msg, "");
     return newMsg;
 }
 
 message editer(message msg, char* txt)
 {
-    if(estVide(msg))
-    {
-        msg->vide = FALSE;
-        strcpy(msg->msg, txt);
-    }
-    else
-    {
-        fprintf(stderr, "Message non vide\n");
-    }    
+    msg->vide = FALSE;
+    strcpy(msg->msg, txt);
     return msg;
 }
 
 message envoyer(message msg, int destinataire)
 {
-    if(!estVide(msg))
-    {
-        msg->destinataire = destinataire;
-        msg->transmis = TRUE;
-    }
-    else
-    {
-        fprintf(stderr, "Message vide\n");
-    }
+    msg->destinataire = destinataire;
+    msg->transmis = TRUE;
     return msg;
 }
 
