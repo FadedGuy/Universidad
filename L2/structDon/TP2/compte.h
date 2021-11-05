@@ -5,7 +5,6 @@
 //Creation du bool
 #define TRUE 1
 #define FALSE 0
-#define charBuffer 100
 typedef int BOOL;
 
 typedef struct s_Compte
@@ -17,14 +16,15 @@ typedef struct s_Compte
 
 typedef struct s_Compte* Compte; 
 
-BOOL estCloture(Compte);
 
 Compte creer();
 Compte crediter(Compte, float);
 Compte debiter(Compte, float);
 Compte cloturer(Compte);
-Compte changerTitulaire(Compte, char*);
 
+BOOL estCloture(Compte);
 char* titulaire(Compte);
 float solde(Compte);
 
+/* Fonction extra pour le titulaire */
+Compte changerTitulaire(Compte, char*);

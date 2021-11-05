@@ -69,7 +69,7 @@ int main()
         exit(EXIT_FAILURE);
     }
 
-    fprintf(stdin, "Implementation correct");
+    fprintf(stdout, "Implementation correct");
 
     return 0;
 }

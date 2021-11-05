@@ -1,10 +1,5 @@
 #include "compte.h"
 
-//Verifier si la compte est cloture
-BOOL estCloture(Compte c1)
-{
-    return c1->estCloture;
-}
 
 //Creer un nouvelle compte
 Compte creer()
@@ -18,64 +13,53 @@ Compte creer()
 
     c1->solde = 0;
     c1->estCloture = FALSE;
-    //A que se inicializa titulaire? Nunca se especifica
     c1->titulaire = NULL;
     return c1;
 }
 
-//Crediter un compte si c'est pas cloture
+// Crediter un compte si c'est pas cloture
+// Il faut verifier que la compte n'est pas cloture avant d'appeler crediter
 Compte crediter(Compte c1, float s1)
 {
-    if(!estCloture(c1))
-    {
-        c1->solde = c1->solde + s1;
-    }
-    else
-    {
-        fprintf(stderr, "Compte est cloture, impossible crediter\n");    
-    }
-
+    c1->solde = c1->solde + s1;
     return c1;
 }
 
 //Debiter un compte si c'est pas cloture
+// Il faut verifier que la compte n'est pas cloture avant d'appeler debiter
 Compte debiter(Compte c1, float s1)
 {
-    if(!estCloture(c1))
-    {
-        c1->solde = c1->solde - s1;
-    }
-    else
-    {
-        fprintf(stderr, "Compte est cloture, impossible debiter\n");    
-    }
-
+    c1->solde = c1->solde - s1;
     return c1;
 }
 
-//Cloturer une compte si c'est pas deja cloture et si le solde est 0
+// Cloturer une compte si c'est pas deja cloture et si le solde est 0
+// Il faut verifier que la compte n'est pas cloture et que le solde est 0 avant d'appeler cloturer
 Compte cloturer(Compte c1)
 {
-    if(!estCloture(c1) && c1->solde == 0)
-    {
-        c1->estCloture = TRUE;
-    }
-    else
-    {
-        if(estCloture(c1))
-        {
-            fprintf(stderr, "Compte est cloture, impossible de cloturer\n");    
-        }
-        else
-        {
-            fprintf(stderr, "Solde n'est pas 0, impossible de cloturer\n");
-        }
-    }
-
+    c1->estCloture = TRUE;
     return c1;
 }
 
-//Change ou initialise le titulaire de la compte (Extra?)
+//Verifier si la compte est cloture
+BOOL estCloture(Compte c1)
+{
+    return c1->estCloture;
+}
+
+//Retourner le titulaire de la compte
+char* titulaire(Compte c1)
+{
+    return c1->titulaire;
+}
+
+float solde(Compte c1)
+{
+    return c1->solde;
+}
+
+// Change ou initialise le titulaire de la compte (Extra?)
+// Il faut verifier que la compte n'est pas cloture avant d'appeler changerTitulaire
 Compte changerTitulaire(Compte c1, char *titulaire)
 {
     if(!estCloture(c1))
@@ -102,15 +86,4 @@ Compte changerTitulaire(Compte c1, char *titulaire)
     }
 
     return c1;
-}
-
-//Retourner le titulaire de la compte
-char* titulaire(Compte c1)
-{
-    return c1->titulaire;
-}
-
-float solde(Compte c1)
-{
-    return c1->solde;
 }
