@@ -1,6 +1,5 @@
 #include "compte.h"
 
-
 //Creer un nouvelle compte
 Compte creer()
 {
@@ -58,7 +57,7 @@ float solde(Compte c1)
     return c1->solde;
 }
 
-// Change ou initialise le titulaire de la compte (Extra?)
+// Change ou initialise le titulaire de la compte (Extra?)  
 // Il faut verifier que la compte n'est pas cloture avant d'appeler changerTitulaire
 Compte changerTitulaire(Compte c1, char *titulaire)
 {
