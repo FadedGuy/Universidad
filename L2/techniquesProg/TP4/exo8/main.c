@@ -3,7 +3,6 @@
 #include <stdio.h>
 
 /* As stated in library.h */ 
-char *days_str[] = {"monday", "tuesday", "wednesday", "thursday", "saturday", "sunday"};
 
 int main()
 {
@@ -15,6 +14,7 @@ int main()
     book_t *libro4 = book_create();
     library_t *libreria2 = library_create();
 
+/**************************************************/
     library_set_name(libreria1, "Sciences Library");
     library_add_day(libreria1, monday);
     library_add_day(libreria1, tuesday);
@@ -33,8 +33,8 @@ int main()
     library_add_book(libreria1, *libro1);
     library_add_book(libreria1, *libro2);
 
-    print_library(libreria1);
-    
+    print_library(libreria1);   
+
 /**************************************************/
 
     library_set_name(libreria2, "Novel Library");
@@ -56,13 +56,21 @@ int main()
 
     print_library(libreria2);
 
+/**************************************************/
+
+    printf("number of libraries: %d\n", library_count());
+    library_free(libreria1);
+    library_free(libreria2);
+    printf("number of libraries: %d\n", library_count());
+
+    printf("number of books: %d\n", book_count());
     book_free(libro1);
     book_free(libro2);
     book_free(libro3);
     book_free(libro4);
-    library_free(libreria1);
-    library_free(libreria2);
+    printf("number of books: %d\n", book_count());    
 
+    /* extern int library = library_count(); */ 
 
     return 0;
 }

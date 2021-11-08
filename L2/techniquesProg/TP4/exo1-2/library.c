@@ -1,5 +1,7 @@
 #include "library.h"
 
+char *days_str[] = {"monday", "tuesday", "wednesday", "thursday", "saturday", "sunday"};
+
 library_t* library_create()
 {
     library_t *library = malloc(sizeof(library_t));
@@ -57,8 +59,7 @@ void print_library(library_t* library)
     printf("(\"%s\", (", library->name);
     for(i = 0; i < library->nDays; i++)
     {
-        /*printf("\"%s\",", day_str[library->days[i]]);*/
-        printf("\"%d\",", library->days[i]);
+        printf("\"%s\",", days_str[library->days[i]]);
         if(i != library->nDays-1)
             printf(", ");
     }

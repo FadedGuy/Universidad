@@ -4,12 +4,6 @@
 #include <stdio.h>
 #include "book.h"
 
-/* 
-    This should be here, but for some reason when compiling it gives an error it is already declared somewhere
-    although it wasnt in main as it is now
-    char *days_str[] = {"monday", "tuesday", "wednesday", "thursday", "saturday", "sunday"};     
-*/
-
 typedef enum{
     monday, tuesday, wednesday, thursday, friday, saturday, sunday
 } day_t;
@@ -29,5 +23,6 @@ int library_add_day(library_t*, day_t);
 int library_add_book(library_t*, book_t);
 void print_library(library_t*);
 void library_free(library_t*);
+static int library_count();
 
 #endif
