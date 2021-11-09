@@ -1,0 +1,27 @@
+<library name="Sciences Library">
+    <days>
+        <day>Monday</day>
+        <day>Tuesday</day>
+        <day>Wednesday</day>
+        <day>Thursday</day>
+    </days>
+    <books>
+        <book name="The C Programming Language">
+            <authors>
+                <author>Brian W. Kernighan</author>
+                <author>Dennis M. Ritchie</author>
+            </authors>
+            <publisher>Prentice Hall</publisher>
+            <year>1998</year>
+            <isbn>9780131103627</isbn>
+        </book>
+        <book name="C: The Complete Reference">
+            <authors>
+                <author>Herbert Schildt</author>
+            </authors>
+            <publisher>McGraw-Hill Education</publisher>
+            <year>2000</year>
+            <isbn>9780072121247</isbn>
+        </book>
+    </books>
+</library>
