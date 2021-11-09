@@ -79,6 +79,7 @@
     <wire from="(320,160)" to="(390,160)"/>
     <comp lib="0" loc="(150,160)" name="Pin">
       <a name="width" val="4"/>
+      <a name="value" val="0xf"/>
     </comp>
     <comp lib="0" loc="(430,120)" name="Pin">
       <a name="facing" val="west"/>
@@ -98,6 +99,7 @@
     </comp>
     <comp lib="0" loc="(150,130)" name="Pin">
       <a name="width" val="4"/>
+      <a name="value" val="0xf"/>
     </comp>
     <comp lib="0" loc="(430,140)" name="Pin">
       <a name="facing" val="west"/>
