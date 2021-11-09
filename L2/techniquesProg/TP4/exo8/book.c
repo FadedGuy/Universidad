@@ -68,7 +68,7 @@ void book_print(book_t book)
             printf(", ");
         }
     }
-    printf("), \"%s\", %d, %f)", book.publisher, book.year, book.isbn);
+    printf("), \"%s\", %d, %.f)", book.publisher, book.year, book.isbn);
 }
 
 void book_free(book_t *book)
@@ -78,7 +78,7 @@ void book_free(book_t *book)
     free(book);
 }
 
-static int book_count()
+int book_count()
 {
     return book_nBooks;
 }

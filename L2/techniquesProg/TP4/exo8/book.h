@@ -19,6 +19,6 @@ int book_set_pubYearIsbn(book_t*, char*, int, double);
 int book_add_author(book_t*, char*);
 void book_print(book_t book);
 void book_free(book_t*);
-static int book_count();
+int book_count();
 
 #endif

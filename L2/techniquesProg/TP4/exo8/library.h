@@ -23,6 +23,6 @@ int library_add_day(library_t*, day_t);
 int library_add_book(library_t*, book_t);
 void print_library(library_t*);
 void library_free(library_t*);
-static int library_count();
+int library_count();
 
 #endif

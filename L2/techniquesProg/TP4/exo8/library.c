@@ -81,7 +81,7 @@ void library_free(library_t *library)
     free(library);
 }
 
-static int library_count()
+int library_count()
 {
     return library_nLibraries;
 }
