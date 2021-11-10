@@ -71,20 +71,32 @@ actions = {
     model.samPresent({do:'stopTime'});
   },    // button "Arrêter"
 
-  addAlarm() { 
-    let date = new Date();
-    model.samPresent({do: 'addAlarm', time: [date.getHours(), date.getMinutes(), 0]});
+  addAlarm() {
+    let date = new Date(); 
+    let addDate = new Date(date.getTime() + 60000); //Ajoute 1 min a l'alarm courant
+    model.samPresent({do: 'addAlarm', time: [addDate.getHours(), addDate.getMinutes(), 0]});
   },    // button "Ajouter une alarme"
 
-  changeAlarmHoursMinutes(data) { },  // sélection de l'heure et des minutes
+  changeAlarmHoursMinutes(data) { 
+    model.samPresent({do: data.hour == undefined ? 'changeMinute' : 'changeHour', value: data.hour || data.minute, index: data.index});
+  },  // sélection de l'heure et des minutes
 
-  changeAlarmDescription(data) { },   // saisie d'une description
+  changeAlarmDescription(data) { 
+    model.samPresent({do: 'changeMessageAlarm', msg: data.e.target.value, index: data.index});
+  },   // saisie d'une description
 
-  removeAlarm(data) { },   // button "Enlever cette alarme"
+  removeAlarm(data) { 
+    model.samPresent({do: 'removeAlarm', index:data.index});
+  },   // button "Enlever cette alarme"
 
-  setAlarm(data) { },      // checkbox pour enclencher une alarme
+  setAlarm(data) { 
+    model.samPresent({do: 'setAlarm', index:data.index});
+  },      // checkbox pour enclencher une alarme
 
-  fireAlarm(data) { }      // lancée par le setTimeout() de l'alarme
+  fireAlarm(data) {
+    console.log(data);
+    model.samPresent({do: 'fireAlarm', value:data.data,index:data.index});
+  }      // lancée par le setTimeout() de l'alarme
 
 };
 
@@ -144,6 +156,40 @@ model = {
         this.alarms.values.push(newAlarm);
         this.alarms.hasChanged = true;
         break;
+      case 'changeHour':
+        this.alarms.values[data.index].time[0] = data.value;
+        this.alarms.hasChanged = true;
+        break;
+      case 'changeMinute':
+        this.alarms.values[data.index].time[1] = data.value;
+        this.alarms.hasChanged = true;
+        break;
+      case 'changeMessageAlarm':
+        this.alarms.values[data.index].message = data.msg;
+        this.alarms.hasChanged = true;
+        break;
+      case 'removeAlarm':
+        window.clearTimeout(this.alarms.values[data.index].timeoutId);
+        this.alarms.values[data.index].timeoutId = null;
+        this.alarms.hasChanged = true;
+        break;
+      case 'setAlarm':
+        //Calculate actual delay
+        const currentDate = new Date();
+        const alarmDate = new Date();
+        alarmDate.setHours(this.alarms.values[data.index].time[0], this.alarms.values[data.index].time[1],this.alarms.values[data.index].time[3], 0);
+        console.log(alarmDate);
+        const delay = alarmDate-currentDate;
+        const timeoutId = window.setTimeout(() => {actions.fireAlarm({data: this.alarms.values[data.index], index: data.index})}, delay);
+        this.alarms.values[data.index].timeoutId = timeoutId;
+        this.alarms.hasChanged = true;
+        break;
+      case 'fireAlarm':
+        alert(`Alarme !\nIl est: ${data.value.time[0]}:${data.value.time[1]}.\nmessage: ${data.value.message}`);
+        window.clearInterval(data.value.timeoutId);
+        this.alarms.values[data.index].timeoutId = null;
+        this.alarms.hasChanged = true;
+        break;
       // TODO: et les cas suivants...
     }
 
@@ -176,7 +222,7 @@ state = {
     if (model.alarms.hasChanged) {    // alors nouvelle représentation pour les alarmes
       model.alarms.hasChanged = false;
       representation = view.alarmsUI(model, this);
-      console.log(representation);
+      console.log(model.alarms.values);
       view.samDisplay(model.alarms.sectionId, representation);
     }
   }
@@ -205,25 +251,19 @@ view = {
 
   // Renvoit le HTML pour la gestion des alarmes
   alarmsUI(model, state) {
-    // ? 
     let h = [...Array(24).keys()];
     let m = [...Array(60).keys()]; 
-    let time = [0,0,0]
-    if(model.alarms.values.length != 0){
-      time = model.alarms.values[model.alarms.values.length-1].time;
-    }
-    console.log(time);
-    const t_alarmes = model.alarms.values.map((alarm) => `
+    const t_alarmes = model.alarms.values.map((alarm, index) => `
       <div class="alarme">   
-        <input type="checkbox"/>
-        <select>
-          ${h.map(v => `<option value="${v}"${v == time[0] ? "`selected`":''}>${v}</option>`).join('')}
+        <input type="checkbox" ${alarm.timeoutId !== null ? `onchange="actions.removeAlarm({index:${index}})" checked=""`: `onchange="actions.setAlarm({index:${index}})"`}/>
+        <select ${alarm.timeoutId !== null ? `disabled=""` : ''}>
+          ${h.map(v => `<option value="${v}" onclick="actions.changeAlarmHoursMinutes({index: ${index}, hour:${v}})" ${v == alarm.time[0] ? "selected=\"selected\"":''}>${v}</option>`).join('')}
         </select>
-        <select>
-          ${m.map(v => `<option value="${v}">${v}</option>`).join('')}
+        <select ${alarm.timeoutId !== null ? `disabled=""` : ''}>
+          ${m.map(v => `<option value="${v}" onclick="actions.changeAlarmHoursMinutes({index: ${index}, minute:${v}})" ${v == alarm.time[1] ? "selected=\"selected\"":''}>${v}</option>`).join('')}
         </select>
-        <input type="text" placeholder="Description de l'alarme" />
-        <button class="enlever">Enlever cette alarme</button>
+        <input type="text" placeholder="Description de l'alarme" onchange="actions.changeAlarmDescription({e:event, index:${index}})" value="${alarm.message}" ${alarm.timeoutId !== null ? `disabled=""` : ''}/>
+        <button class="enlever" ${alarm.timeoutId !== null ? `onclick="actions.removeAlarm({index:${index}})"`: ''}>Enlever cette alarme</button>
       </div>
     `).join('');
     return `
