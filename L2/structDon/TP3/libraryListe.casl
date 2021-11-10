@@ -1,0 +1,23 @@
+library Liste
+from Basic/Numbers          get Nat, Int
+from Basic/SimpleDatatypes  get Boolean
+
+spec LISTE0[sort Elem] = 
+    Nat and Int and Boolean
+then
+    sort Liste[Elem]
+    ops
+        listeVide : Liste[Elem];
+        cons : Elem * Liste[Elem] -> Liste[Elem];
+        fin : Liste[Elem] -> Liste[Elem];
+        estVide : Liste[Elem] -> Boolean;
+        tete : Liste[Elem] -> ? Elem;
+
+    forall l : Liste[Elem]; e : Elem
+        . def tete(l) <=> estVide(l) = False
+        . def fin(l) <=> estVide(l) = False
+        . estVide(listeVide) = True
+        . estVide(cons(e, l)) = False
+        . tete(cons(e, l)) = e
+        . fin(cons(e, l)) = l
+end
