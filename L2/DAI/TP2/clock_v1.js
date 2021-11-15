@@ -94,7 +94,6 @@ actions = {
   },      // checkbox pour enclencher une alarme
 
   fireAlarm(data) {
-    console.log(data);
     model.samPresent({do: 'fireAlarm', value:data.data,index:data.index});
   }      // lancée par le setTimeout() de l'alarme
 
@@ -174,15 +173,16 @@ model = {
         this.alarms.hasChanged = true;
         break;
       case 'setAlarm':
-        //Calculate actual delay
+        //Meilleure si on prendre en compte la date et mettre l'alarme au prochain jour si c'est le cas
         const currentDate = new Date();
-        const alarmDate = new Date();
-        alarmDate.setHours(this.alarms.values[data.index].time[0], this.alarms.values[data.index].time[1],this.alarms.values[data.index].time[3], 0);
-        console.log(alarmDate);
-        const delay = alarmDate-currentDate;
-        const timeoutId = window.setTimeout(() => {actions.fireAlarm({data: this.alarms.values[data.index], index: data.index})}, delay);
-        this.alarms.values[data.index].timeoutId = timeoutId;
-        this.alarms.hasChanged = true;
+        if(this.alarms.values[data.index].time[0] < currentDate.getHours() || this.alarms.values[data.index].time[1] < currentDate.getMinutes()) return;
+        else{
+          const alarmDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), this.alarms.values[data.index].time[0], this.alarms.values[data.index].time[1], this.alarms.values[data.index].time[2], 0);
+          const delay = alarmDate.getTime()-currentDate.getTime();
+          const timeoutId = window.setTimeout(() => {actions.fireAlarm({data: this.alarms.values[data.index], index: data.index})}, delay);
+          this.alarms.values[data.index].timeoutId = timeoutId;
+          this.alarms.hasChanged = true;
+        }
         break;
       case 'fireAlarm':
         alert(`Alarme !\nIl est: ${data.value.time[0]}:${data.value.time[1]}.\nmessage: ${data.value.message}`);
@@ -222,7 +222,6 @@ state = {
     if (model.alarms.hasChanged) {    // alors nouvelle représentation pour les alarmes
       model.alarms.hasChanged = false;
       representation = view.alarmsUI(model, this);
-      console.log(model.alarms.values);
       view.samDisplay(model.alarms.sectionId, representation);
     }
   }
