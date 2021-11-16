@@ -1,0 +1,30 @@
+<base name="base 1">
+    <date>
+        <day>1</day>
+        <month>9</month>
+        <year>2022</year>
+    </date>
+    <country>france</country>
+    <facilities>
+        <facility name="hangar 1">
+            <area>80</area>
+            <cost>490000.99</cost>
+        </facility>
+        <facility name="hangar 2">
+            <area>80</area>
+            <cost>490000.99</cost>
+        </facility>
+        <facility name="laboratory">
+            <area>20</area>
+            <cost>290000.5</cost>
+        </facility>
+        <facility name="living quarters">
+            <area>20</area>
+            <cost>190000</cost>
+        </facility>
+        <facility name="workshop">
+            <area>20</area>
+            <cost>290000.5</cost>
+        </facility>
+    </facilities>
+</base>
