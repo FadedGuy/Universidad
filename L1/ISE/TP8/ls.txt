@@ -1,0 +1,10 @@
+total 36
+drwxr-xr-x 2 faded faded 4096 Nov 12 10:43 Desktop
+drwxr-xr-x 5 faded faded 4096 Nov 16 14:35 Documents
+drwxr-xr-x 2 faded faded 4096 Nov 16 14:17 Downloads
+drwxr-xr-x 2 faded faded 4096 Nov 12 10:43 Music
+drwxr-xr-x 2 faded faded 4096 Nov 12 10:43 Pictures
+drwxr-xr-x 2 faded faded 4096 Nov 12 10:43 Public
+drwxr-xr-x 3 faded faded 4096 Nov 12 12:26 snap
+drwxr-xr-x 2 faded faded 4096 Nov 12 10:43 Templates
+drwxr-xr-x 2 faded faded 4096 Nov 12 10:43 Videos

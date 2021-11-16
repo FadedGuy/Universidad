@@ -1,0 +1,9 @@
+total 32
+drwxrwxr-x 8 faded faded 4096 Nov 20 14:28 .
+drwxrwxr-x 3 faded faded 4096 Nov 12 10:49 ..
+drwxrwxr-x 8 faded faded 4096 Nov 16 15:18 TP3
+drwxrwxr-x 3 faded faded 4096 Nov 17 13:37 TP4
+drwxrwxr-x 4 faded faded 4096 Nov 17 14:22 TP5
+drwxrwxr-x 2 faded faded 4096 Nov 18 16:18 TP6
+drwxrwxr-x 2 faded faded 4096 Nov 18 17:02 TP7
+drwxrwxr-x 2 faded faded 4096 Nov 20 14:29 TP8
