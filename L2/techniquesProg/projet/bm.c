@@ -39,7 +39,6 @@
  * 
  * if the parsing fails, or document doesn't exist, exit program with 0 or 1?, 
  *  I'd say 0 since it handles the error and gets out as expected
- * Convert from xmlChar to char
  ***/
 
 void help_command()
@@ -61,19 +60,98 @@ void help_command()
     printf("q: Quits BM \n");
 }
 
-void getBaseName(xmlDocPtr doc, xmlNodePtr cur, base_t *base){
+char* getAttName(xmlDocPtr doc, xmlNodePtr cur, char* tag)
+{
     xmlChar *uri;
-    while(cur != NULL){
-        if((!xmlStrcmp(cur->name, (const xmlChar*) "base"))){
+    while(cur != NULL)
+    {
+        if((!xmlStrcmp(cur->name, (const xmlChar*) tag)))
+        {
             uri = xmlGetProp(cur, (const xmlChar*) "name");
+            return (char*)uri;
+        }
+        cur = cur->next;
+    }
+    return "";
+}
 
-            base->name = malloc(sizeof(char*));
-            if(base->name == NULL)
-                return;
-            base->name = (char*)uri;
-            printf("name: %s\n", base->name);
-            /* Prints right inside function */ 
-            xmlFree(uri); /* xmlFree not in functions authorized */
+void parseDate(xmlDocPtr doc, xmlNodePtr cur, base_t *base)
+{
+    xmlChar *key;
+    cur = cur->xmlChildrenNode;
+    while(cur != NULL)
+    {
+        if((!xmlStrcmp(cur->name, (const xmlChar*) "day")))
+        {
+            key = xmlNodeListGetString(doc, cur->xmlChildrenNode, 1);
+            base->day = strtol((char*)key, NULL, 10);
+        }
+        else if((!xmlStrcmp(cur->name, (const xmlChar*) "month")))
+        {
+            key = xmlNodeListGetString(doc, cur->xmlChildrenNode, 1);
+            base->month = strtol((char*)key, NULL, 10);
+        }else if((!xmlStrcmp(cur->name, (const xmlChar*) "year")))
+        {
+            key = xmlNodeListGetString(doc, cur->xmlChildrenNode, 1);
+            base->year = strtol((char*)key, NULL, 10);
+        }
+        cur = cur->next;
+    }
+}
+
+void parseCountry(xmlDocPtr doc, xmlNodePtr cur, base_t *base)
+{
+    cur = cur->xmlChildrenNode;
+    base->country = realloc(base->country, sizeof(char*));
+    if(base->country == NULL)
+        return;
+    
+    base->country = (char*) xmlNodeListGetString(doc, cur, 1);
+}
+
+void parseInFacilities(xmlDocPtr doc, xmlNodePtr cur, base_t *base)
+{
+    xmlChar *key;
+    facility_t *facility = facility_create();
+    if(facility == NULL)
+        return;
+    
+    facility->name = realloc(facility->name, sizeof(char*));
+    if(facility->name == NULL)
+        return;
+    facility->name = getAttName(doc, cur, "facility");
+
+    cur = cur->xmlChildrenNode;
+    while(cur != NULL)
+    {
+        if((!xmlStrcmp(cur->name, (const xmlChar*) "area")))
+        {
+            key = xmlNodeListGetString(doc, cur->xmlChildrenNode, 1);
+            facility->area = strtol((char*) key, NULL, 10);
+        }else if((!xmlStrcmp(cur->name, (const xmlChar*) "cost")))
+        {
+            key = xmlNodeListGetString(doc, cur->xmlChildrenNode, 1);
+            facility->cost = strtod((char*) key, NULL);
+        }
+        cur = cur->next;
+    }
+
+    if(base_add_facility(base, facility) != 0)
+    {
+        facility_free(facility);
+        return;
+    }
+    facility_free(facility);    
+}
+
+void parseFacilities(xmlDocPtr doc, xmlNodePtr cur, base_t *base)
+{
+    cur = cur->xmlChildrenNode;
+    while(cur != NULL)
+    {   
+        if((!xmlStrcmp(cur->name, (const xmlChar*) "facility")))
+        {
+            parseInFacilities(doc, cur, base);
         }
         cur = cur->next;
     }
@@ -102,18 +180,64 @@ int parseDoc(char *filename, base_t* base)
     }
 
     /* Check if the root node is of type base */
-    if(xmlStrcmp(cur->name, (const xmlChar*) "base")){
+    if(xmlStrcmp(cur->name, (const xmlChar*) "base"))
+    {
         fprintf(stderr, "Wrong type document, root node is not \"base\"\n");
         xmlFreeDoc(doc);
         return 1; 
     }
 
-    /* Parsed file copied to base*/
-    getBaseName(doc, cur, base);
-    printf("%s\n", base->name);
-    /*xmlCleanupParser();*/
+    /* Parsed file copied to base */
+    /* check null base->name if successful */
+    base->name = realloc(base->name, sizeof(char*));
+    if(base->name == NULL)
+        return 1;
+    base->name = getAttName(doc, cur, "base");
+
+    cur = cur->xmlChildrenNode;
+    while(cur != NULL)
+    {
+        /* Check aswell for any possible null returns */ 
+        if((!xmlStrcmp(cur->name, (const xmlChar*) "date")))
+        {
+            parseDate(doc, cur, base);
+        }else if((!xmlStrcmp(cur->name, (const xmlChar*) "country")))
+        {
+            parseCountry(doc, cur, base);
+        }
+        else if((!xmlStrcmp(cur->name, (const xmlChar*) "facilities")))
+        {
+            parseFacilities(doc, cur, base);
+        }
+        cur = cur->next;
+    }
+
     xmlFreeDoc(doc);
+    xmlCleanupParser();
     return 0;
+}
+
+void menu(base_t *base)
+{
+    /* Best way to make menu? 
+        array with all commands? and #parameters specified in another one?
+        if strcmp
+        getchar instead of gets?
+    */ 
+    char choice[25];
+    printf("BM> ");
+    fgets(choice, 25, stdin);
+    if(strlen(choice) > 18)
+    {
+        fprintf(stderr, "Too many characters for the command\n");
+    } else if(strcmp(choice, "h") == 0)
+    {
+        help_command();
+    } else{
+        fprintf(stderr, "Invalid command\n");
+    }
+    
+    menu(base);
 }
 
 int main(int argc, char *argv[])
@@ -131,7 +255,11 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    printf("%s\n", base->name);
+    /*menu(base);*/
+    /*printf("%s\n", base->name);
+    printf("%d %d %d\n", base->day, base->month, base->year);
+    printf("%s\n", base->country);
+    printf("%d\n", base->nfacilities);*/
     base_free(base);
     return 0;
 }
