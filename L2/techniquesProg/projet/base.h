@@ -6,7 +6,7 @@ typedef struct
 {
     char *country;
     int day;
-    /*facility_t **facilities;*/
+    facility_t **facilities;
     int month;
     char *name;
     int nfacilities;
