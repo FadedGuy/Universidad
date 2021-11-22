@@ -1,0 +1,21 @@
+      B code
+      dat 4
+      dat 1
+      dat 2
+      dat 15
+      dat 0
+code:
+      MOV R0,#1
+      MOV R2,#0
+change:
+      MOV R2, R1
+      B compare
+compare:
+      LDR R1,[R0]
+      CMP R1, R2
+      BGT change
+      ADD R0, R0, #1
+      CMP R1, #0
+      BNE compare
+      OUT R2,4 
+      HALT

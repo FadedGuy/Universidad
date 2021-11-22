@@ -1,0 +1,8 @@
+      INP R0, 2
+boucle: 
+      ADD R1, R1, R0
+      SUB R0, R0, #1
+      CMP R0, #0
+      BNE boucle
+      OUT R1, 4
+      HALT
