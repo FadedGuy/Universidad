@@ -128,7 +128,7 @@ void parseInFacilities(xmlDocPtr doc, xmlNodePtr cur, base_t *base)
         {
             key = xmlNodeListGetString(doc, cur->xmlChildrenNode, 1);
             facility->area = strtol((char*) key, NULL, 10);
-        }else if((!xmlStrcmp(cur->name, (const xmlChar*) "cost")))
+        } else if((!xmlStrcmp(cur->name, (const xmlChar*) "cost")))
         {
             key = xmlNodeListGetString(doc, cur->xmlChildrenNode, 1);
             facility->cost = strtod((char*) key, NULL);
@@ -220,22 +220,44 @@ int parseDoc(char *filename, base_t* base)
 void menu(base_t *base)
 {
     /* Best way to make menu? 
-        array with all commands? and #parameters specified in another one?
-        if strcmp
-        getchar instead of gets?
+        array with all commands? and #parameters specified in another one? (baptiste: what's the point using that?)
+        if strcmp (baptiste: switch would have been better but we can't switch a string https://stackoverflow.com/questions/4014827/how-can-i-compare-strings-in-c-using-a-switch-statement)
+        getchar instead of gets? (baptiste: can't do getchar since we need input such as fn NAME)
     */ 
     char choice[25];
     printf("BM> ");
-    fgets(choice, 25, stdin);
+    /*  scanf pas autorisé */
+    scanf("%s", choice); /* fgets gives the good value but doesn't work when strcmp, scanf does*/
     if(strlen(choice) > 18)
     {
         fprintf(stderr, "Too many characters for the command\n");
     } else if(strcmp(choice, "h") == 0)
     {
         help_command();
-    } else{
+    } else if(strcmp(choice, "c") == 0)
+    {
+        base_handle_c(*base);
+    } else if(strcmp(choice, "d") == 0)
+    {
+        base_handle_d(*base);
+    } else if(strcmp(choice, "f") == 0)
+    {
+        base_handle_f(*base);
+    } else if(strcmp(choice, "n") == 0)
+    {
+        base_handle_n(*base);
+    } else if(strcmp(choice, "v") == 0)
+    {
+        printf("BM (Base Manager) 20211123\n\nCopyright (C) 2021 Aceves Siordia Kevin and Genthon Baptiste.\n\nWritten by Kevin Aceves Siordia <kevin.aceves-siordia@etud.univ-pau.fr> and Genthon Baptiste<baptiste.genthon@etud.univ-pau.fr>.\n");
+    } else if(strcmp(choice, "q") == 0)
+    {
+        printf("Goodbye !\n");
+        return;
+    } 
+    else 
+    {
         fprintf(stderr, "Invalid command\n");
-    }
+    } 
     
     menu(base);
 }
@@ -255,7 +277,7 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    /*menu(base);*/
+    menu(base);
     /*printf("%s\n", base->name);
     printf("%d %d %d\n", base->day, base->month, base->year);
     printf("%s\n", base->country);

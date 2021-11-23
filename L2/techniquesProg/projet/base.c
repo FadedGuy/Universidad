@@ -40,3 +40,24 @@ void yes()
 {
     printf("yes\n");
 }
+
+void base_handle_c(base_t base) 
+{
+    printf("%s\n", base.country);
+}
+
+void base_handle_d(base_t base)
+{
+    printf("%d-%d-%d\n", base.year, base.month, base.day);
+}
+
+void base_handle_f(base_t base)
+{
+    facility_handle_f(**base.facilities);
+        
+}
+
+void base_handle_n(base_t base)
+{
+    printf("%s\n", base.name);
+}
