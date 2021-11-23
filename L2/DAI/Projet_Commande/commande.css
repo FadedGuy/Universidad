@@ -1,0 +1,80 @@
+:root {
+  --color-1 : orange;
+  --color-1a: rgb(252, 207, 140);
+  --color-1b: #2196f300;
+  --color-2 : #000000;
+  --color-2a: #00000010;
+  --color-2b: #00000020;
+  --color-3 : #e91e63;
+  --color-4 : #ffffff;
+  --color-4a: rgba(255, 255, 255, 0.9);
+  --color-5 : #f5f5f5;
+
+  --color-panier-1: #ffcc80;
+  --color-panier-2: #fff3e0;
+  --color-panier-3: #ffe0b2;
+}
+
+.is-dark {
+  --color-1 : #ba68c8;
+  --color-1a: #ba68c880;
+  --color-1b: #ba68c800;
+  --color-2 : #ffffff;
+  --color-2a: #ffffff10;
+  --color-2b: #ffffff20;
+  --color-3 : #ff9800;
+  --color-4 : #37474f;
+  --color-4a: rgba(55, 71, 79, 0.9);
+  --color-5 : #263238;
+
+  --color-panier-1: #ab47bc;
+  --color-panier-2: #8e24aa;
+  --color-panier-3: #7b1fa2;
+}
+
+.color-1a        { background-color: var(--color-1a)!important;}
+.color-1a-text   { color           : var(--color-1a)!important;}
+.color-1a-border { border-color    : var(--color-1a)!important;}
+.color-1b        { background-color: var(--color-1b)!important;}
+.color-1b-text   { color           : var(--color-1b)!important;}
+.color-1b-border { border-color    : var(--color-1b)!important;}
+.color-2a        { background-color: var(--color-2a)!important;}
+.color-2a-text   { color           : var(--color-2a)!important;}
+.color-2a-border { border-color    : var(--color-2a)!important;}
+.color-2b        { background-color: var(--color-2b)!important;}
+.color-2b-text   { color           : var(--color-2b)!important;}
+.color-2b-border { border-color    : var(--color-2b)!important;}
+
+article.grid-view {
+  display: grid;
+  grid-template-columns: repeat(auto-fit,minmax(200px, 1fr));
+}
+
+article.list-view { }
+
+span.badge {
+  background-color: red;
+  margin-left: 2em;
+}
+
+.card-image {
+  border-radius: 5px;
+  background-color: white;
+}
+.card-image img {
+  height: 128px;
+}
+
+span.avoidwrap { display:inline-block; }
+
+.button.disabled, button.disabled {
+  border: 1rem solid var(--color-2b);
+  background-color: transparent;
+  color: var(--color-2b);
+  box-shadow: none
+}
+
+
+.panier th             { background-color: var(--color-panier-1);}
+.panier .ligne-paire   { background-color: var(--color-panier-2);}
+.panier .ligne-impaire { background-color: var(--color-panier-3);}
