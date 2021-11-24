@@ -6,6 +6,8 @@
 
 #include "base.h"
 #include "facility.h"
+
+#define BUFFER 20
 /***
  * http://xmlsoft.org/ Documentation
  * http://xmlsoft.org/tutorial/xmltutorial.pdf Guide tutorial
@@ -224,10 +226,19 @@ void menu(base_t *base)
         if strcmp (baptiste: switch would have been better but we can't switch a string https://stackoverflow.com/questions/4014827/how-can-i-compare-strings-in-c-using-a-switch-statement)
         getchar instead of gets? (baptiste: can't do getchar since we need input such as fn NAME)
     */ 
-    char choice[25];
+    char choice[BUFFER];
+    int choice_i = 0, ch_c;
+
     printf("BM> ");
-    /*  scanf pas autorisé */
-    scanf("%s", choice); /* fgets gives the good value but doesn't work when strcmp, scanf does*/
+    while((ch_c = getchar()) != '\n' && ch_c != EOF)
+    {
+        /* if not included in while since if passes BUFFER,it would print several times invalida command */
+        if(choice_i < BUFFER){
+            choice[choice_i++] = ch_c;
+        }
+    }
+    choice[choice_i] = '\0';
+
     if(strlen(choice) > 18)
     {
         fprintf(stderr, "Too many characters for the command\n");
@@ -248,7 +259,7 @@ void menu(base_t *base)
         base_handle_n(*base);
     } else if(strcmp(choice, "v") == 0)
     {
-        printf("BM (Base Manager) 20211123\n\nCopyright (C) 2021 Aceves Siordia Kevin and Genthon Baptiste.\n\nWritten by Kevin Aceves Siordia <kevin.aceves-siordia@etud.univ-pau.fr> and Genthon Baptiste<baptiste.genthon@etud.univ-pau.fr>.\n");
+        printf("BM (Base Manager) 20211123\n\nCopyright (C) 2021 Aceves Kevin and Genthon Baptiste.\n\nWritten by Kevin Aceves <kevin.aceves-siordia@etud.univ-pau.fr> and Genthon Baptiste <baptiste.genthon@etud.univ-pau.fr>.\n");
     } else if(strcmp(choice, "q") == 0)
     {
         printf("Goodbye !\n");
@@ -282,6 +293,7 @@ int main(int argc, char *argv[])
     printf("%d %d %d\n", base->day, base->month, base->year);
     printf("%s\n", base->country);
     printf("%d\n", base->nfacilities);*/
+    
     base_free(base);
     return 0;
 }
