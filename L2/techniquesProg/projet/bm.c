@@ -232,10 +232,11 @@ void menu(base_t *base)
     printf("BM> ");
     while((ch_c = getchar()) != '\n' && ch_c != EOF)
     {
-        /* if not included in while since if passes BUFFER,it would print several times invalida command */
+        /* if not included in while since if passes BUFFER, it would print several times invalid command. In here we can know if there's a missing param */
         if(choice_i < BUFFER){
             choice[choice_i++] = ch_c;
         }
+        // DEux param
     }
     choice[choice_i] = '\0';
 
