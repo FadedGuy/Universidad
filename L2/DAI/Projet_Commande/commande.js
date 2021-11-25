@@ -1,3 +1,10 @@
+/* 
+Fait
+  Change auteurs
+  Images toggle
+  List <-> Grid view
+*/
+
 'use strict';
 
 window.addEventListener('load',go);
@@ -35,7 +42,11 @@ samActions = {
       // Filters
       // TODO
       // Settings
+        proposal = {do: data.do, view: data.view};
+        break;
       case 'imagesToggle'      : 
+        proposal = {do: data.do};
+        break;
       case 'animationsToggle'  : 
       // Pagination
       // TODO
@@ -66,7 +77,7 @@ samActions = {
 //
 
 const initialModel= {
-  authors  : ['Tata', 'Toto'],
+  authors  : ['Baptiste', 'Kevin'],
   
   artiPart1: [],
   artiPart2: [],
@@ -639,7 +650,7 @@ samView = {
           <button class="no-margin" data-ui="#dropdown3_">
             <i class="large">account_circle</i>
             <div id="dropdown3_" data-ui="#dropdown3_" class="dropdown left no-wrap">
-              <a>Auteurs : <b>Tata</b> et <b>Toto</b></a>
+              <a>Auteurs : <b>${model.authors[0]}</b> et <b>${model.authors[1]}</b></a>
             </div>
           </button>
         </nav>
@@ -808,7 +819,8 @@ samView = {
     const gridViewDisabled = gridOn ? 'disabled="disabled"' : '';
     const listViewClass    = gridOn ? '' : 'disabled';
     const listViewDisabled = gridOn ? '' : 'disabled="disabled"';
-  
+    
+    console.log(gridOn + '<================');
     return this.html`
       <button onclick="samActions.exec({do:'gridListView', view:'list'})" class="small no-margin ${listViewClass}" ${listViewDisabled}>
         <i>view_list</i></button>
@@ -827,84 +839,34 @@ samView = {
     
     console.log('articlesGridUI');
     
-    // TODO
-    
     return this.html`
       <article class="small-margin grid-view">
-        
-        <div  class="card no-padding small-margin">            
-          <div class="card-image center-align">
-            <img src="./images/avocat.jpg" />
-          </div>            
-          <div class="small-padding">
-            <h6 class="no-margin">Avocats</h6>
-            <div class="small-margin"><label>Origine : </label>Pérou</div>
-            <div class="chip large">
-              <label>Prix: </label><span class="large-text">1.50 € / <span class="avoidwrap">Pièce</span> </span>
-            </div>
-            <div class="row no-margin">
-              <div class="col s8 field round fill border center-align">
-                <input type="text" class="center-align color-1a" value="" />
-                <label>Quantité</label>
+        ${state.filteredArticles.values.map(art => `
+          <div  class="card no-padding small-margin">        
+            <div class="card-image center-align">
+            ${model.settings.articleImages ? `<img src="./images/${art.pictures[0]}" />` : ''}
+            </div>            
+            <div class="small-padding">
+              <h6 class="no-margin">${art.name}</h6>
+              <div class="small-margin"><label>Origine : </label>${art.origin}</div>
+              <div class="chip large">
+                <label>Prix: </label><span class="large-text">${art.price.toFixed(2)} € / <span class="avoidwrap">${art.unit}</span> </span>
               </div>
-              <div class=" col s4">
-                <button class="circle no-margin disabled" disabled="disabled">
-                  <i>add</i>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-        
-      
-        <div  class="card no-padding small-margin">       
-          <div class="card-image center-align">
-            <img src="./images/fraises.jpg" />
-          </div>            
-          <div class="small-padding">
-            <h6 class="no-margin">Fraises</h6>
-            <div class="small-margin"><label>Origine : </label>France</div>
-            <div class="chip large">
-              <label>Prix: </label><span class="large-text">3.00 € / <span class="avoidwrap">Barquette 250g</span> </span>
-            </div>
-            <div class="row no-margin">
-              <div class="col s8 field round fill border center-align">
-                <input type="text" class="center-align color-1a" value="2" />
-                <label>Quantité</label>
-              </div>
-              <div class=" col s4">
-                <button class="circle no-margin ">
-                  <i>add</i>
-                </button>
+              <div class="row no-margin">
+                <div class="col s8 field round fill border center-align">
+                  <input type="text" class="center-align " value="${art.quantity}" />
+                  <label>Quantité</label>
+                </div>
+                <div class=" col s4">
+                  <button class="circle no-margin ">
+                    <i>edit</i>
+                  </button>
+                </div>
               </div>
             </div>
           </div>
-        </div>
+              `).join('')}
         
-      
-        <div  class="card no-padding small-margin">        
-          <div class="card-image center-align">
-            <img src="./images/fraises.jpg" />
-          </div>            
-          <div class="small-padding">
-            <h6 class="no-margin">Fraises</h6>
-            <div class="small-margin"><label>Origine : </label>France</div>
-            <div class="chip large">
-              <label>Prix: </label><span class="large-text">5.00 € / <span class="avoidwrap">Barquette 500g</span> </span>
-            </div>
-            <div class="row no-margin">
-              <div class="col s8 field round fill border center-align">
-                <input type="text" class="center-align " value="3" />
-                <label>Quantité</label>
-              </div>
-              <div class=" col s4">
-                <button class="circle no-margin ">
-                  <i>edit</i>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
         
       </article>
     `;
