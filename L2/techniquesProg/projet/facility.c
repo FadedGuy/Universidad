@@ -21,5 +21,5 @@ void facility_free(facility_t *facility)
 
 void facility_handle_f(facility_t facility)
 {
-    printf("%s, %d m2, %f USD\n", facility.name, facility.area, facility.cost);
+    printf("%s, %d m2, %.2f USD\n", facility.name, facility.area, facility.cost);
 }

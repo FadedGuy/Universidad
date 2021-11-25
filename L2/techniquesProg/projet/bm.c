@@ -23,7 +23,6 @@
  * fclt COST: Prints the base facilities with the cost less than COST
  * fn NAME: Prints the base facilities with the name containing NAME
  * 
- * t: Prints the base total cost
  ***/
 
 /***
@@ -218,23 +217,8 @@ void menu(base_t *base)
 
     printf("BM> ");
     fgets(choice, BUFFER, stdin);
-    /*while(getchar() != '\n');*/
+    /* while(getchar() != '\n' || getchar() != EOF); */
     choice[strlen(choice)-1] = '\0';
-    /*while((ch_c = getchar()) != '\n' && ch_c != EOF)
-    {
-        if not included in while since if passes BUFFER, it would print several times invalid command. In here we can know if there's a missing param 
-        if(choice_i < BUFFER)
-        {
-            if(ch_c == ' ')
-            {
-                *ch = choice;
-                espace = choice_i;
-                paramExist = 1;
-            }
-            choice[choice_i++] = ch_c;
-        }
-    }
-    choice[choice_i] = '\0'; */
 
 
     if(strlen(choice) > 18)
@@ -243,12 +227,18 @@ void menu(base_t *base)
     } else if(strcmp(choice, "h") == 0)
     {
         help_command();
+    } else if(strcmp(choice, "b") == 0)
+    {
+        base_handle_b(*base);
     } else if(strcmp(choice, "c") == 0)
     {
         base_handle_c(*base);
     } else if(strcmp(choice, "d") == 0)
     {
         base_handle_d(*base);
+    } else if(strcmp(choice, "t") == 0)
+    {
+        base_handle_t(*base);
     } else if(strcmp(choice, "f") == 0)
     {
         base_handle_f(*base);

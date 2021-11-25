@@ -48,7 +48,7 @@ void base_handle_c(base_t base)
 
 void base_handle_d(base_t base)
 {
-    printf("%d-%d-%d\n", base.year, base.month, base.day);
+    printf("%d-%02d-%02d\n", base.year, base.month, base.day);
 }
 
 void base_handle_f(base_t base)
@@ -67,5 +67,11 @@ void base_handle_n(base_t base)
 
 void base_handle_t(base_t base)
 {
-    
+    double sumCost = 0;
+    int i;
+    for(i = 0; i < base.nfacilities; i++)
+    {
+        sumCost += (base.facilities[i]->cost);
+    }
+    printf("%.2f USD\n", sumCost);
 }
