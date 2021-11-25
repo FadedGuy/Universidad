@@ -112,9 +112,4 @@ void base_handle_n(base_t base);
 void base_handle_t(base_t base);
 
 
-
-
-/* Effacer */
-void yes();
-
 #endif

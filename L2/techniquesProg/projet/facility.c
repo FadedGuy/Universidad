@@ -19,11 +19,6 @@ void facility_free(facility_t *facility)
     free(facility);
 }
 
-void yesF()
-{
-    printf("yesF\n");
-}
-
 void facility_handle_f(facility_t facility)
 {
     printf("%s, %d m2, %f USD\n", facility.name, facility.area, facility.cost);

@@ -68,7 +68,4 @@ void facility_handle_fclt(facility_t facility, double cost);
  */
 void facility_handle_fn(facility_t facility, const char *name);
 
-
-void yesF(); 
-
 #endif

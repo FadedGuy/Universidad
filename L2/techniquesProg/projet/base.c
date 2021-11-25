@@ -36,9 +36,9 @@ void base_free(base_t *base)
     free(base);
 }
 
-void yes()
+void base_handle_b(base_t base)
 {
-    printf("yes\n");
+    printf("%s (%d-%02d-%02d, %s)\n", base.name, base.year, base.month, base.day, base.country);
 }
 
 void base_handle_c(base_t base) 
@@ -53,11 +53,19 @@ void base_handle_d(base_t base)
 
 void base_handle_f(base_t base)
 {
-    facility_handle_f(**base.facilities);
-        
+    int i;
+    for(i = 0; i < base.nfacilities; i++)
+    {
+        facility_handle_f(*base.facilities[i]);
+    }
 }
 
 void base_handle_n(base_t base)
 {
     printf("%s\n", base.name);
+}
+
+void base_handle_t(base_t base)
+{
+    
 }

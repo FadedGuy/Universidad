@@ -14,11 +14,7 @@
  ***/
 
 /***
- * Commands h
- * b: Prints the base
- * c: Prints the base country
- * d: Prints the base date
- * f: Prints the base facilities
+ * Commands missing
  * 
  * fc COST: Prints the base facilities with the cost equal to COST
  * fcge COST: Prints the base facilities with the cost greater than or equal to COST
@@ -27,11 +23,7 @@
  * fclt COST: Prints the base facilities with the cost less than COST
  * fn NAME: Prints the base facilities with the name containing NAME
  * 
- * h: Prints this help
- * n: Prints the base name
  * t: Prints the base total cost
- * v: Prints the BM version
- * q: Quits BM 
  ***/
 
 /***
@@ -140,10 +132,9 @@ void parseInFacilities(xmlDocPtr doc, xmlNodePtr cur, base_t *base)
 
     if(base_add_facility(base, facility) != 0)
     {
-        facility_free(facility);
+        facility_free(facility);    
         return;
     }
-    facility_free(facility);    
 }
 
 void parseFacilities(xmlDocPtr doc, xmlNodePtr cur, base_t *base)
@@ -221,24 +212,30 @@ int parseDoc(char *filename, base_t* base)
 
 void menu(base_t *base)
 {
-    /* Best way to make menu? 
-        array with all commands? and #parameters specified in another one? (baptiste: what's the point using that?)
-        if strcmp (baptiste: switch would have been better but we can't switch a string https://stackoverflow.com/questions/4014827/how-can-i-compare-strings-in-c-using-a-switch-statement)
-        getchar instead of gets? (baptiste: can't do getchar since we need input such as fn NAME)
-    */ 
     char choice[BUFFER];
-    int choice_i = 0, ch_c;
+    char ch[4];
+    int espace = 0, paramExist = 0;
 
     printf("BM> ");
-    while((ch_c = getchar()) != '\n' && ch_c != EOF)
+    fgets(choice, BUFFER, stdin);
+    /*while(getchar() != '\n');*/
+    choice[strlen(choice)-1] = '\0';
+    /*while((ch_c = getchar()) != '\n' && ch_c != EOF)
     {
-        /* if not included in while since if passes BUFFER, it would print several times invalid command. In here we can know if there's a missing param */
-        if(choice_i < BUFFER){
+        if not included in while since if passes BUFFER, it would print several times invalid command. In here we can know if there's a missing param 
+        if(choice_i < BUFFER)
+        {
+            if(ch_c == ' ')
+            {
+                *ch = choice;
+                espace = choice_i;
+                paramExist = 1;
+            }
             choice[choice_i++] = ch_c;
         }
-        // DEux param
     }
-    choice[choice_i] = '\0';
+    choice[choice_i] = '\0'; */
+
 
     if(strlen(choice) > 18)
     {
@@ -255,12 +252,29 @@ void menu(base_t *base)
     } else if(strcmp(choice, "f") == 0)
     {
         base_handle_f(*base);
+    } else if(strcmp(ch, "fc") == 0)
+    {
+        /* A lot of ways to handle f*** (fc, fcge, etc) commands, but I think this is the best since strcmp would'nt tell us 
+            where it was different, this way we have control
+         */
+        double cost = 0;
+        if(paramExist == 1 && ((cost = strtod(choice+espace, NULL)) != 0 || (choice[espace+1] == '0' && choice[strlen(choice)-1] == '0')))
+        {
+            printf("valid param %f\n", cost);
+        }
+        else
+        {
+            printf("non valid param\n");
+        }
     } else if(strcmp(choice, "n") == 0)
     {
         base_handle_n(*base);
     } else if(strcmp(choice, "v") == 0)
     {
         printf("BM (Base Manager) 20211123\n\nCopyright (C) 2021 Aceves Kevin and Genthon Baptiste.\n\nWritten by Kevin Aceves <kevin.aceves-siordia@etud.univ-pau.fr> and Genthon Baptiste <baptiste.genthon@etud.univ-pau.fr>.\n");
+    } else if(strcmp(choice, "b") == 0)
+    {
+        base_handle_b(*base);
     } else if(strcmp(choice, "q") == 0)
     {
         printf("Goodbye !\n");
