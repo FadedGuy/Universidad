@@ -1,0 +1,5 @@
+(define (produit-Julie? prod l)
+  (cond ((null? l) #f)
+        ((equal? prod (car l)) #t)
+        (else (produit-Julie? prod (cdr l))))
+  )

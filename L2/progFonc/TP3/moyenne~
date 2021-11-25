@@ -1,0 +1,10 @@
+(define nb 0)
+(define m 0)
+
+(define (moyenne l)
+  (cond ((null? (car l)) (display "nb"))
+        (else (set! nb (+ nb 1)) (set! m (+ m (car l)))))
+  )
+
+
+(moyenne '(15 20 14 17 20 9 5))

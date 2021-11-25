@@ -1,0 +1,17 @@
+(define nb 0)
+(define m 0)
+(define taux 0)
+
+(define (moyenne l)
+  (cond ((null? l) (/ m nb))
+        (else (set! nb (+ nb 1)) (set! m (+ m (car l))) (moyenne (cdr l))))
+)
+
+(define (taux-notes-sup l moy)
+  (cond ((null? l) (* (/ taux nb) 100))
+        ((>= (car l) moy) (set! taux (+ taux 1)) (taux-notes-sup (cdr l) moy))
+        (else (taux-notes-sup (cdr l) moy)))
+  )
+
+
+(taux-notes-sup '(19 20 19 20 9 12) (moyenne '(19 20 19 20 9 12)))

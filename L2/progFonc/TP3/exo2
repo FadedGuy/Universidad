@@ -1,0 +1,26 @@
+(define (produit-Julie? prod l)
+  (cond ((null? l) #f)
+        ((equal? prod (car l)) #t)
+        (else (produit-Julie? prod (cdr l)))))
+
+(define (produits-double l1 l2)
+  (cond ((null? l1))
+        ((produit-Julie? (car l1) l2) (cons (car l1) (produits-double (cdr l1) l2)))
+        (else produits-double (cdr l1) l2))
+  )
+
+(define (supprime e l)
+  (if (equal? (car l) e)
+      (cdr l)
+      (cons (car l) (supprime e (cdr l)))))
+
+(define (produits l1 l2)
+  (cond ((null? l1) (append l2))
+        ((null? l2) '())
+        ((produit-Julie? (car l1) l2) (cons (car l1) (produits (cdr l1) (supprime (car l1) l2))))
+        (else (cons (car l2) (cons (car l1) (produits (cdr l1) (cdr l2)))))
+  )
+)
+
+
+(produits '("apple" "salsa" "coca") '("chips" "coca" "salsa"))
