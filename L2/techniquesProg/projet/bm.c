@@ -32,6 +32,10 @@
  * 
  * if the parsing fails, or document doesn't exist, exit program with 0 or 1?, 
  *  I'd say 0 since it handles the error and gets out as expected
+ * 
+ * LEAKS XML
+ * xmlNodeListGetString
+ * xmlGetProp
  ***/
 
 void help_command()
@@ -53,40 +57,38 @@ void help_command()
     printf("q: Quits BM \n");
 }
 
-char* getAttName(xmlDocPtr doc, xmlNodePtr cur, char* tag)
+/* 8 bytes in 1 block leak, definitely lost
+NOT actually useful, directly use xmlGetProp is the same since we don't need to search
+void getAttName(xmlDocPtr doc, xmlNodePtr cur, char* tag, base_t* base)
 {
-    xmlChar *uri;
     while(cur != NULL)
     {
         if((!xmlStrcmp(cur->name, (const xmlChar*) tag)))
         {
-            uri = xmlGetProp(cur, (const xmlChar*) "name");
-            return (char*)uri;
+            base->name = (char*)xmlGetProp(cur, (xmlChar*) "name");
         }
         cur = cur->next;
     }
-    return "";
-}
+}*/
 
 void parseDate(xmlDocPtr doc, xmlNodePtr cur, base_t *base)
 {
-    xmlChar *key;
+    /*
+        For each xmlNodeListGetString there is a leak of 2-3 bytes in 1 bloc per each
+    */
     cur = cur->xmlChildrenNode;
     while(cur != NULL)
     {
         if((!xmlStrcmp(cur->name, (const xmlChar*) "day")))
         {
-            key = xmlNodeListGetString(doc, cur->xmlChildrenNode, 1);
-            base->day = strtol((char*)key, NULL, 10);
+            base->day = strtol((char*)xmlNodeListGetString(doc, cur->xmlChildrenNode, 1), NULL, 10);
         }
         else if((!xmlStrcmp(cur->name, (const xmlChar*) "month")))
         {
-            key = xmlNodeListGetString(doc, cur->xmlChildrenNode, 1);
-            base->month = strtol((char*)key, NULL, 10);
+            base->month = strtol((char*)xmlNodeListGetString(doc, cur->xmlChildrenNode, 1), NULL, 10);
         }else if((!xmlStrcmp(cur->name, (const xmlChar*) "year")))
         {
-            key = xmlNodeListGetString(doc, cur->xmlChildrenNode, 1);
-            base->year = strtol((char*)key, NULL, 10);
+            base->year = strtol((char*)xmlNodeListGetString(doc, cur->xmlChildrenNode, 1), NULL, 10);
         }
         cur = cur->next;
     }
@@ -104,7 +106,6 @@ void parseCountry(xmlDocPtr doc, xmlNodePtr cur, base_t *base)
 
 void parseInFacilities(xmlDocPtr doc, xmlNodePtr cur, base_t *base)
 {
-    xmlChar *key;
     facility_t *facility = facility_create();
     if(facility == NULL)
         return;
@@ -112,19 +113,18 @@ void parseInFacilities(xmlDocPtr doc, xmlNodePtr cur, base_t *base)
     facility->name = realloc(facility->name, sizeof(char*));
     if(facility->name == NULL)
         return;
-    facility->name = getAttName(doc, cur, "facility");
+
+    facility->name = (char*)xmlGetProp(cur, (xmlChar*)"name");
 
     cur = cur->xmlChildrenNode;
     while(cur != NULL)
     {
         if((!xmlStrcmp(cur->name, (const xmlChar*) "area")))
         {
-            key = xmlNodeListGetString(doc, cur->xmlChildrenNode, 1);
-            facility->area = strtol((char*) key, NULL, 10);
+            facility->area = strtol((char*) xmlNodeListGetString(doc, cur->xmlChildrenNode, 1), NULL, 10);
         } else if((!xmlStrcmp(cur->name, (const xmlChar*) "cost")))
         {
-            key = xmlNodeListGetString(doc, cur->xmlChildrenNode, 1);
-            facility->cost = strtod((char*) key, NULL);
+            facility->cost = strtod((char*) xmlNodeListGetString(doc, cur->xmlChildrenNode, 1), NULL);
         }
         cur = cur->next;
     }
@@ -184,12 +184,13 @@ int parseDoc(char *filename, base_t* base)
     base->name = realloc(base->name, sizeof(char*));
     if(base->name == NULL)
         return 1;
-    base->name = getAttName(doc, cur, "base");
+
+    /* 8 byte 1 bloc leak when calling xmlGetProp */
+    base->name = (char*) xmlGetProp(cur, (xmlChar*)"name");
 
     cur = cur->xmlChildrenNode;
     while(cur != NULL)
     {
-        /* Check aswell for any possible null returns */ 
         if((!xmlStrcmp(cur->name, (const xmlChar*) "date")))
         {
             parseDate(doc, cur, base);
@@ -204,8 +205,8 @@ int parseDoc(char *filename, base_t* base)
         cur = cur->next;
     }
 
-    xmlFreeDoc(doc);
     xmlCleanupParser();
+    xmlFreeDoc(doc);
     return 0;
 }
 
@@ -217,7 +218,6 @@ void menu(base_t *base)
 
     printf("BM> ");
     fgets(choice, BUFFER, stdin);
-    /* while(getchar() != '\n' || getchar() != EOF); */
     choice[strlen(choice)-1] = '\0';
 
 
@@ -290,14 +290,15 @@ int main(int argc, char *argv[])
 
     if(parseDoc(argv[1], base) != 0)
     {
+        fprintf(stderr, "Unable to parse\n");
         return 1;
     }
-
-    menu(base);
+    
+    /*menu(base);*/
     /*printf("%s\n", base->name);
     printf("%d %d %d\n", base->day, base->month, base->year);
     printf("%s\n", base->country);
-    printf("%d\n", base->nfacilities);*/
+    printf("%s\n", base->facilities[0]->name);*/
     
     base_free(base);
     return 0;

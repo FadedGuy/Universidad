@@ -32,6 +32,13 @@ base_t *base_create()
 
 void base_free(base_t *base)
 {
+    int i;
+    free(base->name);
+    free(base->country);
+    for(i = 0; i < base->nfacilities; i++)
+    {
+        facility_free(base->facilities[i]);
+    }
     free(base->facilities);
     free(base);
 }

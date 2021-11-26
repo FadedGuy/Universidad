@@ -16,6 +16,7 @@ facility_t *facility_create()
 
 void facility_free(facility_t *facility)
 {
+    free(facility->name);
     free(facility);
 }
 
