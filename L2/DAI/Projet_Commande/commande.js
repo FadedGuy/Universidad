@@ -59,6 +59,7 @@ samActions = {
       // TODO
       case 'darkThemeToggle'   :  
       case 'updatePagination'  : 
+        model.samPresent({do: 'updatePagination', page:3});
       
       case 'without animation' : enableAnimation = false; proposal = data; break;
       
@@ -162,7 +163,9 @@ samModel = {
       case 'darkThemeToggle'   : this.modelToggle('settings.darkTheme'    ); break;      
       case 'gridListView'      : this.modelAssign('display.articlesView', data.view); break;      
       
-      case 'updatePagination'  : break;      
+      case 'updatePagination'  : 
+        console.error(data.do);
+        break; 
       
       // TODO
       
@@ -308,11 +311,10 @@ samModel = {
    * Pour un tri par ordre alphabétique
    * 
    */
-  alphaSort(a,b) {
-    
-    // TODO
-
-    return -1;  
+   alphaSort(a,b) {
+    if (a < b) return -1;
+    if (a > b) return  1;
+    return 0;  
   },
   
   /**
@@ -325,22 +327,43 @@ samModel = {
    *
    * Les catégories sont triées par ordre alphabétique
    */
-  extractCategories() {
+   extractCategories() {
     const articles   = this.model.articles.values;
-    const categories = [];
-    const catsCount  = {};
-    const catsFilter = {};
+    let categories   = [];
+    let catsCount  = {
+      fruits: 0,
+      légumes: 0,
+    };
+    let catsFilter = {};
     
-    // TODO
-    
+    categories = articles.map(value => value.category);
+    categories = [...new Set(categories)];    
     categories.sort(this.alphaSort);
+
+    // fonctionne pas : on veut mettre dans chaque key catsCount le nombre d'articles qui ont la catégorie
+    catsCount = articles.map(value => value.category=="fruits"?catsCount.fruits++:catsCount.fruits);
+    console.error(catsCount);
+
+
     this.model.categories = categories;
     this.model.filters.categories.count  = catsCount;
     this.model.filters.categories.booleans = catsFilter;
   },
   
   extractOrigins() {
-    // TODO  
+    const articles   = this.model.articles.values;
+    let origins   = [];
+    const orCount  = {};
+    const orFilter = {};
+    
+    origins = articles.map(value => value.origin);
+
+    origins = [...new Set(origins)];
+    
+    origins.sort(this.alphaSort);
+    this.model.origins = origins;
+    this.model.filters.origins.count  = orCount;
+    this.model.filters.origins.booleans = orFilter;
   },
 };
 //-------------------------------------------------------------------- State ---
@@ -475,12 +498,17 @@ samState = {
   filterArticles(articles, filters) {
     // filters.categories.booleans['légumes']=false;
     // filters.origins.booleans['France']=true;
-    if (articles.hasChanged         || 
+    if (articles.hasChanged           || 
         filters.categories.hasChanged || 
         filters.origins.hasChanged    ||
         filters.search.hasChanged     ) {
-              
-      let filteredValues = articles.values;  // TODO
+
+      console.error("Entered filterArticles");
+      
+      let currentFilterLower = this.state.filters.search.text.toLowerCase();
+      if(currentFilterLower == '') return articles.values;
+
+      let filteredValues = this.state.filteredArticles.values.filter(art => ((art.toLowerCase().includes(currentFilterLower))));
 
       this.state.filteredArticles.values     = filteredValues;
       this.state.filteredArticles.hasChanged = true;
@@ -973,8 +1001,8 @@ samView = {
     
     return this.html`
       <nav class="center-align">
-        <button class="square border disabled" disabled="disabled">
-          <i>navigate_before</i>
+      <button class="${model.hasPrevPage?`square`:`square border disabled`}" ${model.hasPreviousPage? ``: `disabled="disabled"`}>
+      <i>navigate_before</i>
         </button>     
         <button class="square no-margin border">1</button>      
         <button class="square no-margin ">2</button>      
