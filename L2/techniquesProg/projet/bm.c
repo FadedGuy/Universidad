@@ -197,12 +197,35 @@ int parseDoc(char *filename, base_t* base)
     return 0;
 }
 
+int verifParamNumberCommand(char *command, char* param)
+{
+    int i;
+    if(!strcmp(param, ""))
+    {
+        printf("Missing parameter for the %s command\n", command);
+        return 0;
+    } else {
+        /* verif longueur commande */
+        for(i = 0; i < strlen(param); i++)
+        {
+            if(!((param[i] >= '0' && param[i] <= '9') || param[i] == '.'))
+            {
+                printf("Invalid parameter for the %s command\n", command);
+                return 0;
+            }
+        }
+    }
+    
+
+    return 1;
+}
 void menu(base_t *base)
 {
     char choice[BUFFER];
     char* command;
     char* param; 
     int c; 
+    int lenChoice;
     double cost;
 
     /* 
@@ -214,6 +237,7 @@ void menu(base_t *base)
     {
         printf("BM> ");
         fgets(choice, BUFFER, stdin);
+        lenChoice = strlen(choice);
         /*
             A little trick since the left-most condition is evaluated first, we only flush        
             if the length of choice is greater than 18, meaning there's leftover in stdin 
@@ -238,25 +262,25 @@ void menu(base_t *base)
             command = choice;
         }
 
-        if(strlen(choice) > 18)
+        if(lenChoice > 18)
         {
             fprintf(stderr, "Too many characters for the command\n");
         }
         else if(!strcmp(command, "b") && !strcmp(param, ""))
         {
-            printf("b\n");
+            base_handle_b(*base);
         }
         else if(!strcmp(command, "c") && !strcmp(param, ""))
         {
-            printf("c\n");
+            base_handle_c(*base);
         }
         else if(!strcmp(command, "d") && !strcmp(param, ""))
         {
-            printf("d\n");
+            base_handle_d(*base);
         }
         else if(!strcmp(command, "f") && !strcmp(param, ""))
         {
-            printf("f\n");
+            base_handle_f(*base);
         }
         else if(!strcmp(command, "fc"))
         {
@@ -265,52 +289,70 @@ void menu(base_t *base)
                 name isn't only numbers
                 template
             */
-            printf("fc\n");
-            if(!strcmp(param, ""))
-            {
-                printf("Missing parameter for the fc command\n");
-            }
-            else
+            if (verifParamNumberCommand(command, param))
             {
                 cost = strtod(param, NULL);
-                printf("%.2f\n", cost);
+                base_handle_fc(*base, cost);
             }
         }
         else if(!strcmp(command, "fcge"))
         {
-            printf("fcge\n");
+            if (verifParamNumberCommand(command, param))
+            {
+                cost = strtod(param, NULL);
+                base_handle_fcge(*base, cost);
+            }
         }
         else if(!strcmp(command, "fcgt"))
         {
-            printf("fcgt\n");
+            if (verifParamNumberCommand(command, param))
+            {
+                cost = strtod(param, NULL);
+                base_handle_fcgt(*base, cost);
+            }
         }
         else if(!strcmp(command, "fcle"))
         {
-            printf("fcle\n");
+            if (verifParamNumberCommand(command, param))
+            {
+                cost = strtod(param, NULL);
+                base_handle_fcle(*base, cost);
+            }
         }
         else if(!strcmp(command, "fclt"))
         {
-            printf("fclt\n");
+            if (verifParamNumberCommand(command, param))
+            {
+                cost = strtod(param, NULL);
+                base_handle_fclt(*base, cost);
+            }
         }
-        else if(!strcmp(command, "fn"))
+        else if(!strcmp(command, "fn")) /* TODO */
         {
-            printf("fn\n");
+            if(!strcmp(param, ""))
+            {
+                printf("Missing parameter for the fn command\n");
+            }
+            else
+            {
+                base_handle_fn(*base, param);
+            }
         }
         else if(!strcmp(command, "h") && !strcmp(param, ""))
         {
-            printf("h\n");
+            help_command();
         }
         else if(!strcmp(command, "n") && !strcmp(param, ""))
         {
-            printf("n\n");
+            base_handle_n(*base);
         }
         else if(!strcmp(command, "t") && !strcmp(param, ""))
         {
-            printf("t\n");
+            base_handle_t(*base);
         }
         else if(!strcmp(command, "v") && !strcmp(param, ""))
         {
-            printf("v\n");
+            printf("BM (Base Manager) 20211127\n\nCopyright (C) 2021 Aceves Kevin and Genthon Baptiste.\n\nWritten by Kevin Aceves <kevin.aceves-siordia@etud.univ-pau.fr> and Genthon Baptiste <baptiste.genthon@etud.univ-pau.fr>.\n");
         }
         else if(!strcmp(command, "q") && !strcmp(param, ""))
         {
@@ -321,37 +363,6 @@ void menu(base_t *base)
             fprintf(stderr, "Invalid command\n");
         }
     }
-
-/*
-    } else if(strcmp(ch, "fc") == 0)
-    {
-        double cost = 0;
-        if(paramExist == 1 && ((cost = strtod(choice+espace, NULL)) != 0 || (choice[espace+1] == '0' && choice[strlen(choice)-1] == '0')))
-        {
-            printf("valid param %f\n", cost);
-        }
-        else
-        {
-            printf("non valid param\n");
-        }
-    } else if(strcmp(choice, "n") == 0)
-    {
-        base_handle_n(*base);
-    } else if(strcmp(choice, "v") == 0)
-    {
-        printf("BM (Base Manager) 20211123\n\nCopyright (C) 2021 Aceves Kevin and Genthon Baptiste.\n\nWritten by Kevin Aceves <kevin.aceves-siordia@etud.univ-pau.fr> and Genthon Baptiste <baptiste.genthon@etud.univ-pau.fr>.\n");
-    } else if(strcmp(choice, "b") == 0)
-    {
-        base_handle_b(*base);
-    } else if(strcmp(choice, "q") == 0)
-    {
-        printf("Goodbye !\n");
-        return;
-    } 
-    else 
-    {
-        fprintf(stderr, "Invalid command\n");
-    } */
     
 }
 

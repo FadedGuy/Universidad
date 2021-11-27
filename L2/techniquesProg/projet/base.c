@@ -67,6 +67,65 @@ void base_handle_f(base_t base)
     }
 }
 
+void base_handle_fc(base_t base, double cost)
+{
+    int i;
+    for(i = 0; i < base.nfacilities; i++)
+    {
+
+        facility_handle_fc(*base.facilities[i], cost);
+    }
+}
+
+void base_handle_fcge(base_t base, double cost)
+{
+    int i;
+    for(i = 0; i < base.nfacilities; i++)
+    {
+
+        facility_handle_fcge(*base.facilities[i], cost);
+    }
+}
+
+void base_handle_fcgt(base_t base, double cost)
+{
+    int i;
+    for(i = 0; i < base.nfacilities; i++)
+    {
+
+        facility_handle_fcgt(*base.facilities[i], cost);
+    }
+}
+
+void base_handle_fcle(base_t base, double cost)
+{
+    int i;
+    for(i = 0; i < base.nfacilities; i++)
+    {
+
+        facility_handle_fcle(*base.facilities[i], cost);
+    }
+}
+
+void base_handle_fclt(base_t base, double cost)
+{
+    int i;
+    for(i = 0; i < base.nfacilities; i++)
+    {
+
+        facility_handle_fclt(*base.facilities[i], cost);
+    }
+}
+
+void base_handle_fn(base_t base, const char *name)
+{
+    int i;
+    for(i = 0; i < base.nfacilities; i++)
+    {
+
+        facility_handle_fn(*base.facilities[i], name);
+    }
+}
 void base_handle_n(base_t base)
 {
     printf("%s\n", base.name);
