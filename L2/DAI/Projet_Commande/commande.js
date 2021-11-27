@@ -325,22 +325,83 @@ samModel = {
    *
    * Les catégories sont triées par ordre alphabétique
    */
-  extractCategories() {
+   extractCategories() {
     const articles   = this.model.articles.values;
-    const categories = [];
-    const catsCount  = {};
-    const catsFilter = {};
+    let categories   = [];
+    let catsCount  = {
+      'fruits': 0,
+      'legumes': 0,
+    };
+    let catsFilter = {
+        'fruits': false,
+        'legumes': false,
+    };
     
-    // TODO
-    
+    categories = articles.map(value => value.category);
+    categories = [...new Set(categories)];    
     categories.sort(this.alphaSort);
+
+    for(let i = 0; i < articles.values.length; i++) {
+        if(articles[i].category == "fruits") {
+            catsCount.fruits++;
+            catsFilter.fruits = true;
+        } else {
+            catsCount.legumes++;
+            catsFilter.legumes = true;
+        }
+    }
+
     this.model.categories = categories;
     this.model.filters.categories.count  = catsCount;
     this.model.filters.categories.booleans = catsFilter;
   },
   
+  /* 
+  origins -> array of every origin of articles
+  orCount -> array with country keys that gives how many articles have this origin
+  orFilter -> array with country keys that returns true if there is at least 1 article with the country origin
+  */
   extractOrigins() {
-    // TODO  
+    const articles   = this.model.articles.values;
+    let origins   = [];
+    let orCount  = {
+        'Pérou': 0,
+        'France': 0,
+        'Espagne': 0,
+        'Maroc': 0,
+    };
+    const orFilter = {
+        'Pérou': false,
+        'France': false,
+        'Espagne': false,
+        'Maroc': false,
+    };
+    
+    origins = articles.map(value => value.origin);
+    origins = [...new Set(origins)];
+    origins.sort(this.alphaSort);
+
+    console.error(articles);
+
+    for(let i = 0; i < articles.values.length; i++) {
+        if(articles[i].origin == "Pérou") {
+            orCount.Pérou++;
+            orFilter.Pérou = true;
+        } else if(articles[i].origin == "France") {
+            orCount.France++;
+            orFilter.France = true;
+        } else if(articles[i].origin == "Espagne") {
+            orCount.Espagne++;
+            orFilter.Espagne = true;
+        } else {
+            orCount.Maroc++;
+            orFilter.Maroc = true;
+        }
+    }
+
+    this.model.origins = origins;
+    this.model.filters.origins.count  = orCount;
+    this.model.filters.origins.booleans = orFilter;
   },
 };
 //-------------------------------------------------------------------- State ---
@@ -472,6 +533,11 @@ samState = {
     stateSearch.text       = modelSearch.text;
   },
 
+  /*
+  filteredValues is the right value with filter string 
+  but we can't modify atm the string on UI
+  works for every string but an empty one
+  */
   filterArticles(articles, filters) {
     // filters.categories.booleans['légumes']=false;
     // filters.origins.booleans['France']=true;
@@ -480,7 +546,16 @@ samState = {
         filters.origins.hasChanged    ||
         filters.search.hasChanged     ) {
               
-      let filteredValues = articles.values;  // TODO
+      let filteredValues = [];  // TODO 
+      let curFilter = filters.search.text.toUpperCase();
+      
+      if(curFilter.trim() == "") return articles.values;
+      for(let i = 0; i < articles.values.length; i++) {
+        if(articles.values[i].name.toUpperCase().includes(curFilter))
+        {
+            filteredValues.push(articles.values[i]);
+        }
+      }
 
       this.state.filteredArticles.values     = filteredValues;
       this.state.filteredArticles.hasChanged = true;
