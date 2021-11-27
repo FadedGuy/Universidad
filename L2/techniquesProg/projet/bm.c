@@ -8,6 +8,7 @@
 #include "facility.h"
 
 #define BUFFER 20
+
 /***
  * http://xmlsoft.org/ Documentation
  * http://xmlsoft.org/tutorial/xmltutorial.pdf Guide tutorial
@@ -56,20 +57,6 @@ void help_command()
     printf("v: Prints the BM version\n");
     printf("q: Quits BM \n");
 }
-
-/* 8 bytes in 1 block leak, definitely lost
-NOT actually useful, directly use xmlGetProp is the same since we don't need to search
-void getAttName(xmlDocPtr doc, xmlNodePtr cur, char* tag, base_t* base)
-{
-    while(cur != NULL)
-    {
-        if((!xmlStrcmp(cur->name, (const xmlChar*) tag)))
-        {
-            base->name = (char*)xmlGetProp(cur, (xmlChar*) "name");
-        }
-        cur = cur->next;
-    }
-}*/
 
 void parseDate(xmlDocPtr doc, xmlNodePtr cur, base_t *base)
 {
@@ -210,56 +197,133 @@ int parseDoc(char *filename, base_t* base)
     return 0;
 }
 
-
 void menu(base_t *base)
 {
     char choice[BUFFER];
     char* command;
     char* param; 
+    int c; 
+    double cost;
 
-    printf("BM> ");
-    fgets(choice, BUFFER, stdin);
-    choice[strlen(choice)-1] = '\0';
-
-    /* Separate choice into command and parameter (if entered)*/
-    command = NULL;
-    param = strstr(choice, " ");
-    if(param != NULL)
+    /* 
+        Since we use return when q command is found, no need to make any condition
+        hence, infinite loop. Unless return
+        Accepts q(espace) but not q(espace)(espace) since the ladder is not null
+    */
+    while(1)
     {
-        param = param+1;
-        command = choice;
-        command[strlen(choice)-strlen(param)-1] = '\0';
-        printf("%ld", strlen(param));
+        printf("BM> ");
+        fgets(choice, BUFFER, stdin);
+        /*
+            A little trick since the left-most condition is evaluated first, we only flush        
+            if the length of choice is greater than 18, meaning there's leftover in stdin 
+        */
+        while(strlen(choice) > 18 && (c = getchar()) != '\n' && c != EOF);
+
+        /* Separate choice into command and parameter (if entered), null if not
+            might need to remove whitespace after, idk
+        */
+        choice[strlen(choice)-1] = '\0';
+        command = NULL;
+        param = strstr(choice, " ");
+        if(param != NULL)
+        {
+            param = param+1;
+            command = choice;
+            command[strlen(choice)-strlen(param)-1] = '\0';
+        }
+        else
+        {
+            param = "";
+            command = choice;
+        }
+
+        if(strlen(choice) > 18)
+        {
+            fprintf(stderr, "Too many characters for the command\n");
+        }
+        else if(!strcmp(command, "b") && !strcmp(param, ""))
+        {
+            printf("b\n");
+        }
+        else if(!strcmp(command, "c") && !strcmp(param, ""))
+        {
+            printf("c\n");
+        }
+        else if(!strcmp(command, "d") && !strcmp(param, ""))
+        {
+            printf("d\n");
+        }
+        else if(!strcmp(command, "f") && !strcmp(param, ""))
+        {
+            printf("f\n");
+        }
+        else if(!strcmp(command, "fc"))
+        {
+            /*
+                Extra parse to make sure its only numbers in param, can't generalize since 
+                name isn't only numbers
+                template
+            */
+            printf("fc\n");
+            if(!strcmp(param, ""))
+            {
+                printf("Missing parameter for the fc command\n");
+            }
+            else
+            {
+                cost = strtod(param, NULL);
+                printf("%.2f\n", cost);
+            }
+        }
+        else if(!strcmp(command, "fcge"))
+        {
+            printf("fcge\n");
+        }
+        else if(!strcmp(command, "fcgt"))
+        {
+            printf("fcgt\n");
+        }
+        else if(!strcmp(command, "fcle"))
+        {
+            printf("fcle\n");
+        }
+        else if(!strcmp(command, "fclt"))
+        {
+            printf("fclt\n");
+        }
+        else if(!strcmp(command, "fn"))
+        {
+            printf("fn\n");
+        }
+        else if(!strcmp(command, "h") && !strcmp(param, ""))
+        {
+            printf("h\n");
+        }
+        else if(!strcmp(command, "n") && !strcmp(param, ""))
+        {
+            printf("n\n");
+        }
+        else if(!strcmp(command, "t") && !strcmp(param, ""))
+        {
+            printf("t\n");
+        }
+        else if(!strcmp(command, "v") && !strcmp(param, ""))
+        {
+            printf("v\n");
+        }
+        else if(!strcmp(command, "q") && !strcmp(param, ""))
+        {
+            return;
+        }
+        else
+        {
+            fprintf(stderr, "Invalid command\n");
+        }
     }
-    else
-    {
-        command = choice;
-    }
 
-    printf("\t\t%s <--- command:%sparam:%s\n", choice, command, param);
-
-    if(strlen(choice) > 18)
-    {
-        fprintf(stderr, "Too many characters for the command\n");
-    } else if(strcmp(choice, "h") == 0)
-    {
-        help_command();
-    } else if(strcmp(choice, "b") == 0)
-    {
-        base_handle_b(*base);
-    } else if(strcmp(choice, "c") == 0)
-    {
-        base_handle_c(*base);
-    } else if(strcmp(choice, "d") == 0)
-    {
-        base_handle_d(*base);
-    } else if(strcmp(choice, "t") == 0)
-    {
-        base_handle_t(*base);
-    } else if(strcmp(choice, "f") == 0)
-    {
-        base_handle_f(*base);
-    } /*else if(strcmp(ch, "fc") == 0)
+/*
+    } else if(strcmp(ch, "fc") == 0)
     {
         double cost = 0;
         if(paramExist == 1 && ((cost = strtod(choice+espace, NULL)) != 0 || (choice[espace+1] == '0' && choice[strlen(choice)-1] == '0')))
@@ -270,7 +334,7 @@ void menu(base_t *base)
         {
             printf("non valid param\n");
         }
-    }*/ else if(strcmp(choice, "n") == 0)
+    } else if(strcmp(choice, "n") == 0)
     {
         base_handle_n(*base);
     } else if(strcmp(choice, "v") == 0)
@@ -287,9 +351,8 @@ void menu(base_t *base)
     else 
     {
         fprintf(stderr, "Invalid command\n");
-    } 
+    } */
     
-    menu(base);
 }
 
 int main(int argc, char *argv[])
@@ -304,11 +367,11 @@ int main(int argc, char *argv[])
 
     if(parseDoc(argv[1], base) != 0)
     {
-        fprintf(stderr, "Unable to parse\n");
         return 1;
     }
     
     menu(base);
+    printf("Goodbye !\n");
     /*printf("%s\n", base->name);
     printf("%d %d %d\n", base->day, base->month, base->year);
     printf("%s\n", base->country);
