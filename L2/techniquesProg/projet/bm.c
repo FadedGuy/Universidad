@@ -207,6 +207,7 @@ int verifParamNumberCommand(char *command, char* param)
 
     return 1;
 }
+
 void menu(base_t *base)
 {
     char choice[BUFFER];
