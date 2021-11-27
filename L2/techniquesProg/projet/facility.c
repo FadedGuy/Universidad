@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "facility.h"
 
 facility_t *facility_create()
@@ -68,5 +69,8 @@ void facility_handle_fclt(facility_t facility, double cost)
 
 void facility_handle_fn(facility_t facility, const char *name)
 {
-    
+    if(strstr(facility.name, name) != NULL)
+    {
+        facility_handle_f(facility);
+    }
 }

@@ -15,18 +15,6 @@
  ***/
 
 /***
- * Commands missing
- * 
- * fc COST: Prints the base facilities with the cost equal to COST
- * fcge COST: Prints the base facilities with the cost greater than or equal to COST
- * fcgt COST: Prints the base facilities with the cost greater than COST
- * fcle COST: Prints the base facilities with the cost less than or equal to COST
- * fclt COST: Prints the base facilities with the cost less than COST
- * fn NAME: Prints the base facilities with the name containing NAME
- * 
- ***/
-
-/***
  * la solution doit ignorer tout noeud ou attribut qui ne décrit pas une base 
  *  constituée d’installations
  * Creer des xml different pour tester
@@ -226,7 +214,6 @@ void menu(base_t *base)
     char* param; 
     int c; 
     int lenChoice;
-    double cost;
 
     /* 
         Since we use return when q command is found, no need to make any condition
@@ -284,50 +271,40 @@ void menu(base_t *base)
         }
         else if(!strcmp(command, "fc"))
         {
-            /*
-                Extra parse to make sure its only numbers in param, can't generalize since 
-                name isn't only numbers
-                template
-            */
             if (verifParamNumberCommand(command, param))
             {
-                cost = strtod(param, NULL);
-                base_handle_fc(*base, cost);
+                base_handle_fc(*base, strtod(param, NULL));
             }
         }
         else if(!strcmp(command, "fcge"))
         {
             if (verifParamNumberCommand(command, param))
             {
-                cost = strtod(param, NULL);
-                base_handle_fcge(*base, cost);
+                base_handle_fcge(*base, strtod(param, NULL));
             }
         }
         else if(!strcmp(command, "fcgt"))
         {
             if (verifParamNumberCommand(command, param))
             {
-                cost = strtod(param, NULL);
-                base_handle_fcgt(*base, cost);
+                base_handle_fcgt(*base, strtod(param, NULL));
             }
         }
         else if(!strcmp(command, "fcle"))
         {
             if (verifParamNumberCommand(command, param))
             {
-                cost = strtod(param, NULL);
-                base_handle_fcle(*base, cost);
+                base_handle_fcle(*base, strtod(param, NULL));
             }
         }
         else if(!strcmp(command, "fclt"))
         {
             if (verifParamNumberCommand(command, param))
             {
-                cost = strtod(param, NULL);
-                base_handle_fclt(*base, cost);
+                base_handle_fclt(*base, strtod(param, NULL));
             }
         }
-        else if(!strcmp(command, "fn")) /* TODO */
+        else if(!strcmp(command, "fn"))
         {
             if(!strcmp(param, ""))
             {

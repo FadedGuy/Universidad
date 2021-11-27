@@ -122,7 +122,6 @@ void base_handle_fn(base_t base, const char *name)
     int i;
     for(i = 0; i < base.nfacilities; i++)
     {
-
         facility_handle_fn(*base.facilities[i], name);
     }
 }
