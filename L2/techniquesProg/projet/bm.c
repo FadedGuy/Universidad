@@ -210,16 +210,33 @@ int parseDoc(char *filename, base_t* base)
     return 0;
 }
 
+
 void menu(base_t *base)
 {
     char choice[BUFFER];
-    char ch[4];
-    int espace = 0, paramExist = 0;
+    char* command;
+    char* param; 
 
     printf("BM> ");
     fgets(choice, BUFFER, stdin);
     choice[strlen(choice)-1] = '\0';
 
+    /* Separate choice into command and parameter (if entered)*/
+    command = NULL;
+    param = strstr(choice, " ");
+    if(param != NULL)
+    {
+        param = param+1;
+        command = choice;
+        command[strlen(choice)-strlen(param)-1] = '\0';
+        printf("%ld", strlen(param));
+    }
+    else
+    {
+        command = choice;
+    }
+
+    printf("\t\t%s <--- command:%sparam:%s\n", choice, command, param);
 
     if(strlen(choice) > 18)
     {
@@ -242,11 +259,8 @@ void menu(base_t *base)
     } else if(strcmp(choice, "f") == 0)
     {
         base_handle_f(*base);
-    } else if(strcmp(ch, "fc") == 0)
+    } /*else if(strcmp(ch, "fc") == 0)
     {
-        /* A lot of ways to handle f*** (fc, fcge, etc) commands, but I think this is the best since strcmp would'nt tell us 
-            where it was different, this way we have control
-         */
         double cost = 0;
         if(paramExist == 1 && ((cost = strtod(choice+espace, NULL)) != 0 || (choice[espace+1] == '0' && choice[strlen(choice)-1] == '0')))
         {
@@ -256,7 +270,7 @@ void menu(base_t *base)
         {
             printf("non valid param\n");
         }
-    } else if(strcmp(choice, "n") == 0)
+    }*/ else if(strcmp(choice, "n") == 0)
     {
         base_handle_n(*base);
     } else if(strcmp(choice, "v") == 0)
@@ -294,7 +308,7 @@ int main(int argc, char *argv[])
         return 1;
     }
     
-    /*menu(base);*/
+    menu(base);
     /*printf("%s\n", base->name);
     printf("%d %d %d\n", base->day, base->month, base->year);
     printf("%s\n", base->country);
