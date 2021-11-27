@@ -59,7 +59,6 @@ samActions = {
       // TODO
       case 'darkThemeToggle'   :  
       case 'updatePagination'  : 
-        model.samPresent({do: 'updatePagination', page:3});
       
       case 'without animation' : enableAnimation = false; proposal = data; break;
       
@@ -163,9 +162,7 @@ samModel = {
       case 'darkThemeToggle'   : this.modelToggle('settings.darkTheme'    ); break;      
       case 'gridListView'      : this.modelAssign('display.articlesView', data.view); break;      
       
-      case 'updatePagination'  : 
-        console.error(data.do);
-        break; 
+      case 'updatePagination'  : break;      
       
       // TODO
       
@@ -311,10 +308,11 @@ samModel = {
    * Pour un tri par ordre alphabétique
    * 
    */
-   alphaSort(a,b) {
-    if (a < b) return -1;
-    if (a > b) return  1;
-    return 0;  
+  alphaSort(a,b) {
+    
+    // TODO
+
+    return -1;  
   },
   
   /**
@@ -327,43 +325,22 @@ samModel = {
    *
    * Les catégories sont triées par ordre alphabétique
    */
-   extractCategories() {
+  extractCategories() {
     const articles   = this.model.articles.values;
-    let categories   = [];
-    let catsCount  = {
-      fruits: 0,
-      légumes: 0,
-    };
-    let catsFilter = {};
+    const categories = [];
+    const catsCount  = {};
+    const catsFilter = {};
     
-    categories = articles.map(value => value.category);
-    categories = [...new Set(categories)];    
+    // TODO
+    
     categories.sort(this.alphaSort);
-
-    // fonctionne pas : on veut mettre dans chaque key catsCount le nombre d'articles qui ont la catégorie
-    catsCount = articles.map(value => value.category=="fruits"?catsCount.fruits++:catsCount.fruits);
-    console.error(catsCount);
-
-
     this.model.categories = categories;
     this.model.filters.categories.count  = catsCount;
     this.model.filters.categories.booleans = catsFilter;
   },
   
   extractOrigins() {
-    const articles   = this.model.articles.values;
-    let origins   = [];
-    const orCount  = {};
-    const orFilter = {};
-    
-    origins = articles.map(value => value.origin);
-
-    origins = [...new Set(origins)];
-    
-    origins.sort(this.alphaSort);
-    this.model.origins = origins;
-    this.model.filters.origins.count  = orCount;
-    this.model.filters.origins.booleans = orFilter;
+    // TODO  
   },
 };
 //-------------------------------------------------------------------- State ---
@@ -498,17 +475,12 @@ samState = {
   filterArticles(articles, filters) {
     // filters.categories.booleans['légumes']=false;
     // filters.origins.booleans['France']=true;
-    if (articles.hasChanged           || 
+    if (articles.hasChanged         || 
         filters.categories.hasChanged || 
         filters.origins.hasChanged    ||
         filters.search.hasChanged     ) {
-
-      console.error("Entered filterArticles");
-      
-      let currentFilterLower = this.state.filters.search.text.toLowerCase();
-      if(currentFilterLower == '') return articles.values;
-
-      let filteredValues = this.state.filteredArticles.values.filter(art => ((art.toLowerCase().includes(currentFilterLower))));
+              
+      let filteredValues = articles.values;  // TODO
 
       this.state.filteredArticles.values     = filteredValues;
       this.state.filteredArticles.hasChanged = true;
@@ -707,7 +679,6 @@ samView = {
           ${this.settingsUI(model,state)}
           
         </aside>
-
       </div>
       <div class=" col s9 m10 l10">
         <!-- ___________________________________ Récap filtres et recherche -->
@@ -825,15 +796,12 @@ samView = {
     
     return this.html`           
       <label  class="medium-text color-2-text">7 articles -</label>
-
       <span class="chip small no-margin capitalize ">
         fruits<i class="small">close</i>
       </span>  
-
       <span class="chip small no-margin capitalize ">
         France<i class="small">close</i>
       </span>          
-
       <span class="chip small no-margin">
         Rech : "a"<i class="small">close</i>
       </span>              
@@ -903,81 +871,34 @@ samView = {
   articlesListUI(model, state) {
     
     console.log('articlesListUI');
-    
-    // TODO
       
     return this.html`
       <article class="large-margin list-view">
-      
-        <nav  class="row card divider no-wrap">            
-          <div class="col min">
-            <img src="./images/avocat.jpg" class="circle tiny" />
-          </div>
-          <div class="col">
-            <h6>Avocats</h6>
-            <label>Pérou</label>
-          </div>
-          <div class="col min chip no-margin">
-            <label>Prix : </label><span class="large-text">1.50 € / Pièce</span>
-          </div>
-          <div class="col min field round fill small border center-align no-margin">
-            <label>Qté : </label>
-            <input type="text" value="" class="center-align color-1a" />
-          </div>
-          <div class="col min no-margin"></div>
-          <div class="col min">
-            <button class="circle no-margin disabled" disabled="disabled">
-              <i>add</i>
-            </button>
-          </div>
-        </nav>
+        ${state.filteredArticles.values.map(art => `
+          <nav  class="row card divider no-wrap">            
+            <div class="col min">
+              ${model.settings.articleImages ? `<img src="./images/${art.pictures[0]}" />` : ''}
+            </div>
+            <div class="col">
+              <h6>${art.name}</h6>
+              <label>${art.origin}</label>
+            </div>
+            <div class="col min chip no-margin">
+              <label>Prix : </label><span class="large-text">${art.price.toFixed(2)} € / ${art.unit}</span>
+            </div>
+            <div class="col min field round fill small border center-align no-margin">
+              <label>Qté : </label>
+              <input type="text" value="${art.quantity}" class="center-align color-1a" />
+            </div>
+            <div class="col min no-margin"></div>
+            <div class="col min">
+              <button class="circle no-margin disabled" disabled="disabled">
+                <i>add</i>
+              </button>
+            </div>
+          </nav>
+        `).join('')}
   
-        <nav  class="row card divider no-wrap">          
-          <div class="col min">
-            <img src="./images/fraises.jpg" class="circle tiny" />
-          </div>
-          <div class="col">
-            <h6>Fraises</h6>
-            <label>France</label>
-          </div>
-          <div class="col min chip no-margin">
-            <label>Prix : </label><span class="large-text">3.00 € / Barquette 250g</span>
-          </div>
-          <div class="col min field round fill small border center-align no-margin">
-            <label>Qté : </label>
-            <input type="text" class="center-align color-1a" />
-          </div>
-          <div class="col min no-margin"></div>
-          <div class="col min">
-            <button class="circle no-margin ">
-              <i>add</i>
-            </button>
-          </div>
-        </nav>         
-  
-        <nav  class="row card divider no-wrap">
-          <div class="col min">
-            <img src="./images/fraises.jpg" class="circle tiny" />
-           </div>      
-          <div class="col">
-            <h6>Fraises</h6>
-            <label>France</label>
-          </div>
-          <div class="col min chip no-margin">
-            <label>Prix : </label><span class="large-text">5.00 € / Barquette 500g</span>
-          </div>
-          <div class="col min field round fill small border center-align no-margin">
-            <label>Qté : </label>
-            <input type="text" value="3" class="center-align " />
-          </div>
-          <div class="col min no-margin"></div>
-          <div class="col min">
-            <button class="circle no-margin ">
-              <i>edit</i>
-            </button>
-          </div>
-        </nav>
-          
       </article>
     `;
   },
@@ -1001,8 +922,8 @@ samView = {
     
     return this.html`
       <nav class="center-align">
-      <button class="${model.hasPrevPage?`square`:`square border disabled`}" ${model.hasPreviousPage? ``: `disabled="disabled"`}>
-      <i>navigate_before</i>
+        <button class="square border disabled" disabled="disabled">
+          <i>navigate_before</i>
         </button>     
         <button class="square no-margin border">1</button>      
         <button class="square no-margin ">2</button>      
@@ -1084,7 +1005,6 @@ samView = {
       </div>
     </section>
   </div>
-
     `;
 
   },
@@ -1094,18 +1014,16 @@ samView = {
 function envoyerCommande(client, articles, total) {
     
   // TODO
-  
+
   let email = 'commandes@fruits-legumes.com';
   let sujet = 'Commande de ' + client;
   let corps = `
-Commande de fruits et légumes
+  Commande de fruits et légumes
+  Voici les articles commandés pour un montant de ${samView.inEuro(total)} :
+  - Fraises (3 Barquette 500g)
+  - Fraises (1 Plateau 1kg)
+  - Oranges (2.5 kg)
 
-Voici les articles commandés pour un montant de ${samView.inEuro(total)} :
-
-- Fraises (3 Barquette 500g)
-- Fraises (1 Plateau 1kg)
-- Oranges (2.5 kg)
-  
   `;
   email = encodeURIComponent(email);
   sujet = encodeURIComponent(sujet);
