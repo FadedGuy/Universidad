@@ -793,8 +793,7 @@ samView = {
   
   filterUI(model, state, filterName) {
     
-    console.log('filterUI', filterName)
-    
+    console.log('filterUI', filterName);
     // TODO
     
     return this.html`   
