@@ -71,13 +71,18 @@ samActions = {
     else             samModel.samPresent(proposal);
   },
 
+  filters: function(data) {
+    let filterValue = data.e.target.value;
+    samModel.samPresent({do: 'filterUpdate', newFilter: filterValue});
+  },
+
 };
 //-------------------------------------------------------------------- Model ---
 // Unique source de vérité de l'application
 //
 
 const initialModel= {
-  authors  : ['Baptiste', 'Kevin'],
+  authors  : ['Baptiste GENTHON', 'Kevin ACEVES SIORDIA'],
   
   artiPart1: [],
   artiPart2: [],
@@ -160,7 +165,8 @@ samModel = {
       case 'imagesToggle'      : this.modelToggle('settings.articleImages'); break;
       case 'animationsToggle'  : this.modelToggle('settings.animations'   ); break;
       case 'darkThemeToggle'   : this.modelToggle('settings.darkTheme'    ); break;      
-      case 'gridListView'      : this.modelAssign('display.articlesView', data.view); break;      
+      case 'gridListView'      : this.modelAssign('display.articlesView', data.view); break;   
+      case 'filterUpdate'      : this.model.filters.search.text = data.newFilter; break;   
       
       case 'updatePagination'  : break;      
       
@@ -250,8 +256,8 @@ samModel = {
   },
   
   /**
-   * fonction à passer en paramete à Array.sort() pour trier un tableau d'objets
-   * selon leur nom, et leur prix s'il ont le même nom.
+   * fonction à passer en paramètre à Array.sort() pour trier un tableau d'objets
+   * selon leur nom, et leur prix s'ils ont le même nom.
    *
    * @param {Object} a 
    * @param {Object} b 
@@ -309,10 +315,10 @@ samModel = {
    * 
    */
   alphaSort(a,b) {
-    
-    // TODO
+      if(a<b) return -1;
+      if(a>b) return 1;
 
-    return -1;  
+    return 0;  
   },
   
   /**
@@ -325,7 +331,14 @@ samModel = {
    *
    * Les catégories sont triées par ordre alphabétique
    */
-   extractCategories() {
+
+  /* 
+  categories -> array of every categories of articles
+  catsCount -> array with category keys that gives how many articles have this category
+  orFilter -> array with category keys that returns true if there is at least 1 article with the category
+  */
+  
+  extractCategories() {
     const articles   = this.model.articles.values;
     let categories   = [];
     let catsCount  = {
@@ -380,8 +393,6 @@ samModel = {
     origins = articles.map(value => value.origin);
     origins = [...new Set(origins)];
     origins.sort(this.alphaSort);
-
-    console.error(articles);
 
     for(let i = 0; i < articles.values.length; i++) {
         if(articles[i].origin == "Pérou") {
@@ -520,7 +531,27 @@ samState = {
   
     console.log('updateFilter', modelFilter)
   
-    // TODO
+    // TODO : DOESNT WORK (modelFilter has everything set to 0 but in extractOrigins & extractCategories
+    // we set model values to the right values? it means modelFilter doesn't get extracted values I guess)
+
+    let isEveryElementTrue = true;
+    stateFilter = modelFilter;
+    
+    if(stateFilter.booleans.Espagne == false ||
+      stateFilter.booleans.France == false || 
+      stateFilter.booleans.Maroc == false ||
+      stateFilter.booleans.Pérou == false) 
+    {
+      isEveryElementTrue = false;
+    }
+
+    if(stateFilter.booleans.fruits == false ||
+      stateFilter.booleans.legumes == false)
+      {
+        isEveryElementTrue = false;
+      }
+
+    stateFilter.toutes = isEveryElementTrue;
     
   },
   
@@ -538,6 +569,7 @@ samState = {
   but we can't modify atm the string on UI
   works for every string but an empty one
   */
+ 
   filterArticles(articles, filters) {
     // filters.categories.booleans['légumes']=false;
     // filters.origins.booleans['France']=true;
@@ -821,7 +853,8 @@ samView = {
     console.log('searchUI')
     
     // TODO
-    
+    // need to keep focus on textbox when writing
+
     return this.html`
       <div class="middle-align small-margin">
         <label class="switch">
@@ -831,7 +864,7 @@ samView = {
       </div>
       <div class="field prefix round fill border small">
         <i>search</i>
-        <input type="text" class="align-middle" value="a" /> 
+        <input type="text" class="align-middle" onkeyup="samActions.filters({e: event})" value="${model.filters.search.text}" /> 
       </div>    
     `;
   },
@@ -878,7 +911,7 @@ samView = {
         France<i class="small">close</i>
       </span>          
       <span class="chip small no-margin">
-        Rech : "a"<i class="small">close</i>
+        Rech : "${model.filters.search.text}"<i class="small">close</i>
       </span>              
     `;
   },
