@@ -17,7 +17,7 @@
 /***
  * la solution doit ignorer tout noeud ou attribut qui ne décrit pas une base 
  *  constituée d’installations
- * Creer des xml different pour tester
+ * Créer des xml differents pour tester
  * 
  * if the parsing fails, or document doesn't exist, exit program with 0 or 1?, 
  *  I'd say 0 since it handles the error and gets out as expected
