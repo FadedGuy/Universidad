@@ -37,6 +37,9 @@ samActions = {
         enableAnimation = false;
       } break; 
       // Display 
+      case 'filters':
+        proposal = {do: 'filterUpdate', newFilter: data.e.target.value};
+        break;
       case 'viewCartToggle'    :
       case 'gridListView'      : 
       // Filters
@@ -52,7 +55,9 @@ samActions = {
       // TODO
       // Cart
       // TODO
-      
+      case 'globalSearch': 
+        proposal = {do: data.do, checked: data.check.checked};
+        break;
       case 'with animation'    : proposal = data; break;
       
       // Articles
@@ -66,14 +71,9 @@ samActions = {
         console.error('samActions - Action non prise en compte : ', data);
         return;
     }
-    if (enableAnimation && samModel.model.settings.animations)
-      setTimeout(()=>samModel.samPresent(proposal), 200);
+    if (enableAnimation && samModel.model.settings.animations){
+      setTimeout(()=>samModel.samPresent(proposal), 200);}
     else             samModel.samPresent(proposal);
-  },
-
-  filters: function(data) {
-    let filterValue = data.e.target.value;
-    samModel.samPresent({do: 'filterUpdate', newFilter: filterValue});
   },
 
 };
@@ -167,6 +167,7 @@ samModel = {
       case 'darkThemeToggle'   : this.modelToggle('settings.darkTheme'    ); break;      
       case 'gridListView'      : this.modelAssign('display.articlesView', data.view); break;   
       case 'filterUpdate'      : this.model.filters.search.text = data.newFilter; break;   
+      case 'globalSearch'      : this.model.filters.search.global = data.checked; break;
       
       case 'updatePagination'  : break;      
       
@@ -354,7 +355,7 @@ samModel = {
     categories = [...new Set(categories)];    
     categories.sort(this.alphaSort);
 
-    for(let i = 0; i < articles.values.length; i++) {
+    for(let i = 0; i < articles.length; i++) {
         if(articles[i].category == "fruits") {
             catsCount.fruits++;
             catsFilter.fruits = true;
@@ -394,7 +395,7 @@ samModel = {
     origins = [...new Set(origins)];
     origins.sort(this.alphaSort);
 
-    for(let i = 0; i < articles.values.length; i++) {
+    for(let i = 0; i < articles.length; i++) {
         if(articles[i].origin == "Pérou") {
             orCount.Pérou++;
             orFilter.Pérou = true;
@@ -565,9 +566,7 @@ samState = {
   },
 
   /*
-  filteredValues is the right value with filter string 
-  but we can't modify atm the string on UI
-  works for every string but an empty one
+  Works now, it filters articles correctly even if there is no search
   */
  
   filterArticles(articles, filters) {
@@ -581,7 +580,11 @@ samState = {
       let filteredValues = [];  // TODO 
       let curFilter = filters.search.text.toUpperCase();
       
-      if(curFilter.trim() == "") return articles.values;
+      if(curFilter.trim() == ""){
+        this.state.filteredArticles.values = articles.values;
+        this.state.filteredArticles.hasChanged = true;
+        return;
+      } 
       for(let i = 0; i < articles.values.length; i++) {
         if(articles.values[i].name.toUpperCase().includes(curFilter))
         {
@@ -851,19 +854,19 @@ samView = {
     
     console.log('searchUI')
     
-    // TODO
-    // need to keep focus on textbox when writing
+    // Use onchange-event, instead of onclick
+    // global value stored
 
     return this.html`
       <div class="middle-align small-margin">
         <label class="switch">
-          <input type="checkbox" />
+          <input type="checkbox" onchange="samActions.exec({do:'globalSearch', check:this})" ${state.filters.search.global == true ? `checked="checked"` : ''} />
           <span>globale</span>
         </label>
       </div>
       <div class="field prefix round fill border small">
         <i>search</i>
-        <input type="text" class="align-middle" onkeyup="samActions.filters({e: event})" value="${model.filters.search.text}" /> 
+        <input type="text" class="align-middle" onchange="samActions.exec({do:'filters', e: event})" value="${state.filters.search.text}" /> 
       </div>    
     `;
   },
@@ -897,21 +900,25 @@ samView = {
   
   filtersSearchTagsUI(model, state) {
   
-    console.log('filtersSearchTagsUI')
+    console.log('filtersSearchTagsUI');
   
     // TODO
+    // Categries and origins missing, nb Articles and recherche done
     
     return this.html`           
-      <label  class="medium-text color-2-text">7 articles -</label>
+      <label  class="medium-text color-2-text">${state.filteredArticles.values.length} articles -</label>
+
       <span class="chip small no-margin capitalize ">
         fruits<i class="small">close</i>
       </span>  
       <span class="chip small no-margin capitalize ">
         France<i class="small">close</i>
-      </span>          
-      <span class="chip small no-margin">
-        Rech : "${model.filters.search.text}"<i class="small">close</i>
-      </span>              
+      </span>   
+      ${state.filters.search.text.trim() == "" ? '' : `
+        <span class="chip small no-margin">
+          Rech : "${state.filters.search.text}"<i class="small">close</i>
+        </span> `}       
+                   
     `;
   },
   
