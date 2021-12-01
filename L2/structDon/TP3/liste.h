@@ -1,3 +1,5 @@
+#ifndef LISTE_H
+#define LISTE_H
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -21,3 +23,5 @@ liste fin(liste);
 
 Elem tete(liste);
 BOOL estVide(liste);
+
+#endif
