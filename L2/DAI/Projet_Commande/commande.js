@@ -42,15 +42,12 @@ samActions = {
         break;
       case 'viewCartToggle'    :
       case 'gridListView'      : 
-      // Filters
-      // TODO
-      // Settings
         proposal = {do: data.do, view: data.view};
         break;
       case 'imagesToggle'      : 
         proposal = {do: data.do};
         break;
-      case 'animationsToggle'  : 
+      case 'animationsToggle'  :
       // Pagination
       // TODO
       // Cart
@@ -58,8 +55,16 @@ samActions = {
       case 'globalSearch': 
         proposal = {do: data.do, checked: data.check.checked};
         break;
+      case 'deleteToggle':
+        proposal = {do: data.do, id: data.id};
+        break;
       case 'with animation'    : proposal = data; break;
-      
+      case 'addCart' : 
+        proposal = {do: data.do, id: data.id};
+        break;
+      case 'editQt':
+        proposal = {do: data.do, id: data.id, qt: data.e.target.value};
+        break;
       // Articles
       // TODO
       case 'darkThemeToggle'   :  
@@ -166,9 +171,12 @@ samModel = {
       case 'animationsToggle'  : this.modelToggle('settings.animations'   ); break;
       case 'darkThemeToggle'   : this.modelToggle('settings.darkTheme'    ); break;      
       case 'gridListView'      : this.modelAssign('display.articlesView', data.view); break;   
-      case 'filterUpdate'      : this.model.filters.search.text = data.newFilter; break;   
+      case 'filterUpdate'      : this.model.filters.search.text = data.newFilter; break;
+      case 'deleteToggle'      : break;
       case 'globalSearch'      : this.model.filters.search.global = data.checked; break;
-      
+      case 'addCart'           : this.model.articles.values.find(art => art.id == data.id).inCart = true; this.model.articles.hasChanged = true; break;
+      case 'editQt'            : this.model.articles.values.find(art => art.id == data.id).quantity = data.qt; this.model.articles.hasChanged = true; 
+                                 if(data.qt == 0){this.model.articles.values.find(art => art.id == data.id).inCart = false} break; //Delete article from cart if qt is 0
       case 'updatePagination'  : break;      
       
       // TODO
@@ -649,8 +657,11 @@ samState = {
     const articles = model.articles;
     if (articles.hasChanged) {
     
-      this.state.cart.values = []; // TODO
+      this.state.cart.values = articles.values.filter(art => art.inCart == true) // TODO
       this.state.cart.total = 0;   // TODO
+      this.state.cart.values.forEach(art => {
+        this.state.cart.total += (art.price*art.quantity);
+      });
       this.state.cart.hasChanged = true;
     }
   },  
@@ -694,6 +705,9 @@ samState = {
     const articlesView     = state.display.articlesView;
     if (filteredArticles.hasChanged || articlesView.hasChanged) {
       filteredArticles.representation = articlesView.value == 'grid' ? samView.articlesGridUI(model, state) : samView.articlesListUI(model, state);
+      if(filteredArticles.values.length == 0){
+        filteredArticles.representation = samView.articlesEmptyUI(model, state);
+      }
       filteredArticles.hasChanged = false;
       articlesView.hasChanged     = false;
     }
@@ -1008,7 +1022,6 @@ samView = {
     const listViewClass    = gridOn ? '' : 'disabled';
     const listViewDisabled = gridOn ? '' : 'disabled="disabled"';
     
-    console.log(gridOn + '<================');
     return this.html`
       <button onclick="samActions.exec({do:'gridListView', view:'list'})" class="small no-margin ${listViewClass}" ${listViewDisabled}>
         <i>view_list</i></button>
@@ -1042,12 +1055,12 @@ samView = {
               </div>
               <div class="row no-margin">
                 <div class="col s8 field round fill border center-align">
-                  <input type="text" class="center-align " value="${art.quantity}" />
+                  <input type="text" class="center-align ${art.inCart ? '' : 'color-1a'}" value="${art.quantity == 0 ? '' : `${art.quantity}`}" onchange="samActions.exec({do:'editQt', e:event, id: ${art.id}})"/>
                   <label>Quantité</label>
                 </div>
                 <div class=" col s4">
-                  <button class="circle no-margin ">
-                    <i>edit</i>
+                  <button ${art.quantity == 0 ? `class="circle no-margin disabled" disabled="disabled" ` : `class="circle no-margin "`} onclick="samActions.exec({do: 'addCart', id: ${art.id}})" >
+                    <i>${art.inCart ? 'edit' : 'add'}</i>
                   </button>
                 </div>
               </div>
@@ -1080,12 +1093,12 @@ samView = {
             </div>
             <div class="col min field round fill small border center-align no-margin">
               <label>Qté : </label>
-              <input type="text" value="${art.quantity}" class="center-align color-1a" />
-            </div>
+              <input type="text" class="center-align ${art.inCart ? '' : 'color-1a'}" value="${art.quantity == 0 ? '' : `${art.quantity}`}" onchange="samActions.exec({do:'editQt', e:event, id: ${art.id}})"/>
+              </div>
             <div class="col min no-margin"></div>
             <div class="col min">
-              <button class="circle no-margin disabled" disabled="disabled">
-                <i>add</i>
+              <button ${art.quantity == 0 ? `class="circle no-margin disabled" disabled="disabled" ` : `class="circle no-margin "`} onclick="samActions.exec({do: 'addCart', id: ${art.id}})" >
+                <i>${art.inCart ? 'edit' : 'add'}</i>
               </button>
             </div>
           </nav>
@@ -1141,7 +1154,9 @@ samView = {
 
     if (!model.display.cartView) return '';
   
-    // TODO
+    // SORT thead
+    // Envoyer command
+
     
     return this.html`
       <div class="panier row small-margin">
@@ -1163,26 +1178,30 @@ samView = {
               <th>
               </th>
             </thead>
-            <tr class="ligne-paire">
-              <td class="left-align">Fraises</td>
-              <td class="quantite">
-                <div class="field fill small">
-                  <input type="text" class="right-align" value="3" />
-                </div>
-              </td>
-              <td class="left-align">Barquette 500g</td>
-              <td>5.00 €</td>
-              <td>15.00 €</td>
-              <td class="center-align">
-                <label class="checkbox">
-                  <input type="checkbox" checked="checked"/>
-                  <span></span>
-                </label>
-              </td>
-            </tr>
+
+            ${state.cart.values.map((art, index) => `
+              <tr class="${index % 2 == 0 ? `ligne-paire` : `ligne-impaire`}">
+                <td class="left-align">${art.name}</td>
+                <td class="quantite">
+                  <div class="field fill small">
+                    <input type="text" class="right-align" value="${art.quantity}" onchange="samActions.exec({do:'editQt', e:event, id: ${art.id}})"/>
+                  </div>
+                </td>
+                <td class="left-align">${art.unit}</td>
+                <td>${art.price.toFixed(2)} €</td>
+                <td>${(art.price * art.quantity).toFixed(2)} €</td>
+                <td class="center-align">
+                  <label class="checkbox">
+                    <input type="checkbox" onclick="samActions.exec({do: 'deleteToggle', id: '${art.id}'})"/> 
+                    <span></span>
+                  </label>
+                </td>
+              </tr>
+              `).join('')}
+              
             <tfoot class="orange-light-3">
               <th colspan="4">Total :</th>
-              <th>26.75 €</th>
+              <th>${state.cart.total.toFixed(2)} €</th>
               <th class="center-align">
                 <button type="button" onclick="samActions.exec({do:'cartDelete'})" 
                   class="small"><i>delete</i></button>
@@ -1191,8 +1210,7 @@ samView = {
           </table>
         </div>
         <div class="medium-margin right-align">
-          <button 
-            onclick="envoyerCommande('Tata et Toto', samState.state.cart.values, ${state.cart.total})"><i class="small-margin">send</i> Envoyer la commande</button>
+          <button onclick="envoyerCommande('Tata et Toto', samState.state.cart.values, ${state.cart.total})" ${state.cart.total ? `` : `class="disabled" disabled="disabled"`}><i class="small-margin">send</i> Envoyer la commande</button>
         </div>
       </div>
     </section>
