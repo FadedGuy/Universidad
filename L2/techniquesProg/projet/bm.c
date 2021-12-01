@@ -15,16 +15,14 @@
  ***/
 
 /***
- * la solution doit ignorer tout noeud ou attribut qui ne décrit pas une base 
- *  constituée d’installations
  * Créer des xml differents pour tester
  * 
  * if the parsing fails, or document doesn't exist, exit program with 0 or 1?, 
  *  I'd say 0 since it handles the error and gets out as expected
  * 
- * LEAKS XML
- * xmlNodeListGetString
- * xmlGetProp
+ * when using a xmlChar* as a string, dont free the memory right away since we are using it for the 
+ * variable as a pointer, free at the end in base_free and facility_free
+ * If used to convert to double or long it NEEDS to be freed right after it's used.
  ***/
 
 void help_command()
@@ -48,22 +46,26 @@ void help_command()
 
 void parseDate(xmlDocPtr doc, xmlNodePtr cur, base_t *base)
 {
-    /*
-        For each xmlNodeListGetString there is a leak of 2-3 bytes in 1 bloc per each
-    */
+    xmlChar* key;
     cur = cur->xmlChildrenNode;
     while(cur != NULL)
     {
         if((!xmlStrcmp(cur->name, (const xmlChar*) "day")))
         {
-            base->day = strtol((char*)xmlNodeListGetString(doc, cur->xmlChildrenNode, 1), NULL, 10);
+            key = xmlNodeListGetString(doc, cur->xmlChildrenNode, 1);
+            base->day = strtol((char*)key, NULL, 10);
+            xmlFree(key);
         }
         else if((!xmlStrcmp(cur->name, (const xmlChar*) "month")))
         {
-            base->month = strtol((char*)xmlNodeListGetString(doc, cur->xmlChildrenNode, 1), NULL, 10);
+            key = xmlNodeListGetString(doc, cur->xmlChildrenNode, 1);
+            base->month = strtol((char*)key, NULL, 10);
+            xmlFree(key);
         }else if((!xmlStrcmp(cur->name, (const xmlChar*) "year")))
         {
-            base->year = strtol((char*)xmlNodeListGetString(doc, cur->xmlChildrenNode, 1), NULL, 10);
+            key = xmlNodeListGetString(doc, cur->xmlChildrenNode, 1);
+            base->year = strtol((char*)key, NULL, 10);
+            xmlFree(key);
         }
         cur = cur->next;
     }
@@ -71,39 +73,41 @@ void parseDate(xmlDocPtr doc, xmlNodePtr cur, base_t *base)
 
 void parseCountry(xmlDocPtr doc, xmlNodePtr cur, base_t *base)
 {
+    xmlChar* key;
     cur = cur->xmlChildrenNode;
-    base->country = realloc(base->country, sizeof(char*));
-    if(base->country == NULL)
-        return;
     
-    base->country = (char*) xmlNodeListGetString(doc, cur, 1);
+    /* Refer to comment on xmlChar* use on char* */
+    key = xmlNodeListGetString(doc, cur, 1);
+    base->country = (char*) key;
 }
 
 void parseInFacilities(xmlDocPtr doc, xmlNodePtr cur, base_t *base)
 {
+    xmlChar* key;
     facility_t *facility = facility_create();
     if(facility == NULL)
         return;
-    
-    facility->name = realloc(facility->name, sizeof(char*));
-    if(facility->name == NULL)
-        return;
 
-    facility->name = (char*)xmlGetProp(cur, (xmlChar*)"name");
+    key = xmlGetProp(cur, (const xmlChar*) "name");
+    facility->name = (char*)key;
 
     cur = cur->xmlChildrenNode;
     while(cur != NULL)
     {
         if((!xmlStrcmp(cur->name, (const xmlChar*) "area")))
         {
-            facility->area = strtol((char*) xmlNodeListGetString(doc, cur->xmlChildrenNode, 1), NULL, 10);
+            key = xmlNodeListGetString(doc, cur->xmlChildrenNode, 1);
+            facility->area = strtol((char*) key, NULL, 10);
+            xmlFree(key);
         } else if((!xmlStrcmp(cur->name, (const xmlChar*) "cost")))
         {
-            facility->cost = strtod((char*) xmlNodeListGetString(doc, cur->xmlChildrenNode, 1), NULL);
+            key = xmlNodeListGetString(doc, cur->xmlChildrenNode, 1);
+            facility->cost = strtod((char*) key, NULL);
+            xmlFree(key);
         }
         cur = cur->next;
     }
-
+    
     if(base_add_facility(base, facility) != 0)
     {
         facility_free(facility);    
@@ -128,6 +132,7 @@ int parseDoc(char *filename, base_t* base)
 {
     xmlDocPtr doc;
     xmlNodePtr cur;
+    xmlChar* key;
 
     doc = xmlParseFile(filename);
     /* Check if parse was successful */
@@ -142,6 +147,7 @@ int parseDoc(char *filename, base_t* base)
     if(cur == NULL)
     {
         fprintf(stderr, "Empty file\n");
+        xmlCleanupParser();
         xmlFreeDoc(doc);
         return 1;
     }
@@ -150,18 +156,14 @@ int parseDoc(char *filename, base_t* base)
     if(xmlStrcmp(cur->name, (const xmlChar*) "base"))
     {
         fprintf(stderr, "Wrong type document, root node is not \"base\"\n");
+        xmlCleanupParser();
         xmlFreeDoc(doc);
         return 1; 
     }
 
-    /* Parsed file copied to base */
-    /* check null base->name if successful */
-    base->name = realloc(base->name, sizeof(char*));
-    if(base->name == NULL)
-        return 1;
-
-    /* 8 byte 1 bloc leak when calling xmlGetProp */
-    base->name = (char*) xmlGetProp(cur, (xmlChar*)"name");
+    /* File to base_t */
+    key = xmlGetProp(cur, (xmlChar*)"name");
+    base->name = (char*) key;
 
     cur = cur->xmlChildrenNode;
     while(cur != NULL)
@@ -185,6 +187,7 @@ int parseDoc(char *filename, base_t* base)
     return 0;
 }
 
+/* Verifies param is right for the command */
 int verifParamNumberCommand(char *command, char* param)
 {
     int i;
@@ -192,10 +195,14 @@ int verifParamNumberCommand(char *command, char* param)
     {
         printf("Missing parameter for the %s command\n", command);
         return 0;
-    } else {
-        /* verif longueur commande */
+    } 
+    else {
         for(i = 0; i < strlen(param); i++)
         {
+            /* 
+                Allowed point(.) but may create problems. 
+                Maybe allow only one point? 
+            */
             if(!((param[i] >= '0' && param[i] <= '9') || param[i] == '.'))
             {
                 printf("Invalid parameter for the %s command\n", command);
@@ -219,7 +226,7 @@ void menu(base_t *base)
     /* 
         Since we use return when q command is found, no need to make any condition
         hence, infinite loop. Unless return
-        Accepts q(espace) but not q(espace)(espace) since the ladder is not null
+        Accepts q(espace) but not q(espace)(espace) since the ladder is not null on param
     */
     while(1)
     {
@@ -232,8 +239,9 @@ void menu(base_t *base)
         */
         while(strlen(choice) > 18 && (c = getchar()) != '\n' && c != EOF);
 
-        /* Separate choice into command and parameter (if entered), null if not
-            might need to remove whitespace after, idk
+        /* 
+            Separate choice into command and parameter (if entered), null if not
+            might need to remove whitespace trail(but then would\nt be able to search for only spaces)
         */
         choice[strlen(choice)-1] = '\0';
         command = NULL;
@@ -361,10 +369,6 @@ int main(int argc, char *argv[])
     
     menu(base);
     printf("Goodbye !\n");
-    /*printf("%s\n", base->name);
-    printf("%d %d %d\n", base->day, base->month, base->year);
-    printf("%s\n", base->country);
-    printf("%s\n", base->facilities[0]->name);*/
     
     base_free(base);
     return 0;

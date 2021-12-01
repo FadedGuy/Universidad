@@ -532,8 +532,7 @@ samState = {
   
     console.log('updateFilter', modelFilter)
   
-    // TODO : DOESNT WORK (modelFilter has everything set to 0 but in extractOrigins & extractCategories
-    // we set model values to the right values? it means modelFilter doesn't get extracted values I guess)
+    
 
     let isEveryElementTrue = true;
     stateFilter = modelFilter;
@@ -829,14 +828,15 @@ samView = {
   filterUI(model, state, filterName) {
     
     console.log('filterUI', filterName);
-    // TODO
-    
-    return this.html`   
+    // TODO need to modify state when checking or not button
+
+    if(filterName === 'categories') { // categories
+      return this.html`   
       <div>
         <label class="checkbox">
-          <input type="checkbox" checked="checked" />
+          <input type="checkbox" checked="${state.filters.categories.toutes?`checked`:``}" />
           <span class="capitalize">toutes</span>  
-          <a><span class="badge circle right color-2-text color-2a">0</span></a>
+          <a><span class="badge circle right color-2-text color-2a">${model.articles.values.length}</span></a>
         </label>
       </div>
   
@@ -844,10 +844,63 @@ samView = {
         <label class="checkbox">
           <input type="checkbox" checked="checked" />
           <span class="capitalize">fruits</span>  
-          <a><span class="badge circle right color-2-text color-2a">0</span></a>
+          <a><span class="badge circle right color-2-text color-2a">${model.filters.categories.count.fruits}</span></a>
         </label>
       </div>
+
+      <div>
+        <label class="checkbox">
+          <input type="checkbox" checked="checked" />
+          <span class="capitalize">légumes</span>  
+          <a><span class="badge circle right color-2-text color-2a">${model.filters.categories.count.legumes}</span></a>
+        </label>
+      </div>
+      
     `;
+    } else { // origines
+      return this.html`   
+      <div>
+        <label class="checkbox">
+          <input type="checkbox" checked="${state.filters.origins.toutes?`checked`:``}" />
+          <span class="capitalize">toutes</span>  
+          <a><span class="badge circle right color-2-text color-2a">${model.articles.values.length}</span></a>
+        </label>
+      </div>
+  
+      <div>
+        <label class="checkbox">
+          <input type="checkbox" checked="checked" />
+          <span class="capitalize">espagne</span>  
+          <a><span class="badge circle right color-2-text color-2a">${model.filters.origins.count.Espagne}</span></a>
+        </label>
+      </div>
+
+      <div>
+        <label class="checkbox">
+          <input type="checkbox" checked="checked" />
+          <span class="capitalize">france</span>  
+          <a><span class="badge circle right color-2-text color-2a">${model.filters.origins.count.France}</span></a>
+        </label>
+      </div>
+
+      <div>
+        <label class="checkbox">
+          <input type="checkbox" checked="checked" />
+          <span class="capitalize">maroc</span>  
+          <a><span class="badge circle right color-2-text color-2a">${model.filters.origins.count.Maroc}</span></a>
+        </label>
+      </div>
+
+      <div>
+        <label class="checkbox">
+          <input type="checkbox" checked="checked" />
+          <span class="capitalize">pérou</span>  
+          <a><span class="badge circle right color-2-text color-2a">${model.filters.origins.count.Pérou}</span></a>
+        </label>
+      </div>
+      
+    `;
+    }
   },
   
   searchUI(model, state) {
@@ -903,17 +956,42 @@ samView = {
     console.log('filtersSearchTagsUI');
   
     // TODO
-    // Categries and origins missing, nb Articles and recherche done
+    // Categories and origins missing, nb Articles and recherche done
+    // need to modify state value when checkbox is checked or not
     
     return this.html`           
       <label  class="medium-text color-2-text">${state.filteredArticles.values.length} articles -</label>
 
+      ${state.filters.categories.booleans.fruits? ``:`
       <span class="chip small no-margin capitalize ">
         fruits<i class="small">close</i>
-      </span>  
+      </span>   `}
+
+      ${state.filters.categories.booleans.legumes? ``:`
       <span class="chip small no-margin capitalize ">
-        France<i class="small">close</i>
-      </span>   
+        légumes<i class="small">close</i>
+      </span>   `}
+      
+      ${state.filters.origins.booleans.Espagne? ``:`
+      <span class="chip small no-margin capitalize ">
+      Espagne<i class="small">close</i>
+      </span>   `}
+
+      ${state.filters.origins.booleans.France? ``:`
+      <span class="chip small no-margin capitalize ">
+      France<i class="small">close</i>
+      </span>   `}
+      
+      ${state.filters.origins.booleans.Maroc? ``:`
+      <span class="chip small no-margin capitalize ">
+      Maroc<i class="small">close</i>
+      </span>   `}
+
+      ${state.filters.origins.booleans.Pérou? ``:`
+      <span class="chip small no-margin capitalize ">
+      Pérou<i class="small">close</i>
+      </span>   `}
+      
       ${state.filters.search.text.trim() == "" ? '' : `
         <span class="chip small no-margin">
           Rech : "${state.filters.search.text}"<i class="small">close</i>
