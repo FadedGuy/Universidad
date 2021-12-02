@@ -57,8 +57,7 @@ samActions = {
         case 'deleteToggle':
           proposal = {do: data.do, id: data.id};
           break;
-      case 'animationsToggle'  :
-      case 'with animation' : proposal = data; break;
+      case 'animationsToggle'  : enableAnimation = !data.e.target.value; proposal = {do: data.do}; break;
       case 'addCart' : 
         proposal = {do: data.do, id: data.id};
         break;
@@ -75,7 +74,6 @@ samActions = {
         break;
       case 'updatePagination'  : break;
       
-      case 'without animation' : enableAnimation = false; proposal = data; break;
       
       default : 
         console.error('samActions - Action non prise en compte : ', data);
@@ -83,7 +81,7 @@ samActions = {
     }
 
     console.log(enableAnimation && samModel.model.settings.animations);
-    if (enableAnimation && samModel.model.settings.animations){
+    if (enableAnimation && samModel.model.settings.animations){ 
       setTimeout(()=>samModel.samPresent(proposal), 200);}
     else             samModel.samPresent(proposal);
   },
@@ -518,6 +516,8 @@ samState = {
   state: initialState,
 
   samUpdate(model) {
+    this.state.filters.categories.hasChanged = true;
+    this.state.filters.origins.hasChanged = true;
     this.updateFilter    (model.filters.categories, this.state.filters.categories);
     this.updateFilter    (model.filters.origins,    this.state.filters.origins);
     this.updateSearch    (model.filters.search);
@@ -547,9 +547,8 @@ samState = {
   updateFilter(modelFilter, stateFilter) {
   
     console.log('updateFilter', modelFilter)
-  
     
-
+    
     let isEveryElementTrue = true;
     stateFilter = modelFilter;
     
@@ -677,7 +676,6 @@ samState = {
   // Met à jour l'état de l'application, construit le code HTML correspondant,
   // et demande son affichage.
   samRepresent(model) {
-    
     this.updateFilterUI(model, this.state, 'categories');
     this.updateFilterUI(model, this.state, 'origins');
     this.updateSearchUI(model, this.state);
@@ -850,9 +848,12 @@ samView = {
   filterUI(model, state, filterName) {
     
     console.log('filterUI', filterName);
+    console.log(model.filters.categories.booleans)
     // TODO need to modify state when checking or not button
-
+    
     if(filterName === 'categories') { // categories
+      console.log(model.filters.categories.booleans.fruits);
+     
       return this.html`   
       <div>
         <label class="checkbox">
@@ -861,25 +862,15 @@ samView = {
           <a><span class="badge circle right color-2-text color-2a">${model.articles.values.length}</span></a>
         </label>
       </div>
-  
-      <div>
-        <label class="checkbox">
-          <input type="checkbox" checked="checked" />
-          <span class="capitalize">fruits</span>  
-          <a><span class="badge circle right color-2-text color-2a">${model.filters.categories.count.fruits}</span></a>
-        </label>
-      </div>
-
-      <div>
-        <label class="checkbox">
-          <input type="checkbox" checked="checked" />
-          <span class="capitalize">légumes</span>  
-          <a><span class="badge circle right color-2-text color-2a">${model.filters.categories.count.legumes}</span></a>
-        </label>
-      </div>
+      
+      ${console.log(Object.keys(model.filters.categories.booleans).map((key, value) => {`
+      <div>${key}</div>
+    
+    `}))}
       
     `;
     } else { // origines
+      console.log(state.filters.origins);
       return this.html`   
       <div>
         <label class="checkbox">
@@ -958,7 +949,7 @@ samView = {
       </div>
       <div class="middle-align small-margin">
         <label class="switch">
-          <input type="checkbox" onclick="samActions.exec({do:'animationsToggle'})" ${animationsChecked} />
+          <input type="checkbox" onclick="samActions.exec({do:'animationsToggle', e: event})" ${animationsChecked} />
           <span>Animations</span>
         </label>
       </div>          
