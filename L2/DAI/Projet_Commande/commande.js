@@ -47,28 +47,33 @@ samActions = {
       case 'imagesToggle'      : 
         proposal = {do: data.do};
         break;
-      case 'animationsToggle'  :
-      // Pagination
-      // TODO
-      // Cart
-      // TODO
-      case 'globalSearch': 
+        // Pagination
+        // TODO
+        // Cart
+        // TODO
+        case 'globalSearch': 
         proposal = {do: data.do, checked: data.check.checked};
         break;
-      case 'deleteToggle':
-        proposal = {do: data.do, id: data.id};
-        break;
-      case 'with animation'    : proposal = data; break;
+        case 'deleteToggle':
+          proposal = {do: data.do, id: data.id};
+          break;
+      case 'animationsToggle'  :
+      case 'with animation' : proposal = data; break;
       case 'addCart' : 
         proposal = {do: data.do, id: data.id};
         break;
       case 'editQt':
         proposal = {do: data.do, id: data.id, qt: data.e.target.value};
         break;
+      case 'sortCart':
+        proposal = {do: data.do, property: data.property};
+        break;
       // Articles
       // TODO
-      case 'darkThemeToggle'   :  
-      case 'updatePagination'  : 
+      case 'darkThemeToggle'   : 
+        proposal = {do: data.do};
+        break;
+      case 'updatePagination'  : break;
       
       case 'without animation' : enableAnimation = false; proposal = data; break;
       
@@ -76,6 +81,8 @@ samActions = {
         console.error('samActions - Action non prise en compte : ', data);
         return;
     }
+
+    console.log(enableAnimation && samModel.model.settings.animations);
     if (enableAnimation && samModel.model.settings.animations){
       setTimeout(()=>samModel.samPresent(proposal), 200);}
     else             samModel.samPresent(proposal);
@@ -177,7 +184,8 @@ samModel = {
       case 'addCart'           : this.model.articles.values.find(art => art.id == data.id).inCart = true; this.model.articles.hasChanged = true; break;
       case 'editQt'            : this.model.articles.values.find(art => art.id == data.id).quantity = data.qt; this.model.articles.hasChanged = true; 
                                  if(data.qt == 0){this.model.articles.values.find(art => art.id == data.id).inCart = false} break; //Delete article from cart if qt is 0
-      case 'updatePagination'  : break;      
+      case 'updatePagination'  : break;
+      case 'sortCart'          : this.model.cartSort.property = data.property; this.modelToggle(`cartSort.ascending.${data.property}`);this.model.cartSort.hasChanged = true; break;   
       
       // TODO
       
@@ -657,8 +665,8 @@ samState = {
     const articles = model.articles;
     if (articles.hasChanged) {
     
-      this.state.cart.values = articles.values.filter(art => art.inCart == true) // TODO
-      this.state.cart.total = 0;   // TODO
+      this.state.cart.values = articles.values.filter(art => art.inCart == true)
+      this.state.cart.total = 0; 
       this.state.cart.values.forEach(art => {
         this.state.cart.total += (art.price*art.quantity);
       });
@@ -921,8 +929,6 @@ samView = {
     
     console.log('searchUI')
     
-    // Use onchange-event, instead of onclick
-    // global value stored
 
     return this.html`
       <div class="middle-align small-margin">
@@ -1153,8 +1159,29 @@ samView = {
     console.log('cartUI')
 
     if (!model.display.cartView) return '';
-  
-    // SORT thead
+    let articlesCart = state.cart.values;
+    let sortParam = state.cartSort.property;
+    if(sortParam == 'name'){
+      articlesCart.sort((a, b) => {
+        var aN = a.name.toUpperCase();
+        var bN = b.name.toUpperCase();
+        if(aN < bN) return state.cartSort.ascending.name ? -1 : 1;
+        if(aN > bN) return state.cartSort.ascending.name ? 1 : -1;
+        return 0;
+      });
+    }
+    else{
+      if(sortParam == 'quantity'){
+        articlesCart.sort((a, b) => {
+          return state.cartSort.ascending.quantity ? a.quantity - b.quantity : b.quantity - a.quantity;
+        });
+      }
+      else{
+        articlesCart.sort((a, b) => {
+          return state.cartSort.ascending.total ? (a.price * a.quantity) - (b.price * b.quantity) : (b.price * b.quantity) - (a.price * a.quantity);
+        });
+      }
+    }
     // Envoyer command
 
     
@@ -1167,13 +1194,13 @@ samView = {
         <div>
           <table border="0" class="right-align large-text">
             <thead>
-              <th class="center-align"><a>
+              <th class="center-align"><a onclick="samActions.exec({do: 'sortCart', property: 'name'})">
                 Articles <i class="small">unfold_more</i></a></th>
-              <th class="center-align"><a>
+              <th class="center-align"><a onclick="samActions.exec({do: 'sortCart', property: 'quantity'})">
                 Qté<i class="small">unfold_more</i></a></th>
               <th class="center-align">Unit</th>
               <th class="center-align">P.U.</th>
-              <th class="center-align"><a>
+              <th class="center-align"><a onclick="samActions.exec({do: 'sortCart', property: 'total'})">
                 Prix<i class="small">unfold_more</i></a></th>
               <th>
               </th>
@@ -1204,13 +1231,13 @@ samView = {
               <th>${state.cart.total.toFixed(2)} €</th>
               <th class="center-align">
                 <button type="button" onclick="samActions.exec({do:'cartDelete'})" 
-                  class="small"><i>delete</i></button>
+                  ${state.cart.total ? `class="small"` : `class="small disabled" disabled="disabled"`}><i>delete</i></button>
               </th>
             </tfoot>
           </table>
         </div>
         <div class="medium-margin right-align">
-          <button onclick="envoyerCommande('Tata et Toto', samState.state.cart.values, ${state.cart.total})" ${state.cart.total ? `` : `class="disabled" disabled="disabled"`}><i class="small-margin">send</i> Envoyer la commande</button>
+          <button onclick="envoyerCommande('${model.authors[0]} et ${model.authors[1]}', samState.state.cart.values, ${state.cart.total})" ${state.cart.total ? `` : `class="disabled" disabled="disabled"`}><i class="small-margin">send</i> Envoyer la commande</button>
         </div>
       </div>
     </section>
@@ -1223,18 +1250,16 @@ samView = {
 
 function envoyerCommande(client, articles, total) {
     
-  // TODO
-
+  console.log(articles);
   let email = 'commandes@fruits-legumes.com';
   let sujet = 'Commande de ' + client;
   let corps = `
   Commande de fruits et légumes
   Voici les articles commandés pour un montant de ${samView.inEuro(total)} :
-  - Fraises (3 Barquette 500g)
-  - Fraises (1 Plateau 1kg)
-  - Oranges (2.5 kg)
-
-  `;
+    ${articles.map(art => `
+      ${art.name} (${art.quantity} ${art.unit})
+    `).join('')}
+    `;
   email = encodeURIComponent(email);
   sujet = encodeURIComponent(sujet);
   corps = encodeURIComponent(corps);
