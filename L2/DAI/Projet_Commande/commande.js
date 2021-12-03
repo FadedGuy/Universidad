@@ -40,6 +40,9 @@ samActions = {
       case 'filters':
         proposal = {do: 'filterUpdate', newFilter: data.e.target.value};
         break;
+      case 'changeFilter':
+        proposal = {do: 'changeFilter', filterName:data.filterName, name:data.name, e:data.e};
+        break;
       case 'viewCartToggle'    :
       case 'gridListView'      : 
         proposal = {do: data.do, view: data.view};
@@ -80,7 +83,7 @@ samActions = {
         return;
     }
 
-    console.log(enableAnimation && samModel.model.settings.animations);
+    // console.log(enableAnimation && samModel.model.settings.animations);
     if (enableAnimation && samModel.model.settings.animations){ 
       setTimeout(()=>samModel.samPresent(proposal), 200);}
     else             samModel.samPresent(proposal);
@@ -177,6 +180,15 @@ samModel = {
       case 'darkThemeToggle'   : this.modelToggle('settings.darkTheme'    ); break;      
       case 'gridListView'      : this.modelAssign('display.articlesView', data.view); break;   
       case 'filterUpdate'      : this.model.filters.search.text = data.newFilter; break;
+      case 'changeFilter'      : if(data.name != "toutes") {
+        this.modelToggle(`filters.${data.filterName}.booleans.${data.name}`);
+      } else {
+        let objChange = this.model.filters[data.filterName].booleans;
+        for(let i = 0; i < Object.keys(objChange).length; i++) {
+          this.modelAssign(`filters.${data.filterName}.booleans.${Object.keys(objChange)[i]}`, !this.model.filters[data.filterName].toutes);
+        }
+      }
+      break;
       case 'deleteToggle'      : break;
       case 'globalSearch'      : this.model.filters.search.global = data.checked; break;
       case 'addCart'           : this.model.articles.values.find(art => art.id == data.id).inCart = true; this.model.articles.hasChanged = true; break;
@@ -567,7 +579,6 @@ samState = {
       }
 
     stateFilter.toutes = isEveryElementTrue;
-    
   },
   
   updateSearch(modelSearch) {
@@ -848,69 +859,80 @@ samView = {
   filterUI(model, state, filterName) {
     
     console.log('filterUI', filterName);
-    console.log(model.filters.categories.booleans)
-    // TODO need to modify state when checking or not button
     
-    if(filterName === 'categories') { // categories
-      console.log(model.filters.categories.booleans.fruits);
+    if(filterName === 'categories') { // categories working right now, MAP TODO?
      
       return this.html`   
       <div>
         <label class="checkbox">
-          <input type="checkbox" checked="${state.filters.categories.toutes?`checked`:``}" />
+          <input type="checkbox" onclick="samActions.exec({do: 'changeFilter', filterName:'categories', name:'toutes', e:event})" ${model.filters.categories.toutes? `checked="checked"` : ''}/>
           <span class="capitalize">toutes</span>  
           <a><span class="badge circle right color-2-text color-2a">${model.articles.values.length}</span></a>
         </label>
       </div>
+
+      <div>
+        <label class="checkbox">
+          <input type="checkbox" onclick="samActions.exec({do: 'changeFilter', filterName:'categories', name:'fruits', e:event})" ${model.filters.categories.booleans.fruits? `checked="checked"` : ''}/>
+          <span class="capitalize">fruits</span>  
+          <a><span class="badge circle right color-2-text color-2a">${model.articles.values.length}</span></a>
+        </label>
+      </div>
+
+      <div>
+        <label class="checkbox">
+          <input type="checkbox" onclick="samActions.exec({do: 'changeFilter', filterName:'categories', name:'legumes', e:event})" ${model.filters.categories.booleans.legumes? `checked="checked"` : ''}/>
+          <span class="capitalize">légumes</span>  
+          <a><span class="badge circle right color-2-text color-2a">${model.articles.values.length}</span></a>
+        </label>
+      </div>
       
-      ${console.log(Object.keys(model.filters.categories.booleans).map((key, value) => {`
-      <div>${key}</div>
-    
-    `}))}
+      
       
     `;
-    } else { // origines
-      console.log(state.filters.origins);
+    } else { // origines working right now, MAP TODO?
       return this.html`   
       <div>
         <label class="checkbox">
-          <input type="checkbox" checked="${state.filters.origins.toutes?`checked`:``}" />
+          <input type="checkbox" onclick="samActions.exec({do: 'changeFilter', filterName:'origins', name:'toutes', e:event})" ${model.filters.origins.toutes? `checked="checked"` : ''} />
           <span class="capitalize">toutes</span>  
           <a><span class="badge circle right color-2-text color-2a">${model.articles.values.length}</span></a>
         </label>
       </div>
-  
+      
       <div>
-        <label class="checkbox">
-          <input type="checkbox" checked="checked" />
-          <span class="capitalize">espagne</span>  
-          <a><span class="badge circle right color-2-text color-2a">${model.filters.origins.count.Espagne}</span></a>
-        </label>
-      </div>
+      <label class="checkbox">
+        <input type="checkbox" onclick="samActions.exec({do: 'changeFilter', filterName:'origins', name:'Espagne', e:event})" ${model.filters.origins.booleans.Espagne? `checked="checked"` : ''}/>
+        <span class="capitalize">espagne</span>  
+        <a><span class="badge circle right color-2-text color-2a">${model.filters.origins.count.Espagne}</span></a>
+      </label>
+    </div>
 
-      <div>
-        <label class="checkbox">
-          <input type="checkbox" checked="checked" />
-          <span class="capitalize">france</span>  
-          <a><span class="badge circle right color-2-text color-2a">${model.filters.origins.count.France}</span></a>
-        </label>
-      </div>
+    <div>
+      <label class="checkbox">
+        <input type="checkbox" onclick="samActions.exec({do: 'changeFilter', filterName:'origins', name:'France', e:event})" ${model.filters.origins.booleans.France? `checked="checked"` : ''}/>
+        <span class="capitalize">france</span>  
+        <a><span class="badge circle right color-2-text color-2a">${model.filters.origins.count.France}</span></a>
+      </label>
+    </div>
 
-      <div>
-        <label class="checkbox">
-          <input type="checkbox" checked="checked" />
-          <span class="capitalize">maroc</span>  
-          <a><span class="badge circle right color-2-text color-2a">${model.filters.origins.count.Maroc}</span></a>
-        </label>
-      </div>
+    <div>
+      <label class="checkbox">
+        <input type="checkbox" onclick="samActions.exec({do: 'changeFilter', filterName:'origins', name:'Maroc', e:event})" ${model.filters.origins.booleans.Maroc? `checked="checked"` : ''}/>
+        <span class="capitalize">maroc</span>  
+        <a><span class="badge circle right color-2-text color-2a">${model.filters.origins.count.Maroc}</span></a>
+      </label>
+    </div>
 
-      <div>
-        <label class="checkbox">
-          <input type="checkbox" checked="checked" />
-          <span class="capitalize">pérou</span>  
-          <a><span class="badge circle right color-2-text color-2a">${model.filters.origins.count.Pérou}</span></a>
-        </label>
-      </div>
+    <div>
+      <label class="checkbox">
+        <input type="checkbox" onclick="samActions.exec({do: 'changeFilter', filterName:'origins', name:'Pérou', e:event})" ${model.filters.origins.booleans.Pérou? `checked="checked"` : ''}/>
+        <span class="capitalize">pérou</span>  
+        <a><span class="badge circle right color-2-text color-2a">${model.filters.origins.count.Pérou}</span></a>
+      </label>
+    </div>
+      
+
       
     `;
     }
@@ -966,39 +988,37 @@ samView = {
   
     console.log('filtersSearchTagsUI');
   
-    // TODO
-    // Categories and origins missing, nb Articles and recherche done
-    // need to modify state value when checkbox is checked or not
+    // TODO working, do we want map to be cleaner?
     
     return this.html`           
       <label  class="medium-text color-2-text">${state.filteredArticles.values.length} articles -</label>
 
-      ${state.filters.categories.booleans.fruits? ``:`
+      ${!model.filters.categories.booleans.fruits? ``:`
       <span class="chip small no-margin capitalize ">
         fruits<i class="small">close</i>
       </span>   `}
 
-      ${state.filters.categories.booleans.legumes? ``:`
+      ${!model.filters.categories.booleans.legumes? ``:`
       <span class="chip small no-margin capitalize ">
         légumes<i class="small">close</i>
       </span>   `}
       
-      ${state.filters.origins.booleans.Espagne? ``:`
+      ${!model.filters.origins.booleans.Espagne? ``:`
       <span class="chip small no-margin capitalize ">
       Espagne<i class="small">close</i>
       </span>   `}
 
-      ${state.filters.origins.booleans.France? ``:`
+      ${!model.filters.origins.booleans.France? ``:`
       <span class="chip small no-margin capitalize ">
       France<i class="small">close</i>
       </span>   `}
       
-      ${state.filters.origins.booleans.Maroc? ``:`
+      ${!model.filters.origins.booleans.Maroc? ``:`
       <span class="chip small no-margin capitalize ">
       Maroc<i class="small">close</i>
       </span>   `}
 
-      ${state.filters.origins.booleans.Pérou? ``:`
+      ${!model.filters.origins.booleans.Pérou? ``:`
       <span class="chip small no-margin capitalize ">
       Pérou<i class="small">close</i>
       </span>   `}
