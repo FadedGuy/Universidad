@@ -54,15 +54,18 @@ samActions = {
         // TODO
         // Cart
         // TODO
-        case 'globalSearch': 
+      case 'globalSearch': 
         proposal = {do: data.do, checked: data.check.checked};
         break;
-        case 'deleteToggle':
-          proposal = {do: data.do, id: data.id};
-          break;
+      case 'deleteToggle':
+        proposal = {do: data.do, id: data.id};
+        break;
       case 'animationsToggle'  : enableAnimation = !data.e.target.value; proposal = {do: data.do}; break;
       case 'addCart' : 
         proposal = {do: data.do, id: data.id};
+        break;
+      case 'cartDelete':
+        proposal = {do: data.do};
         break;
       case 'editQt':
         proposal = {do: data.do, id: data.id, qt: data.e.target.value};
@@ -189,7 +192,14 @@ samModel = {
         }
       }
       break;
-      case 'deleteToggle'      : break;
+      case 'deleteToggle'      : 
+        this.model.articles.values.find(art => art.id == data.id).deleteToggle = !this.model.articles.values.find(art => art.id == data.id).deleteToggle;
+        this.model.articles.hasChanged = true;
+        break;
+      case 'cartDelete'        :
+        this.model.articles.values.map(art => {if(art.deleteToggle){art.inCart = false; art.deleteToggle = false;}});
+        this.model.articles.hasChanged = true;
+        break;
       case 'globalSearch'      : this.model.filters.search.global = data.checked; break;
       case 'addCart'           : this.model.articles.values.find(art => art.id == data.id).inCart = true; this.model.articles.hasChanged = true; break;
       case 'editQt'            : this.model.articles.values.find(art => art.id == data.id).quantity = data.qt; this.model.articles.hasChanged = true; 
@@ -326,6 +336,7 @@ samModel = {
           unit    : a1.unit,
           quantity: a1.quantity,
           inCart  : a1.inCart,
+          deleteToggle : false,
         };
         articleId++;
         
@@ -558,7 +569,7 @@ samState = {
    */
   updateFilter(modelFilter, stateFilter) {
   
-    console.log('updateFilter', modelFilter)
+    console.log('updateFilter')
     
     
     let isEveryElementTrue = true;
@@ -857,85 +868,30 @@ samView = {
   },
   
   filterUI(model, state, filterName) {
-    
     console.log('filterUI', filterName);
-    
-    if(filterName === 'categories') { // categories working right now, MAP TODO?
-     
-      return this.html`   
-      <div>
-        <label class="checkbox">
-          <input type="checkbox" onclick="samActions.exec({do: 'changeFilter', filterName:'categories', name:'toutes', e:event})" ${model.filters.categories.toutes? `checked="checked"` : ''}/>
-          <span class="capitalize">toutes</span>  
-          <a><span class="badge circle right color-2-text color-2a">${model.articles.values.length}</span></a>
-        </label>
-      </div>
+    let variable = Object.entries(model.filters).find(el => el[0] == filterName)[1];
+    let booleans = Object.entries(Object.entries(variable).find(el => el[0] == "booleans")[1]);
+    let counts = Object.entries(Object.entries(variable).find(el => el[0] == "count")[1]);
 
-      <div>
-        <label class="checkbox">
-          <input type="checkbox" onclick="samActions.exec({do: 'changeFilter', filterName:'categories', name:'fruits', e:event})" ${model.filters.categories.booleans.fruits? `checked="checked"` : ''}/>
-          <span class="capitalize">fruits</span>  
-          <a><span class="badge circle right color-2-text color-2a">${model.articles.values.length}</span></a>
-        </label>
-      </div>
-
-      <div>
-        <label class="checkbox">
-          <input type="checkbox" onclick="samActions.exec({do: 'changeFilter', filterName:'categories', name:'legumes', e:event})" ${model.filters.categories.booleans.legumes? `checked="checked"` : ''}/>
-          <span class="capitalize">légumes</span>  
-          <a><span class="badge circle right color-2-text color-2a">${model.articles.values.length}</span></a>
-        </label>
-      </div>
-      
-      
-      
-    `;
-    } else { // origines working right now, MAP TODO?
-      return this.html`   
-      <div>
-        <label class="checkbox">
-          <input type="checkbox" onclick="samActions.exec({do: 'changeFilter', filterName:'origins', name:'toutes', e:event})" ${model.filters.origins.toutes? `checked="checked"` : ''} />
-          <span class="capitalize">toutes</span>  
-          <a><span class="badge circle right color-2-text color-2a">${model.articles.values.length}</span></a>
-        </label>
-      </div>
-      
-      <div>
-      <label class="checkbox">
-        <input type="checkbox" onclick="samActions.exec({do: 'changeFilter', filterName:'origins', name:'Espagne', e:event})" ${model.filters.origins.booleans.Espagne? `checked="checked"` : ''}/>
-        <span class="capitalize">espagne</span>  
-        <a><span class="badge circle right color-2-text color-2a">${model.filters.origins.count.Espagne}</span></a>
-      </label>
-    </div>
-
+    return this.html`   
     <div>
       <label class="checkbox">
-        <input type="checkbox" onclick="samActions.exec({do: 'changeFilter', filterName:'origins', name:'France', e:event})" ${model.filters.origins.booleans.France? `checked="checked"` : ''}/>
-        <span class="capitalize">france</span>  
-        <a><span class="badge circle right color-2-text color-2a">${model.filters.origins.count.France}</span></a>
+        <input type="checkbox" onclick="samActions.exec({do: 'changeFilter', filterName:'${filterName}', name:'toutes', e:event})" ${model.filters[filterName].toutes? `checked="checked"` : ''}/>
+        <span class="capitalize">toutes</span>  
+        <a><span class="badge circle right color-2-text color-2a">${model.articles.values.length}</span></a>
       </label>
     </div>
 
-    <div>
-      <label class="checkbox">
-        <input type="checkbox" onclick="samActions.exec({do: 'changeFilter', filterName:'origins', name:'Maroc', e:event})" ${model.filters.origins.booleans.Maroc? `checked="checked"` : ''}/>
-        <span class="capitalize">maroc</span>  
-        <a><span class="badge circle right color-2-text color-2a">${model.filters.origins.count.Maroc}</span></a>
-      </label>
-    </div>
-
-    <div>
-      <label class="checkbox">
-        <input type="checkbox" onclick="samActions.exec({do: 'changeFilter', filterName:'origins', name:'Pérou', e:event})" ${model.filters.origins.booleans.Pérou? `checked="checked"` : ''}/>
-        <span class="capitalize">pérou</span>  
-        <a><span class="badge circle right color-2-text color-2a">${model.filters.origins.count.Pérou}</span></a>
-      </label>
-    </div>
-      
-
-      
-    `;
-    }
+    ${booleans.map((fil, index) => `
+      <div>
+        <label class="checkbox">
+          <input type="checkbox" onclick="samActions.exec({do: 'changeFilter', filterName:'${filterName}', name:'${fil[0]}', e:event})" ${fil[1]? `checked="checked"` : ''}/>
+          <span class="capitalize">${fil[0]}</span>  
+          <a><span class="badge circle right color-2-text color-2a">${counts[index][1]}</span></a>
+        </label>
+      </div>
+    `).join('')}
+  `;
   },
   
   searchUI(model, state) {
@@ -1230,7 +1186,7 @@ samView = {
                 <td>${(art.price * art.quantity).toFixed(2)} €</td>
                 <td class="center-align">
                   <label class="checkbox">
-                    <input type="checkbox" onclick="samActions.exec({do: 'deleteToggle', id: '${art.id}'})"/> 
+                    <input type="checkbox" onclick="samActions.exec({do: 'deleteToggle', id: '${art.id}'})" ${art.deleteToggle ? `checked="cheked"` : ''}/> 
                     <span></span>
                   </label>
                 </td>
