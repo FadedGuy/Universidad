@@ -4,19 +4,19 @@ let artiPart2Data = [
   {
     'id': 'pr',
     'name': 'Poivrons rouges',
-    'category': 'légumes',
+    'category': 'legumes',
     'pictures': ['poivron_rouge.jpg'],
   },
   {
     'id': 'pj',
     'name': 'Poivrons jaunes',
-    'category': 'légumes',
+    'category': 'legumes',
     'pictures': ['poivrons_jaune_orange.jpg'],
   },
   {
     'id': 'po',
     'name': 'Poivrons oranges',
-    'category': 'légumes',
+    'category': 'legumes',
     'pictures': ['poivrons_jaune_orange.jpg'],
   },
   {
@@ -28,7 +28,7 @@ let artiPart2Data = [
   {
     'id': 'av',
     'name': 'Avocats',
-    'category': 'légumes',
+    'category': 'legumes',
     'pictures': ['avocat.jpg', 'avocat2.jpg'],
   },
   {

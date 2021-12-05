@@ -41,7 +41,7 @@ samActions = {
         proposal = {do: 'filterUpdate', newFilter: data.e.target.value};
         break;
       case 'changeFilter':
-        proposal = {do: 'changeFilter', filterName:data.filterName, name:data.name, e:data.e};
+        proposal = {do: data.do, filterName:data.filterName, name:data.name, e:data.e};
         break;
       case 'viewCartToggle'    :
       case 'gridListView'      : 
@@ -60,7 +60,7 @@ samActions = {
       case 'deleteToggle':
         proposal = {do: data.do, id: data.id};
         break;
-      case 'animationsToggle'  : enableAnimation = !data.e.target.value; proposal = {do: data.do}; break;
+      case 'animationsToggle'  : proposal = {do: data.do}; break;
       case 'addCart' : 
         proposal = {do: data.do, id: data.id};
         break;
@@ -87,7 +87,7 @@ samActions = {
     }
 
     // console.log(enableAnimation && samModel.model.settings.animations);
-    if (enableAnimation && samModel.model.settings.animations){ 
+    if (samModel.model.settings.animations){ 
       setTimeout(()=>samModel.samPresent(proposal), 200);}
     else             samModel.samPresent(proposal);
   },
@@ -182,7 +182,7 @@ samModel = {
       case 'animationsToggle'  : this.modelToggle('settings.animations'   ); break;
       case 'darkThemeToggle'   : this.modelToggle('settings.darkTheme'    ); break;      
       case 'gridListView'      : this.modelAssign('display.articlesView', data.view); break;   
-      case 'filterUpdate'      : this.model.filters.search.text = data.newFilter; break;
+      case 'filterUpdate'      : this.model.filters.search.text = data.newFilter; this.model.articles.hasChanged = true; break;
       case 'changeFilter'      : if(data.name != "toutes") {
         this.modelToggle(`filters.${data.filterName}.booleans.${data.name}`);
       } else {
@@ -191,6 +191,7 @@ samModel = {
           this.modelAssign(`filters.${data.filterName}.booleans.${Object.keys(objChange)[i]}`, !this.model.filters[data.filterName].toutes);
         }
       }
+      this.model.articles.hasChanged = true;
       break;
       case 'deleteToggle'      : 
         this.model.articles.values.find(art => art.id == data.id).deleteToggle = !this.model.articles.values.find(art => art.id == data.id).deleteToggle;
@@ -539,10 +540,9 @@ samState = {
   state: initialState,
 
   samUpdate(model) {
-    this.state.filters.categories.hasChanged = true;
-    this.state.filters.origins.hasChanged = true;
-    this.updateFilter    (model.filters.categories, this.state.filters.categories);
-    this.updateFilter    (model.filters.origins,    this.state.filters.origins);
+    if(this.state.filters != model.filters){this.state.filters.categories.hasChanged = true; this.state.filters.origins.hasChanged = true;}
+    this.state.filters.categories = this.updateFilter    (model.filters.categories, this.state.filters.categories);
+    this.state.filters.origins = this.updateFilter    (model.filters.origins,    this.state.filters.origins);
     this.updateSearch    (model.filters.search);
     this.filterArticles  (model.articles, this.state.filters);
     this.updateDisplay   (model.display);
@@ -571,7 +571,6 @@ samState = {
   
     console.log('updateFilter')
     
-    
     let isEveryElementTrue = true;
     stateFilter = modelFilter;
     
@@ -590,6 +589,8 @@ samState = {
       }
 
     stateFilter.toutes = isEveryElementTrue;
+    stateFilter.hasChanged = true;
+    return stateFilter;
   },
   
   updateSearch(modelSearch) {
@@ -621,12 +622,31 @@ samState = {
         this.state.filteredArticles.hasChanged = true;
         return;
       } 
+      
       for(let i = 0; i < articles.values.length; i++) {
         if(articles.values[i].name.toUpperCase().includes(curFilter))
         {
             filteredValues.push(articles.values[i]);
         }
       }
+      
+      if(!filters.categories.toutes)
+      {
+        let e = Object.entries(filters.categories.booleans);
+        console.log(e);
+        filteredValues = filteredValues.filter(art => {
+          return e.some(arr => art.category == arr[0] && arr[1]);
+        });
+      }
+      if(!filters.origins.toutes)
+      {
+        let e = Object.entries(filters.origins.booleans);
+        console.log(e);
+        filteredValues = filteredValues.filter(art => {
+          return e.some(arr => art.origin == arr[0] && arr[1]);
+        });
+      }
+      
 
       this.state.filteredArticles.values     = filteredValues;
       this.state.filteredArticles.hasChanged = true;
@@ -927,7 +947,7 @@ samView = {
       </div>
       <div class="middle-align small-margin">
         <label class="switch">
-          <input type="checkbox" onclick="samActions.exec({do:'animationsToggle', e: event})" ${animationsChecked} />
+          <input type="checkbox" onclick="samActions.exec({do:'animationsToggle'})" ${animationsChecked} />
           <span>Animations</span>
         </label>
       </div>          
