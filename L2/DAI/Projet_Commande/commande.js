@@ -41,7 +41,7 @@ samActions = {
         proposal = {do: 'filterUpdate', newFilter: data.e.target.value};
         break;
       case 'changeFilter':
-        proposal = {do: data.do, filterName:data.filterName, name:data.name, e:data.e};
+        proposal = {do: data.do, filterName:data.filterName, name:data.name};
         break;
       case 'viewCartToggle'    :
       case 'gridListView'      : 
@@ -207,11 +207,10 @@ samModel = {
                                  if(data.qt == 0){this.model.articles.values.find(art => art.id == data.id).inCart = false} break; //Delete article from cart if qt is 0
       case 'updatePagination'  : break;
       case 'sortCart'          : this.model.cartSort.property = data.property; this.modelToggle(`cartSort.ascending.${data.property}`);this.model.cartSort.hasChanged = true; break;   
-      
       // TODO
       
       default : 
-        console.error('samPresent() - proposition non prise en compte : ', data);
+        console.error('samPresent() - proposition non prise en compte : ', data); 
         return;
     }
 
@@ -544,7 +543,7 @@ samState = {
     this.state.filters.categories = this.updateFilter    (model.filters.categories, this.state.filters.categories);
     this.state.filters.origins = this.updateFilter    (model.filters.origins,    this.state.filters.origins);
     this.updateSearch    (model.filters.search);
-    this.filterArticles  (model.articles, this.state.filters);
+    this.state.filters = this.filterArticles  (model.articles, this.state.filters);
     this.updateDisplay   (model.display);
     this.updatePagination(model.pagination);
     this.updateCartSort  (model.cartSort);
@@ -630,6 +629,10 @@ samState = {
         }
       }
       
+      /* 
+        We need to set the values of articles that were filtered out as false;
+      */
+
       if(!filters.categories.toutes)
       {
         let e = Object.entries(filters.categories.booleans);
@@ -651,6 +654,7 @@ samState = {
       this.state.filteredArticles.values     = filteredValues;
       this.state.filteredArticles.hasChanged = true;
     }
+    return this.state.filters;
   },
 
   updateDisplay(display) {
@@ -896,7 +900,7 @@ samView = {
     return this.html`   
     <div>
       <label class="checkbox">
-        <input type="checkbox" onclick="samActions.exec({do: 'changeFilter', filterName:'${filterName}', name:'toutes', e:event})" ${model.filters[filterName].toutes? `checked="checked"` : ''}/>
+        <input type="checkbox" onclick="samActions.exec({do: 'changeFilter', filterName:'${filterName}', name:'toutes'})" ${model.filters[filterName].toutes? `checked="checked"` : ''}/>
         <span class="capitalize">toutes</span>  
         <a><span class="badge circle right color-2-text color-2a">${model.articles.values.length}</span></a>
       </label>
@@ -905,7 +909,7 @@ samView = {
     ${booleans.map((fil, index) => `
       <div>
         <label class="checkbox">
-          <input type="checkbox" onclick="samActions.exec({do: 'changeFilter', filterName:'${filterName}', name:'${fil[0]}', e:event})" ${fil[1]? `checked="checked"` : ''}/>
+          <input type="checkbox" onclick="samActions.exec({do: 'changeFilter', filterName:'${filterName}', name:'${fil[0]}'})" ${fil[1]? `checked="checked"` : ''}/>
           <span class="capitalize">${fil[0]}</span>  
           <a><span class="badge circle right color-2-text color-2a">${counts[index][1]}</span></a>
         </label>
@@ -965,42 +969,44 @@ samView = {
     console.log('filtersSearchTagsUI');
   
     // TODO working, do we want map to be cleaner?
+    // Delete recherche by clicking, unable to set to empty
     
     return this.html`           
       <label  class="medium-text color-2-text">${state.filteredArticles.values.length} articles -</label>
 
       ${!model.filters.categories.booleans.fruits? ``:`
-      <span class="chip small no-margin capitalize ">
+      <span class="chip small no-margin capitalize " onclick="samActions.exec({do: 'changeFilter', filterName: 'categories', name: 'fruits'})">
         fruits<i class="small">close</i>
       </span>   `}
 
       ${!model.filters.categories.booleans.legumes? ``:`
-      <span class="chip small no-margin capitalize ">
+      <span class="chip small no-margin capitalize " onclick="samActions.exec({do: 'changeFilter', filterName: 'categories', name: 'legumes'})">
         légumes<i class="small">close</i>
       </span>   `}
       
       ${!model.filters.origins.booleans.Espagne? ``:`
-      <span class="chip small no-margin capitalize ">
+      <span class="chip small no-margin capitalize " onclick="samActions.exec({do: 'changeFilter', filterName: 'origins', name: 'Espagne'})">
       Espagne<i class="small">close</i>
       </span>   `}
 
       ${!model.filters.origins.booleans.France? ``:`
-      <span class="chip small no-margin capitalize ">
+      <span class="chip small no-margin capitalize " onclick="samActions.exec({do: 'changeFilter', filterName: 'origins', name: 'France'})">
       France<i class="small">close</i>
       </span>   `}
       
       ${!model.filters.origins.booleans.Maroc? ``:`
-      <span class="chip small no-margin capitalize ">
+      <span class="chip small no-margin capitalize " onclick="samActions.exec({do: 'changeFilter', filterName: 'origins', name: 'Maroc'})">
       Maroc<i class="small">close</i>
       </span>   `}
 
       ${!model.filters.origins.booleans.Pérou? ``:`
-      <span class="chip small no-margin capitalize ">
+      <span class="chip small no-margin capitalize " onclick="samActions.exec({do: 'changeFilter', filterName: 'origins', name: 'Pérou'})">
       Pérou<i class="small">close</i>
       </span>   `}
       
+      
       ${state.filters.search.text.trim() == "" ? '' : `
-        <span class="chip small no-margin">
+        <span class="chip small no-margin" onclick="samActions.exec({do: 'filters', e: {target: {value: 'a'}}})">
           Rech : "${state.filters.search.text}"<i class="small">close</i>
         </span> `}       
                    
