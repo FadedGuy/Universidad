@@ -543,7 +543,7 @@ samState = {
     this.state.filters.categories = this.updateFilter    (model.filters.categories, this.state.filters.categories);
     this.state.filters.origins = this.updateFilter    (model.filters.origins,    this.state.filters.origins);
     this.updateSearch    (model.filters.search);
-    this.state.filters = this.filterArticles  (model.articles, this.state.filters);
+    this.filterArticles  (model.articles, this.state.filters);
     this.updateDisplay   (model.display);
     this.updatePagination(model.pagination);
     this.updateCartSort  (model.cartSort);
@@ -672,6 +672,7 @@ samState = {
   },
 
   updatePagination(pagination) {
+    /* No idea why in the first update hasNext is not properly made */
     const statePagination = this.state.pagination;
     
     const articleGrid        = document.getElementById('articleWidth');
@@ -968,8 +969,7 @@ samView = {
   
     console.log('filtersSearchTagsUI');
   
-    // TODO working, do we want map to be cleaner?
-    // Delete recherche by clicking, unable to set to empty
+    // TODO working, do we want map to be cleaner? Perhaps, not really in the mood or necessity
     
     return this.html`           
       <label  class="medium-text color-2-text">${state.filteredArticles.values.length} articles -</label>
@@ -1006,7 +1006,7 @@ samView = {
       
       
       ${state.filters.search.text.trim() == "" ? '' : `
-        <span class="chip small no-margin" onclick="samActions.exec({do: 'filters', e: {target: {value: 'a'}}})">
+        <span class="chip small no-margin" onclick="samActions.exec({do: 'filters', e: {target: {value: ''}}})">
           Rech : "${state.filters.search.text}"<i class="small">close</i>
         </span> `}       
                    
@@ -1122,28 +1122,28 @@ samView = {
     
     console.log('paginationUI');
     
-    // TODO
-    
     return this.html`
-      <nav class="center-align">
-        <button class="square border disabled" disabled="disabled">
+    <nav class="center-align">
+      <button ${state.pagination[state.display.articlesView.value].hasPrevPage ? `class="square"` : `class="square border disabled" disabled="disabled"`}>
           <i>navigate_before</i>
-        </button>     
-        <button class="square no-margin border">1</button>      
-        <button class="square no-margin ">2</button>      
-        <button class="square no-margin ">3</button>      
-        <button class="square ">
+      </button>     
+
+      <button class="square no-margin border">1</button>      
+      <button class="square no-margin ">2</button>      
+      <button class="square no-margin ">3</button>      
+
+      <button ${state.pagination[state.display.articlesView.value].hasNextPage ? `class="square"` : `class="square border disabled" disabled="disabled"`}>
           <i>navigate_next</i>
-        </button>
-        <div class="field suffix small">
-          <select>
-            <option value="1" selected="selected">1 ligne par page</option>
-            <option value="2">2 lignes par page</option>
-            <option value="3">3 lignes par page</option>
-          </select>
-          <i>arrow_drop_down</i>
-        </div>
-      </nav>
+      </button>
+      <div class="field suffix small">
+        <select>
+          ${state.pagination[state.display.articlesView.value].linesPerPageOptions.map(e => `
+            <option value="${e}" ${state.pagination[state.display.articlesView.value].linesPerPage == e ? `selected="selected"` : ``}> ${e} ligne${e == 1 ? "" : "s"} par page </option>
+          `).join('')}
+        </select>
+        <i>arrow_drop_down</i>
+      </div>
+    </nav>
     `;
   },
   
