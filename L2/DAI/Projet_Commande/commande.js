@@ -79,7 +79,10 @@ samActions = {
         proposal = {do: data.do};
         break;
       case 'updatePagination'  : break;
-      
+      case 'prevPage' : proposal = {do: data.do}; break;
+      case 'nextPage' : proposal = {do: data.do}; break;      
+      case 'changePage' : proposal = {do: data.do, goto: data.goto}; break;
+      case 'changeLinesPP' : proposal = {do: data.do, index: data.index}; break;
       
       default : 
         console.error('samActions - Action non prise en compte : ', data);
@@ -207,6 +210,10 @@ samModel = {
                                  if(data.qt == 0){this.model.articles.values.find(art => art.id == data.id).inCart = false} break; //Delete article from cart if qt is 0
       case 'updatePagination'  : break;
       case 'sortCart'          : this.model.cartSort.property = data.property; this.modelToggle(`cartSort.ascending.${data.property}`);this.model.cartSort.hasChanged = true; break;   
+      case 'prevPage'          : this.model.pagination[this.model.display.articlesView].currentPage--; ;break;
+      case 'nextPage'          : this.model.pagination[this.model.display.articlesView].currentPage++; break;
+      case 'changePage'        : this.model.pagination[this.model.display.articlesView].currentPage = data.goto; break;
+      case 'changeLinesPP'     : this.model.pagination[this.model.display.articlesView].linesPerPage = this.model.pagination[this.model.display.articlesView].linesPerPageOptions[data.index]; break; 
       // TODO
       
       default : 
@@ -1121,22 +1128,26 @@ samView = {
   paginationUI(model, state) {
     
     console.log('paginationUI');
-    
+    let buttons = '';
+    for(let i = 1; i <= state.pagination[state.display.articlesView.value].numberOfPages; i++){
+      buttons += `
+        <button ${i == state.pagination[state.display.articlesView.value].currentPage ? `class="square no-margin border"` : `class="square no-margin" onclick="samActions.exec({do:'changePage', goto:${i}})"`}>${i}</button>
+      `;
+    }
+    // onchange="samActions.exec({do: 'changeLinesPP', e: event})"
     return this.html`
     <nav class="center-align">
-      <button ${state.pagination[state.display.articlesView.value].hasPrevPage ? `class="square"` : `class="square border disabled" disabled="disabled"`}>
+      <button ${state.pagination[state.display.articlesView.value].hasPrevPage ? `class="square" onclick="samActions.exec({do: 'prevPage'})"` : `class="square border disabled" disabled="disabled"`}>
           <i>navigate_before</i>
       </button>     
 
-      <button class="square no-margin border">1</button>      
-      <button class="square no-margin ">2</button>      
-      <button class="square no-margin ">3</button>      
+      ${buttons}    
 
-      <button ${state.pagination[state.display.articlesView.value].hasNextPage ? `class="square"` : `class="square border disabled" disabled="disabled"`}>
+      <button ${state.pagination[state.display.articlesView.value].hasNextPage ? `class="square" onclick="samActions.exec({do: 'nextPage'})"` : `class="square border disabled" disabled="disabled"`}>
           <i>navigate_next</i>
       </button>
       <div class="field suffix small">
-        <select>
+        <select onchange="samActions.exec({do: 'changeLinesPP', index: this.selectedIndex})">
           ${state.pagination[state.display.articlesView.value].linesPerPageOptions.map(e => `
             <option value="${e}" ${state.pagination[state.display.articlesView.value].linesPerPage == e ? `selected="selected"` : ``}> ${e} ligne${e == 1 ? "" : "s"} par page </option>
           `).join('')}
