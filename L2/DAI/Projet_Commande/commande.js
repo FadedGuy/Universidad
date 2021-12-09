@@ -1045,10 +1045,12 @@ samView = {
   articlesGridUI(model, state) {
     
     console.log('articlesGridUI');
-    
+    let properties = state.pagination.grid;
+    let artFil = state.filteredArticles.values.slice((properties.currentPage-1)*(properties.linesPerPage*properties.maxArticlesPerLine), (properties.currentPage)*(properties.linesPerPage*properties.maxArticlesPerLine));
+
     return this.html`
       <article class="small-margin grid-view">
-        ${state.filteredArticles.values.map(art => `
+        ${artFil.map(art => `
           <div  class="card no-padding small-margin">        
             <div class="card-image center-align">
             ${model.settings.articleImages ? `<img src="./images/${art.pictures[0]}" />` : ''}
@@ -1081,11 +1083,13 @@ samView = {
   
   articlesListUI(model, state) {
     
-    console.log('articlesListUI');
-      
+    console.log('articlesListUI', state);
+    let properties = state.pagination.list;
+    let artFil = state.filteredArticles.values.slice((properties.currentPage-1)*(properties.linesPerPage*properties.maxArticlesPerLine), (properties.currentPage)*(properties.linesPerPage*properties.maxArticlesPerLine));
+
     return this.html`
       <article class="large-margin list-view">
-        ${state.filteredArticles.values.map(art => `
+        ${artFil.map(art => `
           <nav  class="row card divider no-wrap">            
             <div class="col min">
               ${model.settings.articleImages ? `<img src="./images/${art.pictures[0]}" />` : ''}
