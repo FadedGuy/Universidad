@@ -209,7 +209,7 @@ samModel = {
       case 'editQt'            : this.model.articles.values.find(art => art.id == data.id).quantity = data.qt; this.model.articles.hasChanged = true; 
                                  if(data.qt == 0){this.model.articles.values.find(art => art.id == data.id).inCart = false} break; //Delete article from cart if qt is 0
       case 'updatePagination'  : break;
-      case 'sortCart'          : this.model.cartSort.property = data.property; this.modelToggle(`cartSort.ascending.${data.property}`);this.model.cartSort.hasChanged = true; break;   
+      case 'sortCart'          : this.model.cartSort.property = data.property; this.modelToggle(`cartSort.ascending.${data.property}`); this.model.cartSort.hasChanged = true; break;   
       case 'prevPage'          : this.model.pagination[this.model.display.articlesView].currentPage--; ;break;
       case 'nextPage'          : this.model.pagination[this.model.display.articlesView].currentPage++; break;
       case 'changePage'        : this.model.pagination[this.model.display.articlesView].currentPage = data.goto; break;
@@ -629,10 +629,14 @@ samState = {
         return;
       } 
       
-      for(let i = 0; i < articles.values.length; i++) {
-        if(articles.values[i].name.toUpperCase().includes(curFilter))
-        {
-            filteredValues.push(articles.values[i]);
+      if(curFilter == ""){
+        filteredValues = articles.values;
+      }else{
+        for(let i = 0; i < articles.values.length; i++) {
+          if(articles.values[i].name.toUpperCase().includes(curFilter))
+          {
+              filteredValues.push(articles.values[i]);
+          }
         }
       }
       
