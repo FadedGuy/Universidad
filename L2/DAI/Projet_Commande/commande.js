@@ -50,10 +50,6 @@ samActions = {
       case 'imagesToggle'      : 
         proposal = {do: data.do};
         break;
-        // Pagination
-        // TODO
-        // Cart
-        // TODO
       case 'globalSearch': 
         proposal = {do: data.do, checked: data.check.checked};
         break;
@@ -204,7 +200,7 @@ samModel = {
         this.model.articles.values.map(art => {if(art.deleteToggle){art.inCart = false; art.deleteToggle = false;}});
         this.model.articles.hasChanged = true;
         break;
-      case 'globalSearch'      : this.model.filters.search.global = data.checked; break;
+      case 'globalSearch'      : this.model.filters.search.global = data.checked; this.model.articles.hasChanged = true; break;
       case 'addCart'           : this.model.articles.values.find(art => art.id == data.id).inCart = true; this.model.articles.hasChanged = true; break;
       case 'editQt'            : this.model.articles.values.find(art => art.id == data.id).quantity = data.qt; this.model.articles.hasChanged = true; 
                                  if(data.qt == 0){this.model.articles.values.find(art => art.id == data.id).inCart = false} break; //Delete article from cart if qt is 0
@@ -628,6 +624,7 @@ samState = {
         this.state.filteredArticles.hasChanged = true;
         return;
       } 
+      // Even if there is no category/origin checked & curFilter = "" we show 9 articles instead of 0
       
       if(curFilter == ""){
         filteredValues = articles.values;
@@ -641,25 +638,26 @@ samState = {
       }
       
       /* 
-        We need to set the values of articles that were filtered out as false;
+        We need to set the values of articles that were filtered out as false only if there is no global search;
       */
 
-      if(!filters.categories.toutes)
-      {
+      if(!this.state.filters.search.global) {
+        if(!filters.categories.toutes) {
         let e = Object.entries(filters.categories.booleans);
         console.log(e);
         filteredValues = filteredValues.filter(art => {
           return e.some(arr => art.category == arr[0] && arr[1]);
-        });
-      }
-      if(!filters.origins.toutes)
-      {
+          });
+        }
+      if(!filters.origins.toutes) {
         let e = Object.entries(filters.origins.booleans);
         console.log(e);
         filteredValues = filteredValues.filter(art => {
           return e.some(arr => art.origin == arr[0] && arr[1]);
-        });
+          });
+        }
       }
+      
       
 
       this.state.filteredArticles.values     = filteredValues;
@@ -986,32 +984,32 @@ samView = {
       <label  class="medium-text color-2-text">${state.filteredArticles.values.length} articles -</label>
 
       ${!model.filters.categories.booleans.fruits? ``:`
-      <span class="chip small no-margin capitalize " onclick="samActions.exec({do: 'changeFilter', filterName: 'categories', name: 'fruits'})">
+      <span class="chip small no-margin capitalize ${state.filters.search.global?`color-2b-text`:``}" onclick="samActions.exec({do: 'changeFilter', filterName: 'categories', name: 'fruits'})">
         fruits<i class="small">close</i>
       </span>   `}
 
       ${!model.filters.categories.booleans.legumes? ``:`
-      <span class="chip small no-margin capitalize " onclick="samActions.exec({do: 'changeFilter', filterName: 'categories', name: 'legumes'})">
+      <span class="chip small no-margin capitalize ${state.filters.search.global?`color-2b-text`:``}" onclick="samActions.exec({do: 'changeFilter', filterName: 'categories', name: 'legumes'})">
         légumes<i class="small">close</i>
       </span>   `}
       
       ${!model.filters.origins.booleans.Espagne? ``:`
-      <span class="chip small no-margin capitalize " onclick="samActions.exec({do: 'changeFilter', filterName: 'origins', name: 'Espagne'})">
+      <span class="chip small no-margin capitalize ${state.filters.search.global?`color-2b-text`:``}" onclick="samActions.exec({do: 'changeFilter', filterName: 'origins', name: 'Espagne'})">
       Espagne<i class="small">close</i>
       </span>   `}
 
       ${!model.filters.origins.booleans.France? ``:`
-      <span class="chip small no-margin capitalize " onclick="samActions.exec({do: 'changeFilter', filterName: 'origins', name: 'France'})">
+      <span class="chip small no-margin capitalize ${state.filters.search.global?`color-2b-text`:``}" onclick="samActions.exec({do: 'changeFilter', filterName: 'origins', name: 'France'})">
       France<i class="small">close</i>
       </span>   `}
       
       ${!model.filters.origins.booleans.Maroc? ``:`
-      <span class="chip small no-margin capitalize " onclick="samActions.exec({do: 'changeFilter', filterName: 'origins', name: 'Maroc'})">
+      <span class="chip small no-margin capitalize ${state.filters.search.global?`color-2b-text`:``}" onclick="samActions.exec({do: 'changeFilter', filterName: 'origins', name: 'Maroc'})">
       Maroc<i class="small">close</i>
       </span>   `}
 
       ${!model.filters.origins.booleans.Pérou? ``:`
-      <span class="chip small no-margin capitalize " onclick="samActions.exec({do: 'changeFilter', filterName: 'origins', name: 'Pérou'})">
+      <span class="chip small no-margin capitalize ${state.filters.search.global?`color-2b-text`:``}" onclick="samActions.exec({do: 'changeFilter', filterName: 'origins', name: 'Pérou'})">
       Pérou<i class="small">close</i>
       </span>   `}
       
