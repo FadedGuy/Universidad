@@ -69,8 +69,6 @@ samActions = {
       case 'sortCart':
         proposal = {do: data.do, property: data.property};
         break;
-      // Articles
-      // TODO
       case 'darkThemeToggle'   : 
         proposal = {do: data.do};
         break;
@@ -210,7 +208,6 @@ samModel = {
       case 'nextPage'          : this.model.pagination[this.model.display.articlesView].currentPage++; break;
       case 'changePage'        : this.model.pagination[this.model.display.articlesView].currentPage = data.goto; break;
       case 'changeLinesPP'     : this.model.pagination[this.model.display.articlesView].linesPerPage = this.model.pagination[this.model.display.articlesView].linesPerPageOptions[data.index]; break; 
-      // TODO
       
       default : 
         console.error('samPresent() - proposition non prise en compte : ', data); 
@@ -382,27 +379,25 @@ samModel = {
   extractCategories() {
     const articles   = this.model.articles.values;
     let categories   = [];
-    let catsCount  = {
-      'fruits': 0,
-      'legumes': 0,
-    };
-    let catsFilter = {
-        'fruits': false,
-        'legumes': false,
-    };
-    
     categories = articles.map(value => value.category);
     categories = [...new Set(categories)];    
     categories.sort(this.alphaSort);
 
+    let catsCountArr  = [];
+    categories.map(value => catsCountArr.push([value, 0]));
+    let catsCount = Object.fromEntries(catsCountArr);
+
+    let catsFilterArr = [];
+    categories.map(value => catsFilterArr.push([value, false]));
+    let catsFilter = Object.fromEntries(catsFilterArr);
+
     for(let i = 0; i < articles.length; i++) {
-        if(articles[i].category == "fruits") {
-            catsCount.fruits++;
-            catsFilter.fruits = true;
-        } else {
-            catsCount.legumes++;
-            catsFilter.legumes = true;
+      for(let j = 0; j < categories.length; j++) {
+        if(articles[i].category == `${catsCountArr[j][0]}`) {
+          catsCount[articles[i].category]++;
+          catsFilter[articles[i].category] = true;
         }
+      }
     }
 
     this.model.categories = categories;
@@ -417,38 +412,26 @@ samModel = {
   */
   extractOrigins() {
     const articles   = this.model.articles.values;
-    let origins   = [];
-    let orCount  = {
-        'Pérou': 0,
-        'France': 0,
-        'Espagne': 0,
-        'Maroc': 0,
-    };
-    const orFilter = {
-        'Pérou': false,
-        'France': false,
-        'Espagne': false,
-        'Maroc': false,
-    };
-    
+    let origins   = [];    
     origins = articles.map(value => value.origin);
     origins = [...new Set(origins)];
     origins.sort(this.alphaSort);
 
+    let orCountArr = [];
+    origins.map(value => orCountArr.push([value, 0]));
+    let orCount = Object.fromEntries(orCountArr);
+
+    let orFilterArr = [];
+    origins.map(value => orFilterArr.push([value, false]));
+    let orFilter = Object.fromEntries(orFilterArr);
+
     for(let i = 0; i < articles.length; i++) {
-        if(articles[i].origin == "Pérou") {
-            orCount.Pérou++;
-            orFilter.Pérou = true;
-        } else if(articles[i].origin == "France") {
-            orCount.France++;
-            orFilter.France = true;
-        } else if(articles[i].origin == "Espagne") {
-            orCount.Espagne++;
-            orFilter.Espagne = true;
-        } else {
-            orCount.Maroc++;
-            orFilter.Maroc = true;
+      for(let j = 0; j < origins.length; j++) {
+        if(articles[i].origin == `${orCountArr[j][0]}`) {
+          orCount[articles[i].origin]++;
+          orFilter[articles[i].origin] = true;
         }
+      }
     }
 
     this.model.origins = origins;
@@ -585,7 +568,7 @@ samState = {
     }
 
     if(stateFilter.booleans.fruits == false ||
-      stateFilter.booleans.legumes == false)
+      stateFilter.booleans.légumes == false)
       {
         isEveryElementTrue = false;
       }
@@ -616,15 +599,13 @@ samState = {
         filters.origins.hasChanged    ||
         filters.search.hasChanged     ) {
               
-      let filteredValues = [];  // TODO 
+      let filteredValues = [];
       let curFilter = filters.search.text.toUpperCase();
       
       if(curFilter.trim() == ""){
         this.state.filteredArticles.values = articles.values;
         this.state.filteredArticles.hasChanged = true;
-        return;
-      } 
-      // Even if there is no category/origin checked & curFilter = "" we show 9 articles instead of 0
+      }
       
       if(curFilter == ""){
         filteredValues = articles.values;
@@ -905,7 +886,15 @@ samView = {
     console.log('filterUI', filterName);
     let variable = Object.entries(model.filters).find(el => el[0] == filterName)[1];
     let booleans = Object.entries(Object.entries(variable).find(el => el[0] == "booleans")[1]);
+    booleans.sort((a, b) => {if(a[0]<b[0]) return -1;
+                             if(a[0]>b[0]) return 1;
+
+                             return 0;  });
     let counts = Object.entries(Object.entries(variable).find(el => el[0] == "count")[1]);
+    counts.sort((a, b) => {if(a[0]<b[0]) return -1;
+                           if(a[0]>b[0]) return 1;
+
+                           return 0;  });
 
     return this.html`   
     <div>
@@ -977,48 +966,40 @@ samView = {
   filtersSearchTagsUI(model, state) {
   
     console.log('filtersSearchTagsUI');
-  
-    // TODO working, do we want map to be cleaner? Perhaps, not really in the mood or necessity
-    
-    return this.html`           
-      <label  class="medium-text color-2-text">${state.filteredArticles.values.length} articles -</label>
 
-      ${!model.filters.categories.booleans.fruits? ``:`
-      <span class="chip small no-margin capitalize ${state.filters.search.global?`color-2b-text`:``}" onclick="samActions.exec({do: 'changeFilter', filterName: 'categories', name: 'fruits'})">
-        fruits<i class="small">close</i>
-      </span>   `}
+    let originsSorted = Object.keys(model.filters.origins.booleans);
+    let categoriesSorted = Object.keys(model.filters.categories.booleans);
 
-      ${!model.filters.categories.booleans.legumes? ``:`
-      <span class="chip small no-margin capitalize ${state.filters.search.global?`color-2b-text`:``}" onclick="samActions.exec({do: 'changeFilter', filterName: 'categories', name: 'legumes'})">
-        légumes<i class="small">close</i>
-      </span>   `}
-      
-      ${!model.filters.origins.booleans.Espagne? ``:`
-      <span class="chip small no-margin capitalize ${state.filters.search.global?`color-2b-text`:``}" onclick="samActions.exec({do: 'changeFilter', filterName: 'origins', name: 'Espagne'})">
-      Espagne<i class="small">close</i>
-      </span>   `}
+    categoriesSorted.sort((a, b) => {if(a<b) return -1;
+      if(a>b) return 1;
 
-      ${!model.filters.origins.booleans.France? ``:`
-      <span class="chip small no-margin capitalize ${state.filters.search.global?`color-2b-text`:``}" onclick="samActions.exec({do: 'changeFilter', filterName: 'origins', name: 'France'})">
-      France<i class="small">close</i>
-      </span>   `}
-      
-      ${!model.filters.origins.booleans.Maroc? ``:`
-      <span class="chip small no-margin capitalize ${state.filters.search.global?`color-2b-text`:``}" onclick="samActions.exec({do: 'changeFilter', filterName: 'origins', name: 'Maroc'})">
-      Maroc<i class="small">close</i>
-      </span>   `}
+      return 0;  });
 
-      ${!model.filters.origins.booleans.Pérou? ``:`
-      <span class="chip small no-margin capitalize ${state.filters.search.global?`color-2b-text`:``}" onclick="samActions.exec({do: 'changeFilter', filterName: 'origins', name: 'Pérou'})">
-      Pérou<i class="small">close</i>
+    originsSorted.sort((a, b) => {if(a<b) return -1;
+      if(a>b) return 1;
+
+      return 0;  });
+
+    return this.html`
+    <label  class="medium-text color-2-text">${state.filteredArticles.values.length} articles -</label>
+      ${categoriesSorted.map(cat =>`
+      ${!model.filters.categories.booleans[cat]? ``:`
+      <span class="chip small no-margin capitalize ${state.filters.search.global?`color-2b-text`:``}" onclick="samActions.exec({do: 'changeFilter', filterName: 'categories', name: '${cat}'})">
+        ${cat}<i class="small">close</i>
       </span>   `}
-      
-      
+      `).join('')}
+
+      ${originsSorted.map(origin =>`
+      ${!model.filters.origins.booleans[origin]? ``:`
+      <span class="chip small no-margin capitalize ${state.filters.search.global?`color-2b-text`:``}" onclick="samActions.exec({do: 'changeFilter', filterName: 'origins', name: '${origin}'})">
+      ${origin}<i class="small">close</i>
+      </span>   `}
+      `).join('')}
+
       ${state.filters.search.text.trim() == "" ? '' : `
         <span class="chip small no-margin" onclick="samActions.exec({do: 'filters', e: {target: {value: ''}}})">
           Rech : "${state.filters.search.text}"<i class="small">close</i>
-        </span> `}       
-                   
+        </span> `}
     `;
   },
   
@@ -1229,7 +1210,7 @@ samView = {
                 <td>${(art.price * art.quantity).toFixed(2)} €</td>
                 <td class="center-align">
                   <label class="checkbox">
-                    <input type="checkbox" onclick="samActions.exec({do: 'deleteToggle', id: '${art.id}'})" ${art.deleteToggle ? `checked="cheked"` : ''}/> 
+                    <input type="checkbox" onclick="samActions.exec({do: 'deleteToggle', id: '${art.id}'})" ${art.deleteToggle ? `checked="checked"` : ''}/> 
                     <span></span>
                   </label>
                 </td>
