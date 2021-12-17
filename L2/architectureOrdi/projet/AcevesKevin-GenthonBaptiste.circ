@@ -234,15 +234,160 @@ This file is intended to be loaded by Logisim (http://www.cburch.com/logisim/).
     <wire from="(680,350)" to="(690,350)"/>
     <wire from="(330,400)" to="(530,400)"/>
     <wire from="(730,920)" to="(740,920)"/>
+    <comp lib="0" loc="(700,930)" name="Pin">
+      <a name="tristate" val="false"/>
+      <a name="label" val="0 dépiler, 1 empiler"/>
+    </comp>
+    <comp lib="2" loc="(580,230)" name="Multiplexer">
+      <a name="width" val="8"/>
+      <a name="enable" val="false"/>
+    </comp>
+    <comp lib="0" loc="(390,900)" name="Pin">
+      <a name="facing" val="west"/>
+      <a name="output" val="true"/>
+      <a name="width" val="8"/>
+      <a name="labelloc" val="east"/>
+    </comp>
+    <comp lib="6" loc="(310,862)" name="Text">
+      <a name="text" val="Preuve unité de calcul"/>
+      <a name="font" val="SansSerif bold 13"/>
+    </comp>
+    <comp lib="1" loc="(540,650)" name="NOR Gate">
+      <a name="inputs" val="2"/>
+    </comp>
+    <comp lib="3" loc="(260,490)" name="Comparator"/>
+    <comp lib="1" loc="(530,290)" name="OR Gate">
+      <a name="inputs" val="3"/>
+    </comp>
+    <comp lib="1" loc="(680,350)" name="Controlled Buffer">
+      <a name="width" val="8"/>
+    </comp>
+    <comp lib="1" loc="(700,660)" name="AND Gate">
+      <a name="inputs" val="3"/>
+    </comp>
+    <comp lib="0" loc="(1160,470)" name="Pin">
+      <a name="facing" val="west"/>
+      <a name="output" val="true"/>
+      <a name="width" val="8"/>
+      <a name="label" val="Output"/>
+      <a name="labelloc" val="east"/>
+    </comp>
+    <comp lib="1" loc="(370,580)" name="AND Gate">
+      <a name="facing" val="south"/>
+      <a name="inputs" val="2"/>
+    </comp>
+    <comp lib="0" loc="(830,340)" name="Pin">
+      <a name="facing" val="west"/>
+      <a name="output" val="true"/>
+      <a name="width" val="8"/>
+      <a name="labelloc" val="east"/>
+    </comp>
+    <comp lib="1" loc="(610,610)" name="OR Gate">
+      <a name="inputs" val="2"/>
+    </comp>
+    <comp lib="0" loc="(1020,450)" name="Splitter">
+      <a name="fanout" val="8"/>
+      <a name="incoming" val="8"/>
+    </comp>
+    <comp lib="0" loc="(1160,440)" name="Pin">
+      <a name="facing" val="west"/>
+      <a name="output" val="true"/>
+      <a name="label" val="Débordement"/>
+      <a name="labelloc" val="east"/>
+    </comp>
+    <comp lib="0" loc="(710,890)" name="Pin">
+      <a name="width" val="8"/>
+      <a name="tristate" val="false"/>
+      <a name="label" val="Valeur à empiler"/>
+    </comp>
     <comp lib="2" loc="(700,330)" name="Demultiplexer">
       <a name="select" val="2"/>
       <a name="width" val="8"/>
       <a name="enable" val="false"/>
     </comp>
-    <comp lib="1" loc="(530,290)" name="OR Gate">
-      <a name="inputs" val="3"/>
+    <comp loc="(740,900)" name="Pile"/>
+    <comp lib="1" loc="(540,730)" name="NOR Gate"/>
+    <comp lib="6" loc="(755,861)" name="Text">
+      <a name="text" val="Preuve pile"/>
+      <a name="font" val="SansSerif bold 13"/>
     </comp>
-    <comp lib="0" loc="(740,420)" name="Splitter"/>
+    <comp lib="4" loc="(910,400)" name="Register"/>
+    <comp loc="(350,890)" name="Unité de calcul"/>
+    <comp lib="4" loc="(720,400)" name="Counter">
+      <a name="width" val="2"/>
+      <a name="max" val="0x3"/>
+    </comp>
+    <comp lib="0" loc="(950,340)" name="Probe">
+      <a name="radix" val="16"/>
+    </comp>
+    <comp lib="2" loc="(810,600)" name="Multiplexer">
+      <a name="width" val="2"/>
+    </comp>
+    <comp loc="(620,280)" name="Pile">
+      <a name="label" val="Pile"/>
+      <a name="labelloc" val="east"/>
+    </comp>
+    <comp lib="0" loc="(1230,510)" name="Probe">
+      <a name="facing" val="west"/>
+      <a name="radix" val="16"/>
+      <a name="label" val="Output hexa"/>
+    </comp>
+    <comp lib="6" loc="(815,652)" name="Text">
+      <a name="text" val="Actif seulment si code opé valide"/>
+    </comp>
+    <comp lib="1" loc="(530,590)" name="OR Gate">
+      <a name="inputs" val="2"/>
+    </comp>
+    <comp lib="0" loc="(380,500)" name="Splitter">
+      <a name="facing" val="south"/>
+      <a name="fanout" val="8"/>
+      <a name="incoming" val="8"/>
+    </comp>
+    <comp loc="(1110,580)" name="Unité de calcul">
+      <a name="label" val="Unité de calcul"/>
+    </comp>
+    <comp lib="0" loc="(830,360)" name="Pin">
+      <a name="facing" val="west"/>
+      <a name="output" val="true"/>
+      <a name="width" val="8"/>
+      <a name="labelloc" val="east"/>
+    </comp>
+    <comp lib="2" loc="(980,450)" name="Multiplexer">
+      <a name="width" val="8"/>
+      <a name="enable" val="false"/>
+    </comp>
+    <comp lib="6" loc="(627,150)" name="Text">
+      <a name="text" val="Pour que les valeurs soient traitées ou stockées, 2 ticks d'horloge (CTRL + T) par input sont nécessaires."/>
+      <a name="font" val="SansSerif bold 16"/>
+    </comp>
+    <comp lib="0" loc="(270,910)" name="Pin">
+      <a name="width" val="8"/>
+      <a name="tristate" val="false"/>
+      <a name="label" val="Valeur B"/>
+    </comp>
+    <comp lib="6" loc="(687,567)" name="Text">
+      <a name="text" val="Code opé"/>
+    </comp>
+    <comp lib="6" loc="(351,130)" name="Text">
+      <a name="text" val="Fait par: ACEVES Kevin, GENTHON Baptiste"/>
+    </comp>
+    <comp lib="0" loc="(710,910)" name="Constant"/>
+    <comp lib="0" loc="(190,500)" name="Constant">
+      <a name="width" val="8"/>
+      <a name="value" val="0x0"/>
+    </comp>
+    <comp lib="0" loc="(270,930)" name="Pin">
+      <a name="width" val="2"/>
+      <a name="tristate" val="false"/>
+      <a name="label" val="Code opération"/>
+    </comp>
+    <comp lib="1" loc="(550,310)" name="XOR Gate">
+      <a name="facing" val="north"/>
+      <a name="inputs" val="2"/>
+    </comp>
+    <comp lib="0" loc="(950,360)" name="Probe">
+      <a name="radix" val="16"/>
+    </comp>
     <comp lib="0" loc="(660,570)" name="Splitter">
       <a name="facing" val="south"/>
       <a name="fanout" val="4"/>
@@ -255,187 +400,43 @@ This file is intended to be loaded by Logisim (http://www.cburch.com/logisim/).
       <a name="bit6" val="3"/>
       <a name="bit7" val="3"/>
     </comp>
-    <comp lib="6" loc="(687,567)" name="Text">
-      <a name="text" val="code op"/>
-    </comp>
-    <comp lib="2" loc="(580,230)" name="Multiplexer">
-      <a name="width" val="8"/>
-      <a name="enable" val="false"/>
-    </comp>
     <comp lib="1" loc="(570,390)" name="NOT Gate">
       <a name="facing" val="north"/>
     </comp>
-    <comp lib="1" loc="(540,650)" name="NOR Gate">
-      <a name="inputs" val="2"/>
-    </comp>
-    <comp lib="6" loc="(310,862)" name="Text">
-      <a name="text" val="Preuve unite de calcule"/>
-      <a name="font" val="SansSerif bold 13"/>
-    </comp>
-    <comp lib="1" loc="(540,730)" name="NOR Gate"/>
-    <comp lib="0" loc="(270,910)" name="Pin">
-      <a name="width" val="8"/>
-      <a name="tristate" val="false"/>
-      <a name="label" val="Valeur B"/>
-    </comp>
-    <comp lib="0" loc="(390,900)" name="Pin">
-      <a name="facing" val="west"/>
-      <a name="output" val="true"/>
-      <a name="width" val="8"/>
-      <a name="labelloc" val="east"/>
-    </comp>
-    <comp lib="3" loc="(260,490)" name="Comparator"/>
-    <comp lib="0" loc="(950,360)" name="Probe">
+    <comp lib="0" loc="(140,430)" name="Probe">
       <a name="radix" val="16"/>
+      <a name="label" val="Input hexa"/>
     </comp>
-    <comp lib="0" loc="(830,360)" name="Pin">
+    <comp lib="0" loc="(790,950)" name="Pin">
       <a name="facing" val="west"/>
       <a name="output" val="true"/>
       <a name="width" val="8"/>
+      <a name="label" val="Valeur dépilée"/>
       <a name="labelloc" val="east"/>
-    </comp>
-    <comp loc="(740,900)" name="Pile"/>
-    <comp lib="0" loc="(160,480)" name="Pin">
-      <a name="width" val="8"/>
-      <a name="tristate" val="false"/>
-      <a name="label" val="Input"/>
-    </comp>
-    <comp lib="6" loc="(361,129)" name="Text">
-      <a name="text" val="Fait par: ACEVES Kevin, GENTHON Baptiste"/>
-    </comp>
-    <comp lib="1" loc="(370,580)" name="AND Gate">
-      <a name="facing" val="south"/>
-      <a name="inputs" val="2"/>
     </comp>
     <comp lib="0" loc="(270,890)" name="Pin">
       <a name="width" val="8"/>
       <a name="tristate" val="false"/>
       <a name="label" val="Valeur A"/>
     </comp>
-    <comp lib="1" loc="(700,660)" name="AND Gate">
-      <a name="inputs" val="3"/>
-    </comp>
-    <comp lib="1" loc="(610,610)" name="OR Gate">
-      <a name="inputs" val="2"/>
-    </comp>
-    <comp lib="0" loc="(190,500)" name="Constant">
-      <a name="width" val="8"/>
-      <a name="value" val="0x0"/>
-    </comp>
-    <comp lib="4" loc="(720,400)" name="Counter">
-      <a name="width" val="2"/>
-      <a name="max" val="0x3"/>
-    </comp>
     <comp lib="0" loc="(670,430)" name="Clock"/>
+    <comp lib="0" loc="(160,480)" name="Pin">
+      <a name="width" val="8"/>
+      <a name="tristate" val="false"/>
+      <a name="label" val="Input"/>
+    </comp>
     <comp lib="0" loc="(740,960)" name="Pin">
       <a name="tristate" val="false"/>
-      <a name="label" val="Reinitialiser"/>
+      <a name="label" val="Réinitialiser"/>
     </comp>
-    <comp lib="0" loc="(380,500)" name="Splitter">
-      <a name="facing" val="south"/>
-      <a name="fanout" val="8"/>
-      <a name="incoming" val="8"/>
-    </comp>
-    <comp lib="0" loc="(1020,450)" name="Splitter">
-      <a name="fanout" val="8"/>
-      <a name="incoming" val="8"/>
-    </comp>
-    <comp loc="(350,890)" name="Unité de calcul"/>
-    <comp lib="0" loc="(1160,440)" name="Pin">
-      <a name="facing" val="west"/>
-      <a name="output" val="true"/>
-      <a name="label" val="Debordement"/>
-      <a name="labelloc" val="east"/>
-    </comp>
-    <comp lib="1" loc="(550,310)" name="XOR Gate">
-      <a name="facing" val="north"/>
-      <a name="inputs" val="2"/>
-    </comp>
-    <comp loc="(620,280)" name="Pile">
-      <a name="label" val="Pile"/>
-    </comp>
-    <comp lib="0" loc="(710,910)" name="Constant"/>
-    <comp lib="2" loc="(980,450)" name="Multiplexer">
-      <a name="width" val="8"/>
-      <a name="enable" val="false"/>
-    </comp>
-    <comp lib="0" loc="(270,930)" name="Pin">
-      <a name="width" val="2"/>
-      <a name="tristate" val="false"/>
-      <a name="label" val="Code operation"/>
-    </comp>
-    <comp lib="0" loc="(790,950)" name="Pin">
-      <a name="facing" val="west"/>
-      <a name="output" val="true"/>
-      <a name="width" val="8"/>
-      <a name="label" val="Valeur depile"/>
-      <a name="labelloc" val="east"/>
-    </comp>
-    <comp lib="2" loc="(810,600)" name="Multiplexer">
-      <a name="width" val="2"/>
-    </comp>
-    <comp lib="4" loc="(910,400)" name="Register"/>
-    <comp lib="1" loc="(680,350)" name="Controlled Buffer">
-      <a name="width" val="8"/>
-    </comp>
-    <comp lib="0" loc="(830,340)" name="Pin">
-      <a name="facing" val="west"/>
-      <a name="output" val="true"/>
-      <a name="width" val="8"/>
-      <a name="labelloc" val="east"/>
-    </comp>
-    <comp lib="0" loc="(710,890)" name="Pin">
-      <a name="width" val="8"/>
-      <a name="tristate" val="false"/>
-      <a name="label" val="Valeur empiler"/>
-    </comp>
-    <comp lib="0" loc="(1160,470)" name="Pin">
-      <a name="facing" val="west"/>
-      <a name="output" val="true"/>
-      <a name="width" val="8"/>
-      <a name="label" val="Output"/>
-      <a name="labelloc" val="east"/>
+    <comp lib="0" loc="(740,420)" name="Splitter"/>
+    <comp lib="6" loc="(225,535)" name="Text">
+      <a name="text" val="&gt; numero 127| = fin | &lt; op"/>
     </comp>
     <comp lib="0" loc="(390,880)" name="Pin">
       <a name="facing" val="west"/>
       <a name="output" val="true"/>
       <a name="labelloc" val="east"/>
-    </comp>
-    <comp lib="6" loc="(627,150)" name="Text">
-      <a name="text" val="Pour que les valeurs soient traitees ou stockees, 2 ticks d'horloge (ctrl+t) par entree sont necessaires."/>
-      <a name="font" val="SansSerif bold 16"/>
-    </comp>
-    <comp lib="0" loc="(700,930)" name="Pin">
-      <a name="tristate" val="false"/>
-      <a name="label" val="0 depiler, 1 empiler"/>
-    </comp>
-    <comp lib="6" loc="(225,535)" name="Text">
-      <a name="text" val="&gt; numero 127| = fin | &lt; op"/>
-    </comp>
-    <comp lib="0" loc="(950,340)" name="Probe">
-      <a name="radix" val="16"/>
-    </comp>
-    <comp lib="0" loc="(140,430)" name="Probe">
-      <a name="radix" val="16"/>
-      <a name="label" val="Input hex"/>
-    </comp>
-    <comp lib="1" loc="(530,590)" name="OR Gate">
-      <a name="inputs" val="2"/>
-    </comp>
-    <comp lib="6" loc="(815,652)" name="Text">
-      <a name="text" val="actif seulment si code op valide"/>
-    </comp>
-    <comp lib="0" loc="(1230,510)" name="Probe">
-      <a name="facing" val="west"/>
-      <a name="radix" val="16"/>
-      <a name="label" val="Output hex"/>
-    </comp>
-    <comp lib="6" loc="(755,861)" name="Text">
-      <a name="text" val="Preuve pile"/>
-      <a name="font" val="SansSerif bold 13"/>
-    </comp>
-    <comp loc="(1110,580)" name="Unité de calcul">
-      <a name="label" val="Unit calcul"/>
     </comp>
   </circuit>
   <circuit name="Unité de calcul">
@@ -537,24 +538,39 @@ This file is intended to be loaded by Logisim (http://www.cburch.com/logisim/).
     <wire from="(990,180)" to="(990,230)"/>
     <wire from="(190,120)" to="(190,180)"/>
     <wire from="(1220,240)" to="(1240,240)"/>
-    <comp lib="0" loc="(150,400)" name="Pin">
+    <comp lib="6" loc="(1215,30)" name="Text">
+      <a name="text" val="A, B : Paramètres du calcul"/>
+    </comp>
+    <comp lib="3" loc="(930,180)" name="Comparator"/>
+    <comp lib="6" loc="(1240,90)" name="Text">
+      <a name="text" val="D : Indication si le résultat a débordé"/>
+    </comp>
+    <comp lib="3" loc="(870,150)" name="Divider"/>
+    <comp lib="0" loc="(150,180)" name="Pin">
       <a name="width" val="8"/>
       <a name="tristate" val="false"/>
-      <a name="label" val="B"/>
+      <a name="label" val="A"/>
     </comp>
-    <comp lib="6" loc="(1282,50)" name="Text">
-      <a name="text" val="Code opé : Code d'opération (00+, 01-, 10*, 11/)"/>
-    </comp>
-    <comp lib="0" loc="(1010,630)" name="Constant"/>
     <comp lib="0" loc="(1160,250)" name="Constant">
       <a name="value" val="0x0"/>
     </comp>
-    <comp lib="0" loc="(870,190)" name="Constant">
-      <a name="width" val="8"/>
-      <a name="value" val="0x0"/>
+    <comp lib="6" loc="(1054,144)" name="Text">
+      <a name="text" val="Result /"/>
+    </comp>
+    <comp lib="6" loc="(1270,49)" name="Text">
+      <a name="text" val="Code opé : Code d'opération (00+, 01-, 10*, 11/)"/>
     </comp>
     <comp lib="6" loc="(967,388)" name="Text">
       <a name="text" val="Overflow *"/>
+    </comp>
+    <comp lib="6" loc="(1057,274)" name="Text">
+      <a name="text" val="Result -"/>
+    </comp>
+    <comp lib="6" loc="(973,456)" name="Text">
+      <a name="text" val="Overflow +"/>
+    </comp>
+    <comp lib="6" loc="(1190,70)" name="Text">
+      <a name="text" val="S : sortie du calcul"/>
     </comp>
     <comp lib="0" loc="(730,360)" name="Splitter">
       <a name="incoming" val="8"/>
@@ -567,53 +583,43 @@ This file is intended to be loaded by Logisim (http://www.cburch.com/logisim/).
       <a name="bit6" val="1"/>
       <a name="bit7" val="1"/>
     </comp>
-    <comp lib="6" loc="(971,416)" name="Text">
-      <a name="text" val="Result +"/>
+    <comp lib="3" loc="(480,290)" name="Adder"/>
+    <comp lib="2" loc="(1280,260)" name="Multiplexer">
+      <a name="select" val="2"/>
     </comp>
+    <comp lib="0" loc="(870,190)" name="Constant">
+      <a name="width" val="8"/>
+      <a name="value" val="0x0"/>
+    </comp>
+    <comp lib="3" loc="(610,290)" name="Subtractor"/>
+    <comp lib="6" loc="(588,346)" name="Text">
+      <a name="text" val="with 2 unsigned int"/>
+    </comp>
+    <comp lib="0" loc="(1010,630)" name="Constant"/>
     <comp lib="2" loc="(1200,480)" name="Multiplexer">
       <a name="select" val="2"/>
       <a name="width" val="8"/>
     </comp>
-    <comp lib="2" loc="(1280,260)" name="Multiplexer">
-      <a name="select" val="2"/>
-    </comp>
-    <comp lib="0" loc="(840,400)" name="Constant">
-      <a name="width" val="4"/>
-      <a name="value" val="0x0"/>
-    </comp>
-    <comp lib="3" loc="(850,370)" name="Multiplier">
+    <comp lib="3" loc="(920,370)" name="Comparator">
       <a name="width" val="4"/>
     </comp>
-    <comp lib="6" loc="(1054,144)" name="Text">
-      <a name="text" val="Result /"/>
-    </comp>
-    <comp lib="6" loc="(973,456)" name="Text">
-      <a name="text" val="Overflow +"/>
-    </comp>
-    <comp lib="0" loc="(1310,260)" name="Pin">
+    <comp lib="0" loc="(1320,480)" name="Pin">
       <a name="facing" val="west"/>
       <a name="output" val="true"/>
-      <a name="label" val="D"/>
+      <a name="width" val="8"/>
+      <a name="label" val="S"/>
       <a name="labelloc" val="east"/>
     </comp>
-    <comp lib="6" loc="(585,333)" name="Text">
-      <a name="text" val="Overflow impossible"/>
+    <comp lib="1" loc="(960,370)" name="NOT Gate"/>
+    <comp lib="6" loc="(1048,225)" name="Text">
+      <a name="text" val="Overflow /"/>
+    </comp>
+    <comp lib="6" loc="(971,416)" name="Text">
+      <a name="text" val="Result +"/>
     </comp>
     <comp lib="3" loc="(780,290)" name="Multiplier"/>
-    <comp lib="6" loc="(1215,30)" name="Text">
-      <a name="text" val="A, B : Paramètres du calcul"/>
-    </comp>
-    <comp lib="1" loc="(960,370)" name="NOT Gate"/>
-    <comp lib="6" loc="(961,343)" name="Text">
-      <a name="text" val="Result *"/>
-    </comp>
-    <comp lib="6" loc="(588,346)" name="Text">
-      <a name="text" val="with 2 unsigned int"/>
-    </comp>
-    <comp lib="0" loc="(110,590)" name="Pin">
-      <a name="width" val="2"/>
-      <a name="tristate" val="false"/>
-      <a name="label" val="Code opé"/>
+    <comp lib="3" loc="(850,370)" name="Multiplier">
+      <a name="width" val="4"/>
     </comp>
     <comp lib="0" loc="(730,220)" name="Splitter">
       <a name="incoming" val="8"/>
@@ -626,37 +632,32 @@ This file is intended to be loaded by Logisim (http://www.cburch.com/logisim/).
       <a name="bit6" val="1"/>
       <a name="bit7" val="1"/>
     </comp>
-    <comp lib="6" loc="(1188,70)" name="Text">
-      <a name="text" val="S : sortie du calcul"/>
-    </comp>
-    <comp lib="6" loc="(1048,225)" name="Text">
-      <a name="text" val="Overflow /"/>
-    </comp>
-    <comp lib="0" loc="(150,180)" name="Pin">
+    <comp lib="0" loc="(150,400)" name="Pin">
       <a name="width" val="8"/>
       <a name="tristate" val="false"/>
-      <a name="label" val="A"/>
+      <a name="label" val="B"/>
     </comp>
-    <comp lib="6" loc="(1246,90)" name="Text">
-      <a name="text" val="D : Indication si le résultat a débordé"/>
+    <comp lib="6" loc="(585,333)" name="Text">
+      <a name="text" val="Overflow impossible"/>
     </comp>
-    <comp lib="3" loc="(610,290)" name="Subtractor"/>
-    <comp lib="6" loc="(1057,274)" name="Text">
-      <a name="text" val="Result -"/>
+    <comp lib="0" loc="(110,590)" name="Pin">
+      <a name="width" val="2"/>
+      <a name="tristate" val="false"/>
+      <a name="label" val="Code opé"/>
     </comp>
-    <comp lib="3" loc="(930,180)" name="Comparator"/>
-    <comp lib="3" loc="(920,370)" name="Comparator">
+    <comp lib="0" loc="(840,400)" name="Constant">
       <a name="width" val="4"/>
+      <a name="value" val="0x0"/>
     </comp>
-    <comp lib="3" loc="(870,150)" name="Divider"/>
-    <comp lib="0" loc="(1320,480)" name="Pin">
+    <comp lib="6" loc="(961,343)" name="Text">
+      <a name="text" val="Result *"/>
+    </comp>
+    <comp lib="0" loc="(1310,260)" name="Pin">
       <a name="facing" val="west"/>
       <a name="output" val="true"/>
-      <a name="width" val="8"/>
-      <a name="label" val="S"/>
+      <a name="label" val="D"/>
       <a name="labelloc" val="east"/>
     </comp>
-    <comp lib="3" loc="(480,290)" name="Adder"/>
   </circuit>
   <circuit name="Pile">
     <a name="circuit" val="Pile"/>
@@ -705,31 +706,10 @@ This file is intended to be loaded by Logisim (http://www.cburch.com/logisim/).
     <wire from="(640,300)" to="(640,360)"/>
     <wire from="(420,370)" to="(680,370)"/>
     <wire from="(410,280)" to="(480,280)"/>
-    <comp lib="6" loc="(1208,69)" name="Text">
-      <a name="text" val="E : si E = 0, la pile conserve le contenu, sinon elle réalise une opération"/>
-    </comp>
-    <comp lib="0" loc="(420,180)" name="Pin">
-      <a name="width" val="8"/>
-      <a name="tristate" val="false"/>
-      <a name="label" val="Input"/>
-    </comp>
-    <comp lib="6" loc="(1334,90)" name="Text">
-      <a name="text" val="Code opé : 0 dépiler, 1 empiler"/>
-    </comp>
-    <comp lib="1" loc="(330,240)" name="NOT Gate">
-      <a name="facing" val="north"/>
-    </comp>
-    <comp lib="4" loc="(750,260)" name="RAM">
-      <a name="bus" val="separate"/>
-    </comp>
     <comp lib="6" loc="(1348,50)" name="Text">
       <a name="text" val="Output : Sortie de données"/>
     </comp>
-    <comp lib="0" loc="(410,320)" name="Pin">
-      <a name="tristate" val="false"/>
-      <a name="label" val="Code opé"/>
-    </comp>
-    <comp lib="1" loc="(700,310)" name="NOT Gate">
+    <comp lib="1" loc="(330,240)" name="NOT Gate">
       <a name="facing" val="north"/>
     </comp>
     <comp lib="0" loc="(720,410)" name="Pin">
@@ -746,22 +726,45 @@ This file is intended to be loaded by Logisim (http://www.cburch.com/logisim/).
       <a name="label" val="Output"/>
       <a name="labelloc" val="south"/>
     </comp>
-    <comp lib="0" loc="(410,280)" name="Pin">
-      <a name="tristate" val="false"/>
-      <a name="label" val="E"/>
+    <comp lib="1" loc="(460,240)" name="NOT Gate"/>
+    <comp lib="1" loc="(700,310)" name="NOT Gate">
+      <a name="facing" val="north"/>
+    </comp>
+    <comp lib="6" loc="(1334,90)" name="Text">
+      <a name="text" val="Code opé : 0 dépiler, 1 empiler"/>
     </comp>
     <comp lib="0" loc="(370,230)" name="Constant"/>
+    <comp lib="0" loc="(400,370)" name="Clock">
+      <a name="label" val="CLK"/>
+    </comp>
     <comp lib="1" loc="(510,270)" name="AND Gate">
       <a name="size" val="30"/>
       <a name="inputs" val="2"/>
     </comp>
-    <comp lib="4" loc="(400,220)" name="Counter"/>
-    <comp lib="0" loc="(400,370)" name="Clock">
-      <a name="label" val="CLK"/>
+    <comp lib="4" loc="(750,260)" name="RAM">
+      <a name="bus" val="separate"/>
     </comp>
+    <comp lib="4" loc="(400,220)" name="Counter"/>
     <comp lib="6" loc="(1349,31)" name="Text">
       <a name="text" val="Input : Entrée de données"/>
     </comp>
-    <comp lib="1" loc="(460,240)" name="NOT Gate"/>
+    <comp lib="0" loc="(410,320)" name="Pin">
+      <a name="tristate" val="false"/>
+      <a name="label" val="Code opé"/>
+    </comp>
+    <comp lib="6" loc="(1208,69)" name="Text">
+      <a name="text" val="E : si E = 0, la pile conserve le contenu, sinon elle réalise une opération"/>
+    </comp>
+    <comp lib="0" loc="(410,280)" name="Pin">
+      <a name="tristate" val="false"/>
+      <a name="label" val="E"/>
+      <a name="labelloc" val="north"/>
+    </comp>
+    <comp lib="0" loc="(420,180)" name="Pin">
+      <a name="width" val="8"/>
+      <a name="tristate" val="false"/>
+      <a name="label" val="Input"/>
+      <a name="labelloc" val="north"/>
+    </comp>
   </circuit>
 </project>
