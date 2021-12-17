@@ -1,0 +1,5 @@
+Le filtrage est correct en fonction de l'entrée, et la vérification des valeurs est également correcte.
+
+Le circuit ne fonctionne pas toujours lors du depile de deux valeurs, nous stockons une valeur dans le registre et passons ensuite les deux valeurs à l'unité de calcul, puis le résultat est réintroduit dans la pile, mais cela ne fonctionne pas toujours.
+
+Séparément, l'unité de calcul et la pile fonctionnent correctement. 
