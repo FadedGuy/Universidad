@@ -1,10 +1,3 @@
-/* 
-Fait
-  Change auteurs
-  Images toggle
-  List <-> Grid view
-*/
-
 'use strict';
 
 window.addEventListener('load',go);
@@ -36,7 +29,6 @@ samActions = {
         proposal = {do:data.do, artiPart1:data.artiPart1, artiPart2:data.artiPart2};
         enableAnimation = false;
       } break; 
-      // Display 
       case 'filters':
         proposal = {do: 'filterUpdate', newFilter: data.e.target.value};
         break;
@@ -72,7 +64,7 @@ samActions = {
       case 'darkThemeToggle'   : 
         proposal = {do: data.do};
         break;
-      case 'updatePagination'  : break;
+      case 'updatePagination'  : proposal = {do:data.do}; break;
       case 'prevPage' : proposal = {do: data.do}; break;
       case 'nextPage' : proposal = {do: data.do}; break;      
       case 'changePage' : proposal = {do: data.do, goto: data.goto}; break;
@@ -83,7 +75,6 @@ samActions = {
         return;
     }
 
-    // console.log(enableAnimation && samModel.model.settings.animations);
     if (samModel.model.settings.animations){ 
       setTimeout(()=>samModel.samPresent(proposal), 200);}
     else             samModel.samPresent(proposal);
@@ -95,7 +86,7 @@ samActions = {
 //
 
 const initialModel= {
-  authors  : ['Baptiste GENTHON', 'Kevin ACEVES SIORDIA'],
+  authors  : ['Baptiste GENTHON', 'Kevin ACEVES'],
   
   artiPart1: [],
   artiPart2: [],
@@ -180,16 +171,18 @@ samModel = {
       case 'darkThemeToggle'   : this.modelToggle('settings.darkTheme'    ); break;      
       case 'gridListView'      : this.modelAssign('display.articlesView', data.view); break;   
       case 'filterUpdate'      : this.model.filters.search.text = data.newFilter; this.model.articles.hasChanged = true; break;
-      case 'changeFilter'      : if(data.name != "toutes") {
-        this.modelToggle(`filters.${data.filterName}.booleans.${data.name}`);
-      } else {
-        let objChange = this.model.filters[data.filterName].booleans;
-        for(let i = 0; i < Object.keys(objChange).length; i++) {
-          this.modelAssign(`filters.${data.filterName}.booleans.${Object.keys(objChange)[i]}`, !this.model.filters[data.filterName].toutes);
+      case 'changeFilter'      : 
+        if(data.name != "toutes") {
+          this.modelToggle(`filters.${data.filterName}.booleans.${data.name}`);
+        } 
+        else {
+          let objChange = this.model.filters[data.filterName].booleans;
+          for(let i = 0; i < Object.keys(objChange).length; i++) {
+            this.modelAssign(`filters.${data.filterName}.booleans.${Object.keys(objChange)[i]}`, !this.model.filters[data.filterName].toutes);
+          }
         }
-      }
-      this.model.articles.hasChanged = true;
-      break;
+        this.model.articles.hasChanged = true;
+        break;
       case 'deleteToggle'      : 
         this.model.articles.values.find(art => art.id == data.id).deleteToggle = !this.model.articles.values.find(art => art.id == data.id).deleteToggle;
         this.model.articles.hasChanged = true;
@@ -200,8 +193,10 @@ samModel = {
         break;
       case 'globalSearch'      : this.model.filters.search.global = data.checked; this.model.articles.hasChanged = true; break;
       case 'addCart'           : this.model.articles.values.find(art => art.id == data.id).inCart = true; this.model.articles.hasChanged = true; break;
-      case 'editQt'            : this.model.articles.values.find(art => art.id == data.id).quantity = data.qt; this.model.articles.hasChanged = true; 
-                                 if(data.qt == 0){this.model.articles.values.find(art => art.id == data.id).inCart = false} break; //Delete article from cart if qt is 0
+      case 'editQt'            : this.model.articles.hasChanged = true; 
+                                 if(data.qt == 0){this.model.articles.values.find(art => art.id == data.id).inCart = false} 
+                                 if(!isNaN(data.qt)){this.model.articles.values.find(art => art.id == data.id).quantity = data.qt;}
+                                 break;
       case 'updatePagination'  : break;
       case 'sortCart'          : this.model.cartSort.property = data.property; this.modelToggle(`cartSort.ascending.${data.property}`); this.model.cartSort.hasChanged = true; break;   
       case 'prevPage'          : this.model.pagination[this.model.display.articlesView].currentPage--; ;break;
@@ -559,19 +554,7 @@ samState = {
     let isEveryElementTrue = true;
     stateFilter = modelFilter;
     
-    if(stateFilter.booleans.Espagne == false ||
-      stateFilter.booleans.France == false || 
-      stateFilter.booleans.Maroc == false ||
-      stateFilter.booleans.Pérou == false) 
-    {
-      isEveryElementTrue = false;
-    }
-
-    if(stateFilter.booleans.fruits == false ||
-      stateFilter.booleans.légumes == false)
-      {
-        isEveryElementTrue = false;
-      }
+    isEveryElementTrue = Object.entries(modelFilter.booleans).every(art => art[1]);
 
     stateFilter.toutes = isEveryElementTrue;
     stateFilter.hasChanged = true;
@@ -587,13 +570,7 @@ samState = {
     stateSearch.text       = modelSearch.text;
   },
 
-  /*
-  Works now, it filters articles correctly even if there is no search
-  */
- 
   filterArticles(articles, filters) {
-    // filters.categories.booleans['légumes']=false;
-    // filters.origins.booleans['France']=true;
     if (articles.hasChanged         || 
         filters.categories.hasChanged || 
         filters.origins.hasChanged    ||
@@ -617,10 +594,6 @@ samState = {
           }
         }
       }
-      
-      /* 
-        We need to set the values of articles that were filtered out as false only if there is no global search;
-      */
 
       if(!this.state.filters.search.global) {
         if(!filters.categories.toutes) {
@@ -638,8 +611,6 @@ samState = {
           });
         }
       }
-      
-      
 
       this.state.filteredArticles.values     = filteredValues;
       this.state.filteredArticles.hasChanged = true;
@@ -662,7 +633,6 @@ samState = {
   },
 
   updatePagination(pagination) {
-    /* No idea why in the first update hasNext is not properly made */
     const statePagination = this.state.pagination;
     
     const articleGrid        = document.getElementById('articleWidth');
@@ -1121,7 +1091,6 @@ samView = {
         <button ${i == state.pagination[state.display.articlesView.value].currentPage ? `class="square no-margin border"` : `class="square no-margin" onclick="samActions.exec({do:'changePage', goto:${i}})"`}>${i}</button>
       `;
     }
-    // onchange="samActions.exec({do: 'changeLinesPP', e: event})"
     return this.html`
     <nav class="center-align">
       <button ${state.pagination[state.display.articlesView.value].hasPrevPage ? `class="square" onclick="samActions.exec({do: 'prevPage'})"` : `class="square border disabled" disabled="disabled"`}>
@@ -1173,8 +1142,8 @@ samView = {
         });
       }
     }
-    // Envoyer command
-
+    
+    let delToggle = state.cart.values.some(val => val.deleteToggle);
     
     return this.html`
       <div class="panier row small-margin">
@@ -1221,8 +1190,9 @@ samView = {
               <th colspan="4">Total :</th>
               <th>${state.cart.total.toFixed(2)} €</th>
               <th class="center-align">
-                <button type="button" onclick="samActions.exec({do:'cartDelete'})" 
-                  ${state.cart.total ? `class="small"` : `class="small disabled" disabled="disabled"`}><i>delete</i></button>
+                <button type="button" onclick="samActions.exec({do:'cartDelete'})" ${delToggle ? `class="small"` : `class="small disabled" disabled="disabled"`}>
+                  <i>delete</i>
+                </button>
               </th>
             </tfoot>
           </table>
