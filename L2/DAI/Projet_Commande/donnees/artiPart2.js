@@ -43,28 +43,4 @@ let artiPart2Data = [
     'category': 'fruits',
     'pictures': ['pamplemousse.jpg', 'pamplemousse2.jpg', 'pamplemousse3.jpg'],
   },
-  {
-    'id': 'poireaux',
-    'name': 'Poireaux',
-    'category': 'légumes',
-    'pictures': ['poireaux.jpg'],
-  },
-  {
-    'id': 'gre',
-    'name': 'Grenades',
-    'category': 'fruits',
-    'pictures': ['grenade.jpg'],
-  },
-  {
-    'id': 'myrt',
-    'name': 'Myrtilles',
-    'category': 'baies',
-    'pictures': ['myrtille.jpg'],
-  },
-  {
-    'id': 'fram',
-    'name': 'Framboises',
-    'category': 'baies',
-    'pictures': ['framboise.jpg'],
-  },
 ];

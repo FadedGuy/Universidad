@@ -73,38 +73,6 @@ const artiPart1Data = [
     'quantity': 0,
     'inCart': false,
   },
-  {
-    'id': 'poireaux',
-    'origin': 'France',
-    'price': 1,
-    'unit': 'Plateau 1kg',
-    'quantity': 0,
-    'inCart': false,
-  },
-  {
-    'id': 'gre',
-    'origin': 'Mexique',
-    'price': 0.80,
-    'unit': 'Pièce',
-    'quantity': 3,
-    'inCart': false,
-  },
-  {
-    'id': 'myrt',
-    'origin': 'Pérou',
-    'price': 4.5,
-    'unit': 'Barquette 500g',
-    'quantity': 3,
-    'inCart': false,
-  },
-  {
-    'id': 'fram',
-    'origin': 'Espagne',
-    'price': 3.8,
-    'unit': 'Barquette 500g',
-    'quantity': 3,
-    'inCart': false,
-  },
 ];
 
 const integerUnits = {
