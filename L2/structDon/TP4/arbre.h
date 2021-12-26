@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
-#ifndef ARBRE
-#define ARBRE
+#ifndef ARBREFORET
+#define ARBREFORET
 
 #define TRUE 1
 #define FALSE 0
@@ -10,29 +10,53 @@ typedef int BOOL;
 typedef int element;
 
 typedef struct noeud{
-    element racine;
+    element etiquette;
     int nb_sArbres;
-    struct noeud* sous_arbre[];
-}*node;
-typedef node tree;
+    struct noued* sous_arbres[];
+}*NOEUD;
+typedef NOEUD ARBRE;
 
-typedef struct foret{
-    tree arbre;
-    struct foret* suivant;
-}*forest;
+struct tree{
+    ARBRE un_arbre;
+    struct tree* suivant;
+};
+typedef struct tree* FORET;
 
+ARBRE arbreVide();
+ARBRE construire(NOEUD o, FORET f, element e);
+BOOL estArbreVide(ARBRE a);
+NOEUD racine(ARBRE a);
 
-tree arbreVide();
-tree construire(element, forest);
-forest foretVide();
-forest planter(tree, int, forest);
+FORET foretVide();
+BOOL estForetVide(FORET f);
+FORET listeSousArbres(ARBRE a);
+FORET planter(FORET f, int i, ARBRE a);
+int nbArbres(FORET f);
+ARBRE iemeArbre(FORET f, int i);
 
-BOOL estArbreVide(tree);
-BOOL estForetVide(forest);
+// typedef struct noeud{
+//     element racine;
+//     int nb_sArbres;
+//     struct noeud* sous_arbre[];
+// }*node;
+// typedef node tree;
 
-element racine(tree);
-forest listeSousArbres(tree);
-int nombreArbres(forest);
-tree iemeArbre(forest, int);
+// typedef struct foret{
+//     tree arbre;
+//     struct foret* suivant;
+// }*forest;
+
+// tree arbreVide();
+// tree construire(element, forest);
+// forest foretVide();
+// forest planter(tree, int, forest);
+
+// BOOL estArbreVide(tree);
+// BOOL estForetVide(forest);
+
+// element racine(tree);
+// forest listeSousArbres(tree);
+// int nombreArbres(forest);
+// tree iemeArbre(forest, int);
 
 #endif
