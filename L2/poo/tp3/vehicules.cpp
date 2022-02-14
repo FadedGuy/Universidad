@@ -132,14 +132,52 @@ class boat_t: public vehicules_t{
         }
 };
 
+class plane_t: public vehicules_t{
+    private:
+        bool landing_gear_enabled;
+        static float nkm;
+    
+    public:
+        plane_t(float fuel, float fuel_cons, float fuel_max, char* name, bool landing_gear_enabled):
+            vehicules_t(fuel, fuel_cons, fuel_max, name),
+            landing_gear_enabled(landing_gear_enabled)
+            {}
+
+        void set_landing_gear_enabled(bool landing_gear_enabled){
+            this->landing_gear_enabled = landing_gear_enabled;
+        }
+
+        static float get_nkm(){
+            return nkm;
+        }
+
+        bool move(float km = 1){
+            if(this->landing_gear_enabled){
+                return false;
+            }
+
+            if(vehicules_t::move(km)){
+                nkm += km;
+                return true;
+            }
+            return false;
+        }
+        
+        virtual void print() const{
+            printf("Plane (%s, %.2f/%.2f l, %.2f l/100 km, landing gear: %d)\n", get_name(), get_fuel(), get_fuel_max(), get_fuel_cons(), this->landing_gear_enabled);
+        }
+};
+
 float vehicules_t::nkm = 0;
 float car_t::nkm = 0;
 float boat_t::nkm = 0;
+float plane_t::nkm = 0;
 
 int main(){
     car_t mercedes(1.7, 11, 2.1, (char*)"Mercedes A-Class", false);
     car_t bmw(57.2, 11.3, 65, (char*)"BMW X4", false);
     boat_t zodiac(1.4, 4.7, 1.7, (char*)"Zodiac", false);
+    plane_t concorde(99786, 544, 119500, (char*)"Concorde",false);
 
     mercedes.print();
     mercedes.move() ? printf("Car moved (%d km).\n", 1) : fprintf(stderr, "Unable to move the car (%d km).\n", 1);
@@ -163,17 +201,27 @@ int main(){
     zodiac.move(100) ? printf("Boat moved (%d km).\n", 100) : fprintf(stderr, "Unable to move the boat (%d km).\n", 100);
     zodiac.print();
 
+    concorde.print();
+    concorde.move() ? printf("Plane moved (%d km).\n", 1) : fprintf(stderr, "Unable to move the plane (%d km).\n", 1);
+    concorde.print();
+    concorde.move(100) ? printf("Plane moved (%d km).\n", 100) : fprintf(stderr, "Unable to move the plane (%d km).\n", 100);
+    concorde.print();
+
     mercedes.refuel(mercedes.get_fuel_max()-mercedes.get_fuel());
     mercedes.print();
     bmw.refuel(bmw.get_fuel_max()-bmw.get_fuel());
     bmw.print();
     zodiac.refuel(zodiac.get_fuel_max()-zodiac.get_fuel());
     zodiac.print();
+    concorde.refuel(concorde.get_fuel_max()-concorde.get_fuel());
+    concorde.print();
 
 
     printf("vehicule_t::get_nkm(): %.2f\n", vehicules_t::get_nkm());
     printf("car_t::get_nkm(): %.2f\n", car_t::get_nkm());
     printf("boat_t::get_nkm(): %.2f\n", boat_t::get_nkm());
+    printf("plane_t::get_nkm(): %.2f\n", plane_t::get_nkm());
+
 
     return 0;
 }
