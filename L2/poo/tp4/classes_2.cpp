@@ -31,10 +31,15 @@ class doc_t{
             return this->year;
         }
 
+        void println() const{
+            this->print();
+            printf("\n");
+        }
+
         virtual void print() const = 0;
 };
 
-class audio_doc_t : virtual public doc_t{
+class audio_doc_t : public doc_t{
     private:
         int duration;
     public:
@@ -54,7 +59,7 @@ class audio_doc_t : virtual public doc_t{
         virtual void print() const = 0;
 };
 
-class textual_doc_t : virtual public doc_t{
+class textual_doc_t : public doc_t{
     private:
 
     public:
@@ -65,7 +70,7 @@ class textual_doc_t : virtual public doc_t{
         virtual void print() const = 0;
 };
 
-class video_doc_t : virtual public doc_t{
+class video_doc_t : public doc_t{
     private:
         int duration;
         bool color_available;
@@ -223,61 +228,12 @@ class audio_text_t : public audio_doc_t, video_doc_t{
     private:
     public:
         audio_text_t():
-            doc_t(),
             audio_doc_t(),
             video_doc_t()
             {}
 
         void print() const{
-            printf("Audio text (\"%s\", %d, %d s)", get_name(), get_year(), audio_doc_t::get_duration());
-        }
-};
-
-class library_t{
-    private:
-        char* name;
-        std::vector<day_t> days;
-        int ndays;
-        std::vector<doc_t *> docs;
-        int ndocs;
-
-    public:
-        library_t():
-            name(NULL),
-            ndays(0),
-            ndocs(0)
-            {}
-
-        void set_name(char* name){
-            this->name = name;
-        }
-
-        void add_day(day_t day){
-            this->days.push_back(day);
-            this->ndays++;
-        }
-
-        void add_doc(doc_t* doc){
-            this->docs.push_back(doc);
-            this->ndocs++;
-        }
-
-        void print() const{
-            char days_str[7][15] = {"monday", "tueday", "wednesday", "thursday", "friday", "saturday", "sunday"};
-            
-            printf("Library (\"%s\", (", this->name);
-            for(int i = 0; i < this->ndays; i++){
-                i == this->ndays-1 ? printf("\"%s\"", days_str[this->days[i]]) : printf("\"%s\", ", days_str[this->days[i]]);
-            }
-            printf("), (");
-
-            for(int i = 0; i < this->ndocs; i++){
-                this->docs[i]->print();
-                if(i != this->ndocs-1){
-                    printf(", ");
-                }
-            }
-            printf(")");
+            printf("Audio text (\"%s\", %d, %d s)", audio_doc_t::get_name(), audio_doc_t::get_year(), audio_doc_t::get_duration());
         }
 };
 
@@ -290,90 +246,74 @@ int main(){
     dvd_t dvd1;
     blu_ray_t br1;
     audio_text_t atxt1;
-    library_t sciences_lib, novel_lib;
-
-    sciences_lib.set_name((char*) "Sciences Library");
-    sciences_lib.add_day(monday);
-    sciences_lib.add_day(tuesday);
-    sciences_lib.add_day(wednesday);
-    sciences_lib.add_day(thursday);
 
     b1.set_name((char*) "The C++ Programming Language");    
     b1.add_author((char*) "Bjarne Stroustrup");
     b1.set_publisher((char*) "Addison-Wesley");
     b1.set_year(2013);
     b1.set_isbn(9780321563842);
-    sciences_lib.add_doc(&b1);
+    b1.println();
 
     b2.set_name((char*) "C++: The Complete Reference");    
     b2.add_author((char*) "Herbert Schildt");
     b2.set_publisher((char*) "McGraw-Hill");
     b2.set_year(2003);
     b2.set_isbn(9780070532465);
-    sciences_lib.add_doc(&b2);
-
-    sciences_lib.print();
-
-    novel_lib.set_name((char*) "Novel Library");
-    novel_lib.add_day(tuesday);
-    novel_lib.add_day(wednesday);
-    novel_lib.add_day(thursday);
-    novel_lib.add_day(friday);
+    b2.println();
 
     b3.set_name((char*) "Harry Potter and the Philosopher's Stone");
     b3.add_author((char*) "J. K. Rowling");
     b3.set_publisher((char*) "Bloomsbury");
     b3.set_year(1997);
     b3.set_isbn(9780747532699);
-    novel_lib.add_doc(&b3);
+    b3.println();
 
     b4.set_name((char*) "Harry Potter and the Chamber of Secrets");
     b4.add_author((char*) "J. K. Rowling");
     b4.set_publisher((char*) "Bloomsbury");
     b4.set_year(1998);
     b4.set_isbn(9780747538493);
-    novel_lib.add_doc(&b4);
+    b4.println();
 
     at1.set_name((char*) "Killers");
     at1.set_year(1981);
     at1.set_duration(2298);
-    novel_lib.add_doc(&at1);
+    at1.println();
 
     acd1.set_name((char*) "The Book of Souls");
     acd1.set_year(2015);
     acd1.set_duration(5531);
-    novel_lib.add_doc(&acd1);
+    acd1.println();
 
     np1.set_name((char*) "The Guardian");
     np1.set_publisher((char*) "Guardian Media Group");
     np1.set_year(1821);
     np1.set_issn(726591);
-    novel_lib.add_doc(&np1);
+    np1.println();
 
     vt1.set_name((char*) "Aladdin");
     vt1.set_year(1992);
     vt1.set_color_available(true);
     vt1.set_duration(5400);
-    novel_lib.add_doc(&vt1);
+    vt1.println();
 
     dvd1.set_name((char*) "The Lion King");
     dvd1.set_year(1994);
     dvd1.set_color_available(true);
     dvd1.set_duration(5280);
-    novel_lib.add_doc(&dvd1);
+    dvd1.println();
 
     br1.set_name((char*) "Zootopia");
     br1.set_year(2016);
     br1.set_color_available(true);
     br1.set_duration(6480);
-    novel_lib.add_doc(&br1);
+    br1.println();
 
     at1.set_name((char*) "Harry Potter and the Philosopher's Stone");
     at1.set_year(1997);
     at1.set_duration(18000);
-    novel_lib.add_doc(&at1);
+    at1.println();
 
-    novel_lib.print();
 
     return 0;
 }
