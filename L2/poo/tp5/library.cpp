@@ -2,11 +2,28 @@
 #include <string>
 #include <vector>
 #include <algorithm>
+#include <sstream>
 
 enum day_t{
     monday, tuesday, wednesday, thursday, friday, saturday, sunday
 };
 
+class isbn_invalid_error_t : public std::exception{
+    private:
+        std::string str;
+    public:
+        isbn_invalid_error_t(long isbn){
+            std::ostringstream oss;
+            oss << "isbn_content_error_t: invalid ISBN: " << isbn;
+            this->str = oss.str();
+        }
+
+        ~isbn_invalid_error_t() throw(){}
+
+        const char *what() const throw(){
+            return this->str.c_str();
+        }
+};
 class book_t{
     private:
         std::string name;
@@ -42,6 +59,21 @@ class book_t{
         }
 
         void set_isbn(long isbn){
+            long ex = isbn/10;
+            long poids = 3;
+            long sum = 0;
+            long aim = isbn%10;
+
+            while(ex > 0){
+                sum += (ex%10) * poids;
+                ex /= 10;
+                poids == 1 ? poids = 3 : poids = 1;
+            }
+            sum %= 10;
+
+            if(aim != (10-sum)){
+                throw isbn_invalid_error_t(isbn);
+            }
             this->isbn = isbn;
         }
 
@@ -127,8 +159,9 @@ class library_t{
 
 };
 
+
 int main(){
-    book_t b1, b2, b3, b4;
+    book_t b1, b2, b3, b4, b5;
     library_t sciences_lib, novel_lib;
     std::vector<long> isbn;
     std::vector<long>::iterator i;
@@ -153,7 +186,7 @@ int main(){
     b2.set_isbn(9780070532465);
     sciences_lib.add_book(b2);
 
-    // sciences_lib.print();
+    sciences_lib.print();
 
     novel_lib.set_name("Novel Library");
     novel_lib.add_day(tuesday);
@@ -175,31 +208,26 @@ int main(){
     b4.set_isbn(9780747538493);
     novel_lib.add_book(b4);
 
-    while(true){
-        try{
-            sciences_lib.add_book(b1);
-        }
-        catch(std::bad_alloc &e){
-            std::cerr << "Unable to add the book to the library (reason: std::bad_alloc)";
-            return 1;
-        }
+    b5.set_name("HAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+    b5.add_author("J.ASDAFg");
+    b5.set_publisher("Bloomgasdgdsagasdsbury");
+    b5.set_year(2312);
+    b5.set_isbn(9780111111111);
+    novel_lib.add_book(b5);
+    
+    novel_lib.print();
+
+    isbn = sciences_lib.get_isbns();
+    std::cout << "Not sorted: \n";
+    for(i = isbn.begin(); i != isbn.end(); i++){
+        std::cout << *i << "\n";
     }
 
-    // novel_lib.print();
-
-    // isbn = sciences_lib.get_isbns();
-    // std::cout << "Not sorted: \n";
-    // for(i = isbn.begin(); i != isbn.end(); i++){
-    //     std::cout << *i << "\n";
-    // }
-
-    // std::cout << "Sorted: \n";
-    // std::sort(isbn.begin(), isbn.end());
-    // for(i = isbn.begin(); i != isbn.end(); i++){
-    //     std::cout << *i << "\n";
-    // }
-
-    std::cout << "Finish\n";
+    std::cout << "Sorted: \n";
+    std::sort(isbn.begin(), isbn.end());
+    for(i = isbn.begin(); i != isbn.end(); i++){
+        std::cout << *i << "\n";
+    }
     
     return 0;
 }
