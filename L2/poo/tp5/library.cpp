@@ -153,7 +153,7 @@ int main(){
     b2.set_isbn(9780070532465);
     sciences_lib.add_book(b2);
 
-    sciences_lib.print();
+    // sciences_lib.print();
 
     novel_lib.set_name("Novel Library");
     novel_lib.add_day(tuesday);
@@ -175,18 +175,31 @@ int main(){
     b4.set_isbn(9780747538493);
     novel_lib.add_book(b4);
 
-    novel_lib.print();
-
-    isbn = sciences_lib.get_isbns();
-    std::cout << "Not sorted: \n";
-    for(i = isbn.begin(); i != isbn.end(); i++){
-        std::cout << *i << "\n";
+    while(true){
+        try{
+            sciences_lib.add_book(b1);
+        }
+        catch(std::bad_alloc &e){
+            std::cerr << "Unable to add the book to the library (reason: std::bad_alloc)";
+            return 1;
+        }
     }
 
-    std::cout << "Sorted: \n";
-    std::sort(isbn.begin(), isbn.end());
-    for(i = isbn.begin(); i != isbn.end(); i++){
-        std::cout << *i << "\n";
-    }
+    // novel_lib.print();
+
+    // isbn = sciences_lib.get_isbns();
+    // std::cout << "Not sorted: \n";
+    // for(i = isbn.begin(); i != isbn.end(); i++){
+    //     std::cout << *i << "\n";
+    // }
+
+    // std::cout << "Sorted: \n";
+    // std::sort(isbn.begin(), isbn.end());
+    // for(i = isbn.begin(); i != isbn.end(); i++){
+    //     std::cout << *i << "\n";
+    // }
+
+    std::cout << "Finish\n";
+    
     return 0;
 }
