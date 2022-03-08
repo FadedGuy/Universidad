@@ -1,6 +1,6 @@
-#include <cstdio>
 #include <iostream>
 #include <vector>
+#include <algorithm>
 
 enum day_t{
     monday, tuesday, wednesday, thursday, friday, saturday, sunday
@@ -25,6 +25,10 @@ class book_t{
         }
 
         ~book_t(){}
+
+        long get_isbn(){
+            return this->isbn;
+        }
 
         void set_name(char* name){
             this->name = name;
@@ -77,6 +81,14 @@ class library_t{
 
         ~library_t(){}
 
+        std::vector<long> get_isbns(){
+            std::vector<long> isbns;
+            for(size_t i = 0; i < this->books.size(); i++){
+                isbns.push_back(this->books[i].get_isbn());
+            }
+            return isbns;
+        } 
+
         void set_name(char* name){
             this->name = name;
         }
@@ -120,6 +132,8 @@ class library_t{
 int main(){
     book_t b1, b2, b3, b4;
     library_t sciences_lib, novel_lib;
+    std::vector<long> isbn;
+    std::vector<long>::iterator i;
     
     sciences_lib.set_name((char*) "Sciences Library");
     sciences_lib.add_day(monday);
@@ -164,5 +178,17 @@ int main(){
     novel_lib.add_book(b4);
 
     novel_lib.print();
+
+    isbn = sciences_lib.get_isbns();
+    std::cout << "Not sorted: \n";
+    for(i = isbn.begin(); i != isbn.end(); i++){
+        std::cout << *i << "\n";
+    }
+
+    std::cout << "Sorted: \n";
+    std::sort(isbn.begin(), isbn.end());
+    for(i = isbn.begin(); i != isbn.end(); i++){
+        std::cout << *i << "\n";
+    }
     return 0;
 }
