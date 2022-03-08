@@ -12,9 +12,15 @@ class isbn_invalid_error_t : public std::exception{
     private:
         std::string str;
     public:
+        isbn_invalid_error_t(){
+            std::ostringstream oss;
+            oss << "isbn_content_error_t: invalid ISBN";
+            this->str = oss.str();
+        }
+
         isbn_invalid_error_t(long isbn){
             std::ostringstream oss;
-            oss << "isbn_content_error_t: invalid ISBN: " << isbn;
+            oss << "isbn_content_error_t: invalid ISBN (" << isbn << ")";
             this->str = oss.str();
         }
 
