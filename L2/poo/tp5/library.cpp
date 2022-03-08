@@ -1,4 +1,5 @@
 #include <iostream>
+#include <string>
 #include <vector>
 #include <algorithm>
 
@@ -8,18 +9,16 @@ enum day_t{
 
 class book_t{
     private:
-        char* name;
-        std::vector<char*> authors;
+        std::string name;
+        std::vector<std::string> authors;
         int nauthors;
-        char* publisher;
+        std::string publisher;
         int year;
         long isbn;
 
     public:
         book_t(){
-            this->name = NULL;
             this->nauthors = 0;
-            this->publisher = NULL;
             this->year = 0;
             this->isbn = 0;
         }
@@ -30,11 +29,11 @@ class book_t{
             return this->isbn;
         }
 
-        void set_name(char* name){
+        void set_name(std::string name){
             this->name = name;
         }
 
-        void set_publisher(char* publisher){
+        void set_publisher(std::string publisher){
             this->publisher = publisher;
         }
 
@@ -46,7 +45,7 @@ class book_t{
             this->isbn = isbn;
         }
 
-        void add_author(char* author){
+        void add_author(std::string author){
             this->authors.push_back(author);
             this->nauthors++;
         }
@@ -66,7 +65,7 @@ class book_t{
 
 class library_t{
     private:
-        char* name;
+        std::string name;
         std::vector<day_t> days;
         int ndays;
         std::vector<book_t> books;
@@ -74,7 +73,6 @@ class library_t{
 
     public:
         library_t(){
-            this->name = NULL;
             this->ndays = 0;
             this->nbooks = 0;
         }
@@ -89,7 +87,7 @@ class library_t{
             return isbns;
         } 
 
-        void set_name(char* name){
+        void set_name(std::string name){
             this->name = name;
         }
 
@@ -135,44 +133,44 @@ int main(){
     std::vector<long> isbn;
     std::vector<long>::iterator i;
     
-    sciences_lib.set_name((char*) "Sciences Library");
+    sciences_lib.set_name("Sciences Library");
     sciences_lib.add_day(monday);
     sciences_lib.add_day(tuesday);
     sciences_lib.add_day(wednesday);
     sciences_lib.add_day(thursday);
 
-    b1.set_name((char*) "The C++ Programming Language");
-    b1.add_author((char*) "Bjarne Stroustrup");
-    b1.set_publisher((char*) "Addison-Wesley");
+    b1.set_name("The C++ Programming Language");
+    b1.add_author("Bjarne Stroustrup");
+    b1.set_publisher("Addison-Wesley");
     b1.set_year(2013);
     b1.set_isbn(9780321563842);
     sciences_lib.add_book(b1);
 
-    b2.set_name((char*) "C++: The Complete Reference");
-    b2.add_author((char*) "Herbert Schildt");
-    b2.set_publisher((char*) "McGraw-Hill");
+    b2.set_name("C++: The Complete Reference");
+    b2.add_author("Herbert Schildt");
+    b2.set_publisher("McGraw-Hill");
     b2.set_year(2003);
     b2.set_isbn(9780070532465);
     sciences_lib.add_book(b2);
 
     sciences_lib.print();
 
-    novel_lib.set_name((char*) "Novel Library");
+    novel_lib.set_name("Novel Library");
     novel_lib.add_day(tuesday);
     novel_lib.add_day(wednesday);
     novel_lib.add_day(thursday);
     novel_lib.add_day(friday);
 
-    b3.set_name((char*) "Harry Potter and the Philosopher's Stone");
-    b3.add_author((char*) "J. K. Rowling");
-    b3.set_publisher((char*) "Bloomsbury");
+    b3.set_name("Harry Potter and the Philosopher's Stone");
+    b3.add_author("J. K. Rowling");
+    b3.set_publisher("Bloomsbury");
     b3.set_year(1997);
     b3.set_isbn(9780747532699);
     novel_lib.add_book(b3);
 
-    b4.set_name((char*) "Harry Potter and the Chamber of Secrets");
-    b4.add_author((char*) "J. K. Rowling");
-    b4.set_publisher((char*) "Bloomsbury");
+    b4.set_name("Harry Potter and the Chamber of Secrets");
+    b4.add_author("J. K. Rowling");
+    b4.set_publisher("Bloomsbury");
     b4.set_year(1998);
     b4.set_isbn(9780747538493);
     novel_lib.add_book(b4);
