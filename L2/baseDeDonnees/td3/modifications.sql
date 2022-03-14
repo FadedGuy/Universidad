@@ -20,7 +20,6 @@ alter table REALISATEURS modify Codreal char(5);
 alter table FILMS modify Codreal char(5);
 alter table FILMS add constraint fk_FILMS_REALISATEURS foreign key (Codreal) references REALISATEURS;
 
-
 alter table FILMS add Catfilm char(20);
 alter table FILMS add constraint ck_FILMS_Catfilm check (Catfilm in ('comédie','drame','policier','science-fiction','horreur','thriller','comédie dramatique'));
 update FILMS set Catfilm='science-fiction' where Codfilm='F011';
