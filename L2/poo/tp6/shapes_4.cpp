@@ -2,10 +2,9 @@
 #include <cmath>
 
 class shape_t{
-    protected: 
+    public:
         float width;
         float height;
-    public:
         virtual float get_area() const{
             return this->get_area();
         }
@@ -14,13 +13,13 @@ class shape_t{
             printf("Shape (width: %.2f, height: %.2f, area: %.2f)\n", this->width, this->height, this->get_area());
         }
 
-        virtual shape_t &operator++(){
+        shape_t &operator++(){
             ++this->width;
             ++this->height;
             return *this;
         }
 
-        virtual shape_t &operator--(){
+        shape_t &operator--(){
             --this->width;
             --this->height;
             return *this;
@@ -41,6 +40,9 @@ class rectangle_t: public shape_t{
         virtual void print() const{
             printf("Rectangle (width: %.2f, height: %.2f, area: %.2f)\n", this->width, this->height, this->get_area());
         }
+
+        using shape_t::operator++;
+        using shape_t::operator--;
 
         rectangle_t operator++(int){
             rectangle_t r = *this;
@@ -72,6 +74,9 @@ class triangle_t: public shape_t{
             printf("Triangle (width: %.2f, height: %.2f, area: %.2f)\n", this->width, this->height, this->get_area());
         }
 
+        using shape_t::operator++;
+        using shape_t::operator--;
+
         triangle_t operator++(int){
             triangle_t r = *this;
             ++this->width;
@@ -102,6 +107,9 @@ class circle_t: public shape_t{
             printf("Circle (width: %.2f, height: %.2f, area: %.2f)\n", this->width, this->height, this->get_area());
         }
 
+        using shape_t::operator++;
+        using shape_t::operator--;
+
         circle_t operator++(int){
             circle_t r = *this;
             ++this->width;
@@ -118,11 +126,15 @@ class circle_t: public shape_t{
 };
 
 int main(){
+    shape_t shape;
     rectangle_t rectangle(10,20);
     triangle_t triangle(30, 30);
     circle_t circle(40);
 
-    printf("++ %d", ++rectangle);
+    printf("++psr: %f\n", ++rectangle.width);
+    printf("--pst: %f\n", --triangle.width);
+    printf("psr++: %f\n", rectangle++.width);
+    printf("pst--: %f\n", triangle--.width);
 
     rectangle.print();
     triangle.print();
