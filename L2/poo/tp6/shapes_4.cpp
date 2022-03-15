@@ -13,6 +13,30 @@ class shape_t{
             printf("Shape (width: %.2f, height: %.2f, area: %.2f)\n", this->width, this->height, this->get_area());
         }
 
+        bool operator==(const shape_t &s) const{
+            return this->get_area() == s.get_area();
+        }
+
+        bool operator!=(const shape_t &s) const{
+            return !(this->get_area() == s.get_area());
+        }
+
+        bool operator<(const shape_t &s) const{
+            return this->get_area() < s.get_area();
+        }
+
+        bool operator<=(const shape_t &s) const{
+            return this->get_area() <= s.get_area();
+        }
+
+        bool operator>(const shape_t &s) const{
+            return this->get_area() > s.get_area();
+        }
+
+        bool operator>=(const shape_t &s) const{
+            return this->get_area() >= s.get_area();
+        }
+
         shape_t &operator++(){
             ++this->width;
             ++this->height;
@@ -24,6 +48,7 @@ class shape_t{
             --this->height;
             return *this;
         }
+
 };
 
 class rectangle_t: public shape_t{
@@ -139,6 +164,13 @@ int main(){
     rectangle.print();
     triangle.print();
     circle.print();
+
+    printf("psr == pst: %d\n", rectangle==triangle);
+    printf("psr != pst: %d\n", rectangle!=triangle);
+    printf("psr < pst: %d\n", rectangle<triangle);
+    printf("psr <= pst: %d\n", rectangle<=triangle);
+    printf("psr > pst: %d\n", rectangle>triangle);
+    printf("psr >= pst: %d\n", rectangle>=triangle);
     
     return 0;
 }
