@@ -6,8 +6,6 @@ RM= rm -fv
 .PHONY: all clean
 
 all: main.out
-%.o: %.cpp %.h
-	$(CXX) $(CXXFLAGS) -c -o $@ $<
 main.out: main.cpp library.o book.o
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS) $(LDLIBS)
 
