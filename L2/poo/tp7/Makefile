@@ -1,10 +1,16 @@
+CXX=g++
+CXXFLAGS=-std=c++98 -pedantic -Wall -Werror -g
+LDFLAGS=
+LDLIBS=
+RM= rm -fv
+
 all: main.out
 library.o: library.cpp library.h
-	g++ -std=c++98 -pedantic -Wall -Werror -g -c -o library.o library.cpp
+	$(CXX) $(CXXFLAGS) -c -o library.o library.cpp
 book.o: book.cpp book.h
-	g++ -std=c++98 -pedantic -Wall -Werror -g -c -o book.o book.cpp
+	$(CXX) $(CXXFLAGS) -c -o book.o book.cpp
 main.out: main.cpp library.o book.o
-	g++ -std=c++98 -pedantic -Wall -Werror -g -o main.out main.cpp library.o book.o
+	$(CXX) $(CXXFLAGS) -o main.out main.cpp library.o book.o $(LDFLAGS) $(LDLIBS)
 
 clean:
-	rm -fv *.o *.out
+	$(RM) *.o *.out
