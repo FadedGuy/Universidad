@@ -4,6 +4,7 @@ LDFLAGS=
 LDLIBS=
 RM= rm -fv
 
+.PHONY: all clean
 all: main.out
 library.o: library.cpp library.h
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
