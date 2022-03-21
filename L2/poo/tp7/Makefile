@@ -6,11 +6,11 @@ RM= rm -fv
 
 all: main.out
 library.o: library.cpp library.h
-	$(CXX) $(CXXFLAGS) -c -o library.o library.cpp
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
 book.o: book.cpp book.h
-	$(CXX) $(CXXFLAGS) -c -o book.o book.cpp
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
 main.out: main.cpp library.o book.o
-	$(CXX) $(CXXFLAGS) -o main.out main.cpp library.o book.o $(LDFLAGS) $(LDLIBS)
+	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS) $(LDLIBS)
 
 clean:
 	$(RM) *.o *.out
