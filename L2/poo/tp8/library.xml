@@ -1,0 +1,26 @@
+<library name="Sciences Library">
+    <days>
+        <day>Monday</day>
+        <day>Tuesday</day>
+        <day>Wednesday</day>
+        <day>Thursday</day>
+    </days>
+    <books>
+        <book name="The C++ Programming Language">
+            <authors>
+                <author>Bjarne Stroustrup</author>
+            </authors>
+            <publisher>Addison-Wesley</publisher>
+            <year>2013</year>
+            <isbn>9780321563842</isbn>
+        </book>
+        <book name="C++: The Complete Reference">
+            <authors>
+                <author>Herbert Schildt</author>
+            </authors>
+            <publisher>McGraw-Hill</publisher>
+            <year>2003</year>
+            <isbn>9780070532465</isbn>
+        </book>
+    </books>
+</library>
