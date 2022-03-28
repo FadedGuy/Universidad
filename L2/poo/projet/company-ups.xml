@@ -1,0 +1,39 @@
+<company name="UPS">
+    <envelopes>
+        <envelope format="c4">
+            <priority>low</priority>
+            <recipient>
+                <city>Lons</city>
+                <country>France</country>
+                <name>Bernard Tichaut</name>
+                <postal-code>64140</postal-code>
+                <street>3 rue de l'objet</street>
+            </recipient>
+            <sender>
+                <city>Bizanos</city>
+                <country>France</country>
+                <name>Alain Verse</name>
+                <postal-code>64320</postal-code>
+                <street>1 rue de la programmation</street>
+            </sender>
+        </envelope>
+        <envelope format="dl">
+            <priority>high</priority>
+            <recipient>
+                <city>Uzos</city>
+                <country>France</country>
+                <name>Laure Dure</name>
+                <postal-code>64110</postal-code>
+                <street>4 rue de l'expression</street>
+            </recipient>
+            <sender>
+                <city>Pau</city>
+                <country>France</country>
+                <name>Camille Onnette</name>
+                <postal-code>64000</postal-code>
+                <street>2 rue de l'instruction</street>
+            </sender>
+        </envelope>
+    </envelopes>
+    <web>https://www.ups.com/</web>
+</company>
