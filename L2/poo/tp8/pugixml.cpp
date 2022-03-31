@@ -1,6 +1,6 @@
 #include <iostream>
 #include <cstring>
-#include "pugixml.hpp"
+#include "pugixml.cpp"
 
 using namespace std;
 using namespace pugi;
