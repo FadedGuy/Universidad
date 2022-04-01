@@ -1,8 +1,9 @@
+#include <iostream>
 #include "company.h"
 
 company_t::company_t():
-    name(NULL),
-    web(NULL)
+    name("undefined"),
+    web("undefined")
     {}
 
 
@@ -24,7 +25,7 @@ void company_t::handle_i() const{
 }
 
 void company_t::handle_n() const{
-
+    cout << this->get_name() << "\n";
 }
 
 void company_t::handle_ec(int postal_code) const{
@@ -52,7 +53,7 @@ void company_t::handle_en(string name) const{
 }
 
 void company_t::handle_w() const{
-
+    cout << this->get_web() << "\n";
 }
 
 envelope_t company_t::envelopes_at(int index) const{
@@ -78,4 +79,10 @@ void company_t::set_web(string web){
 }
 
 
-ostream &operator<<(ostream &os, const company_t &company);
+ostream &operator<<(ostream &os, const company_t &company){
+    string envelopes_str;
+    os << "(" << company.get_name() << ", " << company.get_web() << ", " 
+       << envelopes_str << ")";
+       
+    return os;
+}

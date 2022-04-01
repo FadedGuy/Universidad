@@ -1,11 +1,12 @@
+#include <iostream>
 #include "address.h"
 
 address_t::address_t():
-    city(NULL),
-    country(NULL),
-    name(NULL),
+    city("undefined"),
+    country("undefined"),
+    name("undefined"),
     postal_code(0),
-    street(NULL)
+    street("undefined")
     {}
 
 string address_t::get_city() const{
@@ -48,5 +49,9 @@ void address_t::set_street(string street){
     this->street = street;
 }
 
-
-ostream &operator<<(ostream &os, const address_t &address);
+ostream &operator<<(ostream &os, const address_t &address){
+    os << "(" << address.get_name() << ", " << address.get_street() << ", " << address.get_postal_code() 
+       << ", " << address.get_city() << ", " << address.get_country() << ")";
+       
+    return os;
+}

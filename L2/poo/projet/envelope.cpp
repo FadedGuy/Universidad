@@ -1,3 +1,4 @@
+#include <iostream>
 #include "envelope.h"
 
 envelope_t::envelope_t():
@@ -66,4 +67,9 @@ void envelope_t::set_sender(address_t sender){
 }
 
 
-ostream &operator<<(ostream &os, const envelope_t &envelope);
+ostream &operator<<(ostream &os, const envelope_t &envelope){
+    os << "(" << envelope.get_sender() << " -> " << envelope.get_recipient() << " [" 
+       << envelope.get_priority() << "] " << envelope.get_width() << "x" << envelope.get_height();
+
+    return os;
+}

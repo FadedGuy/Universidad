@@ -44,7 +44,7 @@ void handle_v(){
          << "Written by Kevin Aceves <kevin.aceves-siordia@etud.unit-pau.fr> and Baptiste Genthon <baptiste.genthon@etud.univ-pau.fr>.\n";
 }
 
-void menu(){
+void menu(company_t company){
     char str_input[BUFFER];
     char* command;
     char* param;
@@ -116,7 +116,12 @@ void menu(){
     }while(strcmp(str_input, "q"));
 }
 
+void parse_doc(xml_document doc, company_t company){
+    
+}
+
 int main(int argc, char** argv){
+    company_t company;
     xml_document doc;
 
     if(argc != 2){
@@ -127,8 +132,9 @@ int main(int argc, char** argv){
         cerr << argv[0] << ": unable to parse the document\n";
         return 1;
     }
+    // parse_doc(doc, company);
 
-    menu();
+    menu(company);
 
     return 0;
 }
