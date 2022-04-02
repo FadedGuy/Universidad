@@ -33,7 +33,7 @@ class company_t
         string get_web() const;
         /**
         * Handles the e command for this company.
-        * Iterates on envelopes to call the handle_m method on its elements.
+        * Iterates on envelopes to call the handle_e method on its elements.
         */
         void handle_e() const;
         /**

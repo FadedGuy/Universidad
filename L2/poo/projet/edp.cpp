@@ -70,8 +70,11 @@ void menu(company_t company){
             command[len_input-strlen(param)-1] = '\0';
         }
         
-        if(!strcmp(str_input, "e")){
-            cout << "e command\n";
+        if(len_input > 18){
+            cerr << "too many characters for the command\n";
+        }
+        else if(!strcmp(str_input, "e")){
+            company.handle_e();
         }
         else if(!strcmp(str_input, "ec")){ 
             cout << "ec command\n";
@@ -95,10 +98,10 @@ void menu(company_t company){
             handle_h();
         }
         else if(!strcmp(str_input, "i")){ 
-            cout << "i command\n";
+            company.handle_i();
         }
         else if(!strcmp(str_input, "n")){ 
-            cout << "n command\n";
+            company.handle_n();
         }
         else if(!strcmp(str_input, "q")){
             continue;
@@ -116,8 +119,9 @@ void menu(company_t company){
     }while(strcmp(str_input, "q"));
 }
 
-void parse_doc(xml_document doc, company_t company){
-    
+int parse_doc(xml_node node, company_t* company){
+
+    return 0;
 }
 
 int main(int argc, char** argv){
@@ -127,14 +131,39 @@ int main(int argc, char** argv){
     if(argc != 2){
         cerr << argv[0] << ": invalid number of arguments\n";
         return 1;
-    }    
-    if(!(doc.load_file(argv[1]))){
+    }
+
+    if(!(doc.load_file(argv[1]))){ //Load file
         cerr << argv[0] << ": unable to parse the document\n";
         return 1;
     }
-    // parse_doc(doc, company);
+    if(strcmp(doc.first_child().name(), (char*) "company") != 0){ //Check if its a company
+        cerr << argv[0] << ": unable to parse the document\n";
+        return 1;
+    }
+    if(parse_doc(doc.first_child(), &company)){ //Parse to company
+        cerr << argv[0] << ": unable to parse the document\n";
+        return 1;
+    }
 
-    menu(company);
+    // menu(company);
+    company.envelopes_push_back(envelope_t());
+    company.envelopes_push_back(envelope_t());
+    company.handle_e();
+    cout << "\n";
+    company.handle_i();
+    cout << "\n";
+    company.handle_n();
+    cout << "\n";
+
+    cout << company.envelopes_at(1);
+    cout << "\n";
+    cout << company.envelopes_at(2);
+    cout << "\n";
+    cout << company.envelopes_at(1);
+    cout << "\n";
+
+
 
     return 0;
 }

@@ -17,11 +17,15 @@ string company_t::get_web() const{
 }
 
 void company_t::handle_e() const{
-
+    vector<envelope_t>::const_iterator i = this->envelopes.begin();
+    for(; i != this->envelopes.end(); ++i){
+        i->handle_e();
+        cout << "\n";
+    }
 }
 
 void company_t::handle_i() const{
-
+    cout << *this;
 }
 
 void company_t::handle_n() const{
@@ -57,9 +61,14 @@ void company_t::handle_w() const{
 }
 
 envelope_t company_t::envelopes_at(int index) const{
-    //Delete when coding this, it's just for the compiler
-    envelope_t env;
-    return env;
+    //Either verify before-hand that it's a valid index or catch exception
+    try{
+        return this->envelopes.at(index);
+    }
+    catch(out_of_range &e){
+        cerr << "an exception ocurred: " << e.what() << "\n";
+        return envelope_t();
+    }
 }
 
 void company_t::envelopes_push_back(envelope_t envelope){
@@ -81,8 +90,8 @@ void company_t::set_web(string web){
 
 ostream &operator<<(ostream &os, const company_t &company){
     string envelopes_str;
-    os << "(" << company.get_name() << ", " << company.get_web() << ", " 
-       << envelopes_str << ")";
+    os << "(" << company.get_name() << ", " << company.get_web() << ", (" 
+       << envelopes_str << "))";
        
     return os;
 }

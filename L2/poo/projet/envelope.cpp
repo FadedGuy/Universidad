@@ -27,7 +27,7 @@ int envelope_t::get_width() const {
 }
 
 void envelope_t::handle_e() const{
-    
+    cout << *this;
 }
 
 void envelope_t::handle_ec(int postal_code) const{
@@ -69,7 +69,7 @@ void envelope_t::set_sender(address_t sender){
 
 ostream &operator<<(ostream &os, const envelope_t &envelope){
     os << "(" << envelope.get_sender() << " -> " << envelope.get_recipient() << " [" 
-       << envelope.get_priority() << "] " << envelope.get_width() << "x" << envelope.get_height();
+       << envelope.get_priority() << "] " << envelope.get_width() << "x" << envelope.get_height() << ")";
 
     return os;
 }
