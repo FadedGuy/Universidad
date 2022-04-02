@@ -31,27 +31,45 @@ void envelope_t::handle_e() const{
 }
 
 void envelope_t::handle_ec(int postal_code) const{
-    
+    if(this->get_sender().get_postal_code() == postal_code){
+        this->handle_e();
+        cout << "\n";
+    }
 }
 
 void envelope_t::handle_ecge(int postal_code) const{
-    
+    if(this->get_sender().get_postal_code() >= postal_code){
+        this->handle_e();
+        cout << "\n";
+    }
 }
 
 void envelope_t::handle_ecgt(int postal_code) const{
-    
+    if(this->get_sender().get_postal_code() > postal_code){
+        this->handle_e();
+        cout << "\n";
+    } 
 }
 
 void envelope_t::handle_ecle(int postal_code) const{
-    
+    if(this->get_sender().get_postal_code() <= postal_code){
+        this->handle_e();
+        cout << "\n";
+    } 
 }
 
 void envelope_t::handle_eclt(int postal_code) const{
-    
+    if(this->get_sender().get_postal_code() < postal_code){
+        this->handle_e();
+        cout << "\n";
+    } 
 }
 
 void envelope_t::handle_en(string name) const{
-    
+    if(this->get_sender().get_name().find(name) != string::npos){
+        this->handle_e();
+        cout << "\n";
+    } 
 }
 
 void envelope_t::set_priority(priority_t priority){

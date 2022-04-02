@@ -29,35 +29,53 @@ void company_t::handle_i() const{
 }
 
 void company_t::handle_n() const{
-    cout << this->get_name() << "\n";
+    cout << this->get_name();
 }
 
 void company_t::handle_ec(int postal_code) const{
-
+    vector<envelope_t>::const_iterator i = this->envelopes.begin();
+    for(; i != this->envelopes.end(); ++i){
+        i->handle_ec(postal_code);
+    }
 }
 
 void company_t::handle_ecge(int postal_code) const{
-
+    vector<envelope_t>::const_iterator i = this->envelopes.begin();
+    for(; i != this->envelopes.end(); ++i){
+        i->handle_ecge(postal_code);
+    }
 }
 
 void company_t::handle_ecgt(int postal_code) const{
-
+    vector<envelope_t>::const_iterator i = this->envelopes.begin();
+    for(; i != this->envelopes.end(); ++i){
+        i->handle_ecgt(postal_code);
+    }
 }
 
 void company_t::handle_ecle(int postal_code) const{
-
+    vector<envelope_t>::const_iterator i = this->envelopes.begin();
+    for(; i != this->envelopes.end(); ++i){
+        i->handle_ecle(postal_code);
+    }
 }
 
 void company_t::handle_eclt(int postal_code) const{
-
+    vector<envelope_t>::const_iterator i = this->envelopes.begin();
+    for(; i != this->envelopes.end(); ++i){
+        i->handle_eclt(postal_code);
+    }
 }
 
 void company_t::handle_en(string name) const{
-
+    vector<envelope_t>::const_iterator i = this->envelopes.begin();
+    for(; i != this->envelopes.end(); ++i){
+        i->handle_en(name);
+    }
 }
 
 void company_t::handle_w() const{
-    cout << this->get_web() << "\n";
+    cout << this->get_web();
 }
 
 envelope_t company_t::envelopes_at(int index) const{

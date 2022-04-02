@@ -3,6 +3,9 @@
         ./edp.out: message
     do we need to put it in aswell since we have it in main in argv[0]
     or not.
+
+    envelope_at() verify
+    convert param to int in menu() and change argument on functions that use it
 */
 
 #include <cstdio>
@@ -77,31 +80,33 @@ void menu(company_t company){
             company.handle_e();
         }
         else if(!strcmp(str_input, "ec")){ 
-            cout << "ec command\n";
+            company.handle_ec(0);
         }
         else if(!strcmp(str_input, "ecge")){ 
-            cout << "ecge command\n";
+            company.handle_ecge(0);
         }
         else if(!strcmp(str_input, "ecgt")){ 
-            cout << "ecgt command\n";
+            company.handle_ecgt(0);
         }
         else if(!strcmp(str_input, "ecle")){ 
-            cout << "ecle command\n";
+            company.handle_ecle(0);
         }
         else if(!strcmp(str_input, "eclt")){ 
-            cout << "eclt command\n";
+            company.handle_eclt(0);
         }
         else if(!strcmp(str_input, "en")){ 
-            cout << "en command\n";
+            company.handle_en("");
         }
         else if(!strcmp(str_input, "h")){ 
             handle_h();
         }
         else if(!strcmp(str_input, "i")){ 
             company.handle_i();
+            cout << "\n";
         }
         else if(!strcmp(str_input, "n")){ 
             company.handle_n();
+            cout << "\n";
         }
         else if(!strcmp(str_input, "q")){
             continue;
@@ -110,7 +115,8 @@ void menu(company_t company){
             handle_v();
         }
         else if(!strcmp(str_input, "w")){ 
-            cout << "w command\n";
+            company.handle_w();
+            cout << "\n";
         }
         else{
             cerr << "invalid command\n";
@@ -146,24 +152,7 @@ int main(int argc, char** argv){
         return 1;
     }
 
-    // menu(company);
-    company.envelopes_push_back(envelope_t());
-    company.envelopes_push_back(envelope_t());
-    company.handle_e();
-    cout << "\n";
-    company.handle_i();
-    cout << "\n";
-    company.handle_n();
-    cout << "\n";
-
-    cout << company.envelopes_at(1);
-    cout << "\n";
-    cout << company.envelopes_at(2);
-    cout << "\n";
-    cout << company.envelopes_at(1);
-    cout << "\n";
-
-
+    menu(company);
 
     return 0;
 }
