@@ -126,8 +126,43 @@ void menu(company_t company){
 }
 
 int parse_doc(xml_node node, company_t* company){
+    if(strcmp(node.first_attribute().name(), "name") == 0) {
+        company->name = node.first_attribute().value();
+    }
 
-    return 0;
+    for(xml_node i = node.first_child(); i; i = i.next_sibling()) {
+        if(strcmp(i.name(), "envelopes") == 0) {
+            for(xml_node j = i.first_child(); j; j = j.next_sibling()) {
+                if(strcmp(j.first_attribute().value(), "c4")) { // idea here is to create same envelope variable name
+                                                                // and push back this envelope with attributes values set
+                    envelope_c4_t envelope;
+                } else if(strcmp(j.first_attribute().value(), "dl")) {
+                    envelope_dl_t envelope;
+                }
+                for(xml_node k = j.first_child(); k; k = k.next_sibling()) {
+                    if(strcmp(k.name(), "priority")) {
+                        envelope->priority = k.value();
+                    } else if(strcmp(k.name(), "recipient")) {
+                        for(xml_node recip = k.first_child(); recip; recip = recip.next_sibling()) {
+                            if(strcmp(recip.name(), "city") == 0 || strcmp(recip.name(), "country") == 0 || strcmp(recip.name(), "name") == 0 || strcmp(recip.name(), "postal-code") == 0 || strcmp(recip.name(), "street") == 0) {
+                                envelope->recipient->recip.name() = recip.value();
+                            }
+                        }
+                    } else if(strcmp(k.name(), "sender")) {
+                        for(xml_node send = k.first_child(); send; send = send.next_sibling()) {
+                            if(strcmp(send.name(), "city") == 0 || strcmp(send.name(), "country") == 0 || strcmp(send.name(), "name") == 0 || strcmp(send.name(), "postal-code") == 0 || strcmp(send.name(), "street") == 0) {
+                                envelope->sender->send.name() = send.value();
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        if(strcmp(i.name(), "web") == 0) {
+            company->web = node.value();
+        }
+     }
+     
 }
 
 int main(int argc, char** argv){
