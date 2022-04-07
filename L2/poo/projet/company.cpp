@@ -17,8 +17,8 @@ string company_t::get_web() const{
 }
 
 void company_t::handle_e() const{
-    vector<envelope_t>::const_iterator i = this->envelopes.begin();
-    for(; i != this->envelopes.end(); ++i){
+    vector<envelope_t>::const_iterator i;
+    for(i = this->envelopes.begin(); i != this->envelopes.end(); ++i){
         i->handle_e();
         cout << "\n";
     }
@@ -94,7 +94,7 @@ void company_t::envelopes_push_back(envelope_t envelope){
 }
 
 int company_t::envelopes_size() const{
-    return envelopes.size(); // size returns the number of elements in vector envelopes
+    return envelopes.size();
 }
 
 void company_t::set_name(string name){
@@ -107,9 +107,15 @@ void company_t::set_web(string web){
 
 
 ostream &operator<<(ostream &os, const company_t &company){
-    string envelopes_str;
-    os << "(" << company.get_name() << ", " << company.get_web() << ", (" 
-       << envelopes_str << "))";
-       
+    os << "(" << company.get_name() << ", " << company.get_web() << ", (" ;
+
+    for(int i = 0; i < company.envelopes_size(); i++){
+        envelope_t envelope = company.envelopes_at(i);
+        os << envelope;
+        if(i != company.envelopes_size()-1){
+            os << ", ";
+        }
+    }
+    os << "))";  
     return os;
 }
