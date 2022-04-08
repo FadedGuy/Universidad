@@ -6,11 +6,9 @@ company_t::company_t():
     web("undefined")
     {}
 
-
 string company_t::get_name() const{
     return this->name;
 }
-
 
 string company_t::get_web() const{
     return this->web;
@@ -33,43 +31,43 @@ void company_t::handle_n() const{
 }
 
 void company_t::handle_ec(int postal_code) const{
-    vector<envelope_t>::const_iterator i = this->envelopes.begin();
-    for(; i != this->envelopes.end(); ++i){
+    vector<envelope_t>::const_iterator i;
+    for(i = this->envelopes.begin(); i != this->envelopes.end(); ++i){
         i->handle_ec(postal_code);
     }
 }
 
 void company_t::handle_ecge(int postal_code) const{
-    vector<envelope_t>::const_iterator i = this->envelopes.begin();
-    for(; i != this->envelopes.end(); ++i){
+    vector<envelope_t>::const_iterator i;
+    for(i = this->envelopes.begin(); i != this->envelopes.end(); ++i){
         i->handle_ecge(postal_code);
     }
 }
 
 void company_t::handle_ecgt(int postal_code) const{
-    vector<envelope_t>::const_iterator i = this->envelopes.begin();
-    for(; i != this->envelopes.end(); ++i){
+    vector<envelope_t>::const_iterator i;
+    for(i = this->envelopes.begin(); i != this->envelopes.end(); ++i){
         i->handle_ecgt(postal_code);
     }
 }
 
 void company_t::handle_ecle(int postal_code) const{
-    vector<envelope_t>::const_iterator i = this->envelopes.begin();
-    for(; i != this->envelopes.end(); ++i){
+    vector<envelope_t>::const_iterator i;
+    for(i = this->envelopes.begin(); i != this->envelopes.end(); ++i){
         i->handle_ecle(postal_code);
     }
 }
 
 void company_t::handle_eclt(int postal_code) const{
-    vector<envelope_t>::const_iterator i = this->envelopes.begin();
-    for(; i != this->envelopes.end(); ++i){
+    vector<envelope_t>::const_iterator i;
+    for(i = this->envelopes.begin(); i != this->envelopes.end(); ++i){
         i->handle_eclt(postal_code);
     }
 }
 
 void company_t::handle_en(string name) const{
-    vector<envelope_t>::const_iterator i = this->envelopes.begin();
-    for(; i != this->envelopes.end(); ++i){
+    vector<envelope_t>::const_iterator i;
+    for(i = this->envelopes.begin(); i != this->envelopes.end(); ++i){
         i->handle_en(name);
     }
 }
@@ -105,7 +103,6 @@ void company_t::set_web(string web){
     this->web = web;
 }
 
-
 ostream &operator<<(ostream &os, const company_t &company){
     os << "(" << company.get_name() << ", " << company.get_web() << ", (" ;
 
@@ -117,5 +114,6 @@ ostream &operator<<(ostream &os, const company_t &company){
         }
     }
     os << "))";  
+    
     return os;
 }

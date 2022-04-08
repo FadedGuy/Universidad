@@ -1,16 +1,26 @@
 /*
-    In projet file output is given as:
-        ./edp.out: message
-    do we need to put it in aswell since we have it in main in argv[0]
-    or not.
+    TODO
+        convert param to int in menu() and change argument on functions that use it
 
-    convert param to int in menu() and change argument on functions that use it
+    QUESTIONS
+        While parse_doc if something fails is the program shut down or just set to default values,
+        ex. strtol in postal-code (Only place it could really fail during parse, since the non-recognized nodes are ignored) 
+        or if not all attributes are found ?
+    
+        In projet file output is given as:
+            ./edp.out: message
+        do we need to put it in aswell since we have it in main in argv[0]
+        or not.
+
+        company.cpp envelope_at() should it verify?
 */
 
+#include <cerrno>
+#include <climits>
 #include <cstdio>
+#include <cstdlib>
 #include <cstring>
 #include <iostream>
-#include <cstdlib>
 #include "address.h"
 #include "company.h"
 #include "envelope-c4.h"
@@ -59,6 +69,7 @@ void menu(company_t company){
         fgets(str_input, BUFFER, stdin);
         len_input = strlen(str_input)-1;
 
+        // If true clean the buffer, if false erase \n
         if(str_input[len_input] != '\n'){
             while((c = getchar ()) != '\n' && c != EOF);
         }
@@ -66,6 +77,7 @@ void menu(company_t company){
             str_input[len_input] = '\0';
         }
         
+        // If there is an space, it will set command to before the space, and param after the space from str_input
         command = str_input;
         param = strstr(str_input, " ");
         if(param != NULL){
@@ -121,44 +133,50 @@ void menu(company_t company){
         else{
             cerr << "invalid command\n";
         }
-
     }while(strcmp(str_input, "q"));
 }
 
 // Remember since sender and recipient are the same class we cna just make a function with the same behavior sending either sender or recipient on the if, rather than the same code
-void parse_address(xml_node node, address_t* address){
+int parse_address(xml_node node, address_t* address){
     for(xml_node i = node.first_child(); i; i = i.next_sibling()) {
-        if(strcmp(i.name(), "city") == 0){
+        if(!strcmp(i.name(), "city")){
             address->set_city(i.first_child().value());
         } 
-        else if(strcmp(i.name(), "country") == 0){
+        else if(!strcmp(i.name(), "country")){
             address->set_country(i.first_child().value());
         }
-        else if(strcmp(i.name(), "name") == 0){
+        else if(!strcmp(i.name(), "name")){
             address->set_name(i.first_child().value());
         }
-        else if(strcmp(i.name(), "postal-code") == 0){
-            long val = 0;
-            val = strtol(i.first_child().value(), NULL, 10);
+        else if(!strcmp(i.name(), "postal-code")){
+            errno = 0;
+            char* temp;
+            long val = strtol(i.first_child().value(), &temp, 10);
+            
+            if(temp == i.first_child().value() || *temp != '\0' || ((val == LONG_MIN || val == LONG_MAX) && errno == ERANGE)){
+                return 1;
+            }
             address->set_postal_code(val);
         } 
-        else if(strcmp(i.name(), "street") == 0){
+        else if(!strcmp(i.name(), "street")){
             address->set_street(i.first_child().value());
         }
     }
+
+    return 0;
 }
 
 // Same goes for envelope c4 and dl, since they are childs of envelope we can do the same thing
-void parse_envelope(xml_node node, envelope_t* envelope){
-    for(xml_node k = node.first_child(); k; k = k.next_sibling()) {
-        if(strcmp(k.name(), "priority") == 0) {
-            if(strcmp(k.value(), "low")){
+int parse_envelope(xml_node node, envelope_t* envelope){
+    for(xml_node i = node.first_child(); i; i = i.next_sibling()) {
+        if(!strcmp(i.name(), "priority")) {
+            if(strcmp(i.value(), "low")){
                 envelope->set_priority(low);
             }
-            else if(strcmp(k.value(), "medium")){
+            else if(strcmp(i.value(), "medium")){
                 envelope->set_priority(medium);
             }
-            else if(strcmp(k.value(), "high")){
+            else if(strcmp(i.value(), "high")){
                 envelope->set_priority(high);
             }
             else{
@@ -166,45 +184,58 @@ void parse_envelope(xml_node node, envelope_t* envelope){
             }
             
         } 
-        else if(strcmp(k.name(), "recipient") == 0) {
+        else if(!strcmp(i.name(), "recipient")) {
             address_t recipient;
-            parse_address(k, &recipient);
+            if(parse_address(i, &recipient)){
+                return 1;
+            }
             envelope->set_recipient(recipient);
         } 
-        else if(strcmp(k.name(), "sender") == 0) {
+        else if(!strcmp(i.name(), "sender")) {
             address_t sender;
-            parse_address(k, &sender);
+            if(parse_address(i, &sender)){
+                return 1;
+            }
             envelope->set_sender(sender);
         }
     }
+
+    return 0;
 }
 
+// Parses document from node into company
 int parse_doc(xml_node node, company_t* company){
-    if(strcmp(node.first_attribute().name(), "name") == 0) {
+    // Get company name
+    if(!strcmp(node.first_attribute().name(), "name")){
         company->set_name(node.first_attribute().value());
     }
 
-    for(xml_node i = node.first_child(); i; i = i.next_sibling()) {
-        if(strcmp(i.name(), "envelopes") == 0) {
-            for(xml_node j = i.first_child(); j; j = j.next_sibling()) {
-                envelope_c4_t envelope_c4;
-                envelope_dl_t envelope_dl;
-
+    // Iterate through company nodes (i.e envelopes, web)
+    for(xml_node i = node.first_child(); i; i = i.next_sibling()){
+        if(!strcmp(i.name(), "envelopes")) {
+            for(xml_node j = i.first_child(); j; j = j.next_sibling()){
                 if(strcmp(j.first_attribute().value(), "c4")) {
-                    parse_envelope(j, &envelope_c4);
+                    envelope_c4_t envelope_c4;
+                    if(parse_envelope(j, &envelope_c4)){
+                        return 1;
+                    }
                     company->envelopes_push_back(envelope_c4);
-                } else if(strcmp(j.first_attribute().value(), "dl")) {
-                    parse_envelope(j, &envelope_dl);
+                } 
+                else if(strcmp(j.first_attribute().value(), "dl")){
+                    envelope_dl_t envelope_dl;
+                    if(parse_envelope(j, &envelope_dl)){
+                        return 1;
+                    }
                     company->envelopes_push_back(envelope_dl);
                 }
             }
         }
-        else if(strcmp(i.name(), "web") == 0) {
+        else if(!strcmp(i.name(), "web")) {
             company->set_web(i.first_child().value());
         }
-     }
+    }
      
-     return 0;
+    return 0;
 }
 
 int main(int argc, char** argv){
@@ -220,7 +251,7 @@ int main(int argc, char** argv){
         cerr << argv[0] << ": unable to parse the document\n";
         return 1;
     }
-    if(strcmp(doc.first_child().name(), (char*) "company") != 0){ //Check if its a company
+    if(strcmp(doc.first_child().name(), (char*) "company")){ //Check if its a company
         cerr << argv[0] << ": unable to parse the document\n";
         return 1;
     }
