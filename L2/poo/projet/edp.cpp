@@ -1,6 +1,6 @@
 /*
     TODO
-        convert param to int in menu() and change argument on functions that use it
+        convert param to int in menu() and change argument on functions that use it (need to be compiled/tested)
 
     QUESTIONS
         While parse_doc if something fails is the program shut down or just set to default values,
@@ -54,7 +54,7 @@ void handle_h(){
 void handle_v(){
     cout << "EDP (Envelope Delivery Program) 20220422\n\n"
          << "Copyright (C) 2022 Kevin Aceves and Baptiste Genthon.\n\n"
-         << "Written by Kevin Aceves <kevin.aceves-siordia@etud.unit-pau.fr> and Baptiste Genthon <baptiste.genthon@etud.univ-pau.fr>.\n";
+         << "Written by Kevin Aceves <kevin.aceves-siordia@etud.univ-pau.fr> and Baptiste Genthon <baptiste.genthon@etud.univ-pau.fr>.\n";
 }
 
 void menu(company_t company){
@@ -83,6 +83,17 @@ void menu(company_t company){
         if(param != NULL){
             param = param + 1;
             command[len_input-strlen(param)-1] = '\0';
+
+            // Converts param to long in another variable
+            errno = 0;
+            char* temp;
+            long paramLong = strtol(param, &temp, 10);
+            
+            if(temp == param || *temp != '\0' || ((paramLong == LONG_MIN || paramLong == LONG_MAX) && errno == ERANGE)){
+                return 1;
+            }
+            // Conversion ended with paramLong = param with type long if it worked, or error code 1 if not
+            // We will be using param or paramLong depending whether we need to pass a string or an int
         }
         
         if(len_input > 18){
@@ -92,22 +103,22 @@ void menu(company_t company){
             company.handle_e();
         }
         else if(!strcmp(str_input, "ec")){ 
-            company.handle_ec(0);
+            company.handle_ec(paramLong);
         }
         else if(!strcmp(str_input, "ecge")){ 
-            company.handle_ecge(0);
+            company.handle_ecge(paramLong);
         }
         else if(!strcmp(str_input, "ecgt")){ 
-            company.handle_ecgt(0);
+            company.handle_ecgt(paramLong);
         }
         else if(!strcmp(str_input, "ecle")){ 
-            company.handle_ecle(0);
+            company.handle_ecle(paramLong);
         }
         else if(!strcmp(str_input, "eclt")){ 
-            company.handle_eclt(0);
+            company.handle_eclt(paramLong);
         }
         else if(!strcmp(str_input, "en")){ 
-            company.handle_en("");
+            company.handle_en(param);
         }
         else if(!strcmp(str_input, "h")){ 
             handle_h();
@@ -247,15 +258,15 @@ int main(int argc, char** argv){
         return 1;
     }
 
-    if(!(doc.load_file(argv[1]))){ //Load file
+    if(!(doc.load_file(argv[1]))){ // Load file
         cerr << argv[0] << ": unable to parse the document\n";
         return 1;
     }
-    if(strcmp(doc.first_child().name(), (char*) "company")){ //Check if its a company
+    if(strcmp(doc.first_child().name(), (char*) "company")){ // Check if its a company
         cerr << argv[0] << ": unable to parse the document\n";
         return 1;
     }
-    if(parse_doc(doc.first_child(), &company)){ //Parse to company
+    if(parse_doc(doc.first_child(), &company)){ // Parse to company
         cerr << argv[0] << ": unable to parse the document\n";
         return 1;
     }
