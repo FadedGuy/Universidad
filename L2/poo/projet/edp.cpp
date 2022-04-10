@@ -57,14 +57,32 @@ void handle_v(){
          << "Written by Kevin Aceves <kevin.aceves-siordia@etud.univ-pau.fr> and Baptiste Genthon <baptiste.genthon@etud.univ-pau.fr>.\n";
 }
 
+bool validParamCodePostal(char* p1, int p2, string command){
+    //If conversion was valid
+    if(p1 != NULL && p2 != -1){
+        return true;
+    }
+
+    //If it was not valid because of missing parameter or invalid conversion
+    if(p1 == NULL){
+        cerr << "missing parameter for the " << command << " command\n";
+        return false;    
+    }
+
+    cerr << "invalid parameter for the " << command << " command\n";
+    return false;
+}
+
 void menu(company_t company){
     char str_input[BUFFER];
-    char* command;
-    char* param;
-    int len_input = 0;
-    int c;
 
     do{
+        char* command;
+        char* param;
+        int len_input = 0;
+        int paramInt = 0;
+        int c;
+        
         cout << "EDP> ";
         fgets(str_input, BUFFER, stdin);
         len_input = strlen(str_input)-1;
@@ -87,10 +105,10 @@ void menu(company_t company){
             // Converts param to long in another variable
             errno = 0;
             char* temp;
-            long paramLong = strtol(param, &temp, 10);
+            paramInt = strtol(param, &temp, 10);
             
-            if(temp == param || *temp != '\0' || ((paramLong == LONG_MIN || paramLong == LONG_MAX) && errno == ERANGE)){
-                return 1;
+            if(temp == param || *temp != '\0' || ((paramInt == INT_MIN || paramInt == INT_MAX) && errno == ERANGE)){
+                paramInt = -1;
             }
             // Conversion ended with paramLong = param with type long if it worked, or error code 1 if not
             // We will be using param or paramLong depending whether we need to pass a string or an int
@@ -103,22 +121,37 @@ void menu(company_t company){
             company.handle_e();
         }
         else if(!strcmp(str_input, "ec")){ 
-            company.handle_ec(paramLong);
+            if(validParamCodePostal(param, paramInt, "ec")){
+                company.handle_ec(paramInt);
+            }
         }
         else if(!strcmp(str_input, "ecge")){ 
-            company.handle_ecge(paramLong);
+            if(validParamCodePostal(param, paramInt, "ecge")){
+                company.handle_ecge(paramInt);
+            }
         }
         else if(!strcmp(str_input, "ecgt")){ 
-            company.handle_ecgt(paramLong);
+            if(validParamCodePostal(param, paramInt, "ecgt")){
+                company.handle_ecgt(paramInt);
+            }
         }
         else if(!strcmp(str_input, "ecle")){ 
-            company.handle_ecle(paramLong);
+            if(validParamCodePostal(param, paramInt, "ecle")){
+                company.handle_ecle(paramInt);
+            }
         }
         else if(!strcmp(str_input, "eclt")){ 
-            company.handle_eclt(paramLong);
+            if(validParamCodePostal(param, paramInt, "eclt")){
+                company.handle_eclt(paramInt);
+            }
         }
         else if(!strcmp(str_input, "en")){ 
-            company.handle_en(param);
+            if(param != NULL){
+                company.handle_en(param);
+            }
+            else{
+                cerr << "invalid parameter for the en command\n";
+            }
         }
         else if(!strcmp(str_input, "h")){ 
             handle_h();
