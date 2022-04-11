@@ -75,9 +75,9 @@ bool validParamCodePostal(char* p1, int p2, string command){
 
 void menu(company_t company){
     char str_input[BUFFER];
+    char* command;
 
     do{
-        char* command;
         char* param;
         int len_input = 0;
         int paramInt = 0;
@@ -117,35 +117,35 @@ void menu(company_t company){
         if(len_input > 18){
             cerr << "too many characters for the command\n";
         }
-        else if(!strcmp(str_input, "e")){
+        else if(!strcmp(command, "e")){
             company.handle_e();
         }
-        else if(!strcmp(str_input, "ec")){ 
+        else if(!strcmp(command, "ec")){ 
             if(validParamCodePostal(param, paramInt, "ec")){
                 company.handle_ec(paramInt);
             }
         }
-        else if(!strcmp(str_input, "ecge")){ 
+        else if(!strcmp(command, "ecge")){ 
             if(validParamCodePostal(param, paramInt, "ecge")){
                 company.handle_ecge(paramInt);
             }
         }
-        else if(!strcmp(str_input, "ecgt")){ 
+        else if(!strcmp(command, "ecgt")){ 
             if(validParamCodePostal(param, paramInt, "ecgt")){
                 company.handle_ecgt(paramInt);
             }
         }
-        else if(!strcmp(str_input, "ecle")){ 
+        else if(!strcmp(command, "ecle")){ 
             if(validParamCodePostal(param, paramInt, "ecle")){
                 company.handle_ecle(paramInt);
             }
         }
-        else if(!strcmp(str_input, "eclt")){ 
+        else if(!strcmp(command, "eclt")){ 
             if(validParamCodePostal(param, paramInt, "eclt")){
                 company.handle_eclt(paramInt);
             }
         }
-        else if(!strcmp(str_input, "en")){ 
+        else if(!strcmp(command, "en")){ 
             if(param != NULL){
                 company.handle_en(param);
             }
@@ -153,31 +153,31 @@ void menu(company_t company){
                 cerr << "invalid parameter for the en command\n";
             }
         }
-        else if(!strcmp(str_input, "h")){ 
+        else if(!strcmp(command, "h")){ 
             handle_h();
         }
-        else if(!strcmp(str_input, "i")){ 
+        else if(!strcmp(command, "i")){ 
             company.handle_i();
             cout << "\n";
         }
-        else if(!strcmp(str_input, "n")){ 
+        else if(!strcmp(command, "n")){ 
             company.handle_n();
             cout << "\n";
         }
-        else if(!strcmp(str_input, "q")){
+        else if(!strcmp(command, "q")){
             continue;
         }
-        else if(!strcmp(str_input, "v")){ 
+        else if(!strcmp(command, "v")){ 
             handle_v();
         }
-        else if(!strcmp(str_input, "w")){ 
+        else if(!strcmp(command, "w")){ 
             company.handle_w();
             cout << "\n";
         }
-        else{
+        else if(strlen(command) > 0){
             cerr << "invalid command\n";
         }
-    }while(strcmp(str_input, "q"));
+    }while(strcmp(command, "q"));
 }
 
 // Remember since sender and recipient are the same class we cna just make a function with the same behavior sending either sender or recipient on the if, rather than the same code
