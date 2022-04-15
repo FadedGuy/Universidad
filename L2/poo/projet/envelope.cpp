@@ -85,8 +85,9 @@ void envelope_t::set_sender(address_t sender){
 }
 
 ostream &operator<<(ostream &os, const envelope_t &envelope){
+    string str_priority[] = {"undefined", "high", "low", "medium"};
     os << "(" << envelope.get_sender() << " -> " << envelope.get_recipient() << " [" 
-       << envelope.get_priority() << "] " << envelope.get_width() << "x" << envelope.get_height() << ")";
+       << str_priority[envelope.get_priority()] << "] " << envelope.get_width() << "x" << envelope.get_height() << ")";
 
     return os;
 }

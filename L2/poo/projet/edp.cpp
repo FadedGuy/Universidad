@@ -1,10 +1,3 @@
-/*
-
-    Echoue de code
-    Confirmar mensajes de error
-    Convertir parametro a long solo si es necesario, no hacer el calculo antes
-    Confirmar la conversion en CP a int y del param a LONG usando strol y distintos verificaciones
-*/
 #include <cerrno>
 #include <climits>
 #include <cstdio>
@@ -47,16 +40,6 @@ void handle_v(){
          << "Written by Kevin Aceves <kevin.aceves-siordia@etud.univ-pau.fr> and Baptiste Genthon <baptiste.genthon@etud.univ-pau.fr>.\n";
 }
 
-bool validParamCodePostal(char* p1, int p2){
-    //If conversion was valid
-    if(p1 != NULL && p2 != -1){
-        return true;
-    }
-
-    return false;
-}
-
-// Remember since sender and recipient are the same class we cna just make a function with the same behavior sending either sender or recipient on the if, rather than the same code
 int parse_address(xml_node node, address_t* address){
     for(xml_node i = node.first_child(); i; i = i.next_sibling()) {
         if(!strcmp(i.name(), "city")){
@@ -71,15 +54,24 @@ int parse_address(xml_node node, address_t* address){
         else if(!strcmp(i.name(), "postal-code")){
             errno = 0;
             char* temp;
-            int val = 0;
+            int vali = 0;
+            long vall = 0;
                         
-            val = strtol(i.first_child().value(), &temp, 10);
+            // Converts to long and makes sure it's a numeric value
+            vall = strtol(i.first_child().value(), &temp, 10);
+            if(temp == i.first_child().value() || *temp != '\0' || ((vall == LONG_MIN || vall == LONG_MAX) && errno == ERANGE)){
+                throw str2l_error(i.first_child().value());
+                return 1;
+            }
 
-            if(temp == i.first_child().value() || *temp != '\0' || ((val == INT_MIN || val == INT_MAX) && errno == ERANGE)){
+            // Make sure it's in int range of values since postal_code is int type
+            vali = strtol(i.first_child().value(), &temp, 10); 
+            if(vall != vali){
                 throw str2i_error(i.first_child().value());
                 return 1;
             }
-            address->set_postal_code(val);
+
+            address->set_postal_code(vali);
         } 
         else if(!strcmp(i.name(), "street")){
             address->set_street(i.first_child().value());
@@ -89,17 +81,16 @@ int parse_address(xml_node node, address_t* address){
     return 0;
 }
 
-// Same goes for envelope c4 and dl, since they are childs of envelope we can do the same thing
 int parse_envelope(xml_node node, envelope_t* envelope){
     for(xml_node i = node.first_child(); i; i = i.next_sibling()) {
         if(!strcmp(i.name(), "priority")) {
-            if(strcmp(i.value(), "low")){
+            if(!strcmp(i.first_child().value(), "low")){
                 envelope->set_priority(low);
             }
-            else if(strcmp(i.value(), "medium")){
+            else if(!strcmp(i.first_child().value(), "medium")){
                 envelope->set_priority(medium);
             }
-            else if(strcmp(i.value(), "high")){
+            else if(!strcmp(i.first_child().value(), "high")){
                 envelope->set_priority(high);
             }
             else{
@@ -137,14 +128,14 @@ int parse_doc(xml_node node, company_t* company){
     for(xml_node i = node.first_child(); i; i = i.next_sibling()){
         if(!strcmp(i.name(), "envelopes")) {
             for(xml_node j = i.first_child(); j; j = j.next_sibling()){
-                if(strcmp(j.first_attribute().value(), "c4")) {
+                if(!strcmp(j.first_attribute().value(), "c4")) {
                     envelope_c4_t envelope_c4;
                     if(parse_envelope(j, &envelope_c4)){
                         return 1;
                     }
                     company->envelopes_push_back(envelope_c4);
                 } 
-                else if(strcmp(j.first_attribute().value(), "dl")){
+                else if(!strcmp(j.first_attribute().value(), "dl")){
                     envelope_dl_t envelope_dl;
                     if(parse_envelope(j, &envelope_dl)){
                         return 1;
@@ -164,8 +155,8 @@ int parse_doc(xml_node node, company_t* company){
 int main(int argc, char** argv){
     company_t company;
     xml_document doc;
-
-    if(argc != 2){
+ 
+    if(argc != 2){ // Check number of arguments
         cerr << argv[0] << ": invalid number of arguments\n";
         return 1;
     }
@@ -180,20 +171,27 @@ int main(int argc, char** argv){
         return 1;
     }
 
-    try{
-        parse_doc(doc.first_child(), &company); // Parse to company
+    // Parse to company and catch conversion exception
+    try{ 
+        parse_doc(doc.first_child(), &company); 
+    }
+    catch(str2l_error &e){
+        cerr << argv[0] << ": an exception occurred (" << e.what() << ")\n";
+        return 1;
     }
     catch(str2i_error &e){
         cerr << argv[0] << ": an exception occurred (" << e.what() << ")\n";
         return 1;
     }
 
+    // EDP user
     char str_input[BUFFER];
     char* command;
+    char* param;
     do{
-        char* param;
         int len_input = 0;
-        long paramInt = 0;
+        int paramInt = 0;
+        bool param_valid = true;
         int c;
         
         cout << "EDP> ";
@@ -214,56 +212,89 @@ int main(int argc, char** argv){
         if(param != NULL){
             param = param + 1;
             command[len_input-strlen(param)-1] = '\0';
-
-            // Converts param to long in another variable
+            
+            // Converts param to long and then to int
             errno = 0;
             char* temp;
-            paramInt = strtol(param, &temp, 10);
+            long paramLong = strtol(param, &temp, 10);
             
-            if(temp == param || *temp != '\0' || ((paramInt == LONG_MIN || paramInt == LONG_MAX) && errno == ERANGE)){
-                paramInt = -1;
+            if(temp == param || *temp != '\0' || ((paramLong == LONG_MIN || paramLong == LONG_MAX) && errno == ERANGE)){
+                param_valid = false;
             }
-            // Conversion ended with paramLong = param with type long if it worked, or error code 1 if not
-            // We will be using param or paramLong depending whether we need to pass a string or an int
+
+            paramInt = strtol(param, &temp, 10);
+            if(paramLong != paramInt){ //Verify it's in int value range
+                param_valid = false;
+            }
         }
-        
+
         if(len_input > 18){
-            cerr << argv[0] << " too many characters for the command\n";
+            cerr << argv[0] << ": too many characters for the command\n";
         }
         else if(!strcmp(command, "e")){
             company.handle_e();
         }
         else if(!strcmp(command, "ec")){ 
-            if(validParamCodePostal(param, paramInt)){
+            if(param != NULL && param_valid){
                 company.handle_ec(paramInt);
+            }
+            else if(param_valid){
+                cerr << argv[0] << ": missing parameter for the ec command\n";
+            }
+            else{
+                cerr << argv[0] << ": invalid parameter for the ec command\n";
             }
         }
         else if(!strcmp(command, "ecge")){ 
-            if(validParamCodePostal(param, paramInt)){
+            if(param != NULL && param_valid){
                 company.handle_ecge(paramInt);
+            }
+            else if(param_valid){
+                cerr << argv[0] << ": missing parameter for the ecge command\n";
+            }
+            else{
+                cerr << argv[0] << ": invalid parameter for the ecge command\n";
             }
         }
         else if(!strcmp(command, "ecgt")){ 
-            if(validParamCodePostal(param, paramInt)){
+            if(param != NULL && param_valid){
                 company.handle_ecgt(paramInt);
+            }
+            else if(param_valid){
+                cerr << argv[0] << ": missing parameter for the ecgt command\n";
+            }
+            else{
+                cerr << argv[0] << ": invalid parameter for the ecgt command\n";
             }
         }
         else if(!strcmp(command, "ecle")){ 
-            if(validParamCodePostal(param, paramInt)){
+            if(param != NULL && param_valid){
                 company.handle_ecle(paramInt);
+            }
+            else if(param_valid){
+                cerr << argv[0] << ": missing parameter for the ecle command\n";
+            }
+            else{
+                cerr << argv[0] << ": invalid parameter for the ecle command\n";
             }
         }
         else if(!strcmp(command, "eclt")){ 
-            if(validParamCodePostal(param, paramInt)){
+            if(param != NULL && param_valid){
                 company.handle_eclt(paramInt);
+            }
+            else if(param_valid){
+                cerr << argv[0] << ": missing parameter for the eclt command\n";
+            }
+            else{
+                cerr << argv[0] << ": invalid parameter for the eclt command\n";
             }
         }
         else if(!strcmp(command, "en")){ 
-            if(param != NULL){
+            if(strlen(param) > 0){
                 company.handle_en(param);
             }
             else{
-                cerr << argv[0] << " invalid parameter for the en command\n";
+                cerr << argv[0] << ": missing parameter for the en command\n";
             }
         }
         else if(!strcmp(command, "h")){ 
@@ -287,8 +318,8 @@ int main(int argc, char** argv){
             company.handle_w();
             cout << "\n";
         }
-        else if(strlen(command) > 0){
-            cerr << argv[0] << " invalid command\n";
+        else if(strlen(command) >= 1){
+            cerr << argv[0] << ": invalid command\n";
         }
     }while(strcmp(command, "q"));
 
