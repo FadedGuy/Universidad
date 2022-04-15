@@ -231,7 +231,7 @@ int main(int argc, char** argv){
         if(len_input > 18){
             cerr << argv[0] << ": too many characters for the command\n";
         }
-        else if(!strcmp(command, "e")){
+        else if(!strcmp(command, "e") && param == NULL){
             company.handle_e();
         }
         else if(!strcmp(command, "ec")){ 
@@ -297,24 +297,24 @@ int main(int argc, char** argv){
                 cerr << argv[0] << ": missing parameter for the en command\n";
             }
         }
-        else if(!strcmp(command, "h")){ 
+        else if(!strcmp(command, "h") && param == NULL){ 
             handle_h();
         }
-        else if(!strcmp(command, "i")){ 
+        else if(!strcmp(command, "i") && param == NULL){ 
             company.handle_i();
             cout << "\n";
         }
-        else if(!strcmp(command, "n")){ 
+        else if(!strcmp(command, "n") && param == NULL){ 
             company.handle_n();
             cout << "\n";
         }
-        else if(!strcmp(command, "q")){
+        else if(!strcmp(command, "q") && param == NULL){
             continue;
         }
-        else if(!strcmp(command, "v")){ 
+        else if(!strcmp(command, "v") && param == NULL){ 
             handle_v();
         }
-        else if(!strcmp(command, "w")){ 
+        else if(!strcmp(command, "w") && param == NULL){ 
             company.handle_w();
             cout << "\n";
         }
