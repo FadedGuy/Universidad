@@ -290,7 +290,7 @@ int main(int argc, char** argv){
             }
         }
         else if(!strcmp(command, "en")){ 
-            if(strlen(param) > 0){
+            if(param != NULL){
                 company.handle_en(param);
             }
             else{
