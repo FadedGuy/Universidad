@@ -1,7 +1,3 @@
-#include <iostream>
-#include <string>
-#include <cfloat>
-
 /*
 a,b,c = [0, MAX]
 
@@ -48,6 +44,9 @@ DT de test limites
 (MAX, 4, 7) valide
 
 */
+#include <iostream>
+#include <string>
+#include <cfloat>
 
 enum type_triangle{
     scalene, isocele, equilateral, nonTriangle, impossible
