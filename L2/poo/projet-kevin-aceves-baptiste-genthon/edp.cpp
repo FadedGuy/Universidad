@@ -35,7 +35,7 @@ void handle_h(){
 }
 
 void handle_v(){
-    cout << "EDP (Envelope Delivery Program) 20220422\n\n"
+    cout << "EDP (Envelope Delivery Program) 20220417\n\n"
          << "Copyright (C) 2022 Kevin Aceves and Baptiste Genthon.\n\n"
          << "Written by Kevin Aceves <kevin.aceves-siordia@etud.univ-pau.fr> and Baptiste Genthon <baptiste.genthon@etud.univ-pau.fr>.\n";
 }
@@ -171,7 +171,7 @@ int main(int argc, char** argv){
         return 1;
     }
 
-    // Parse to company and catch conversion exception
+    // Parse to company and catch conversion exception from postal-code
     try{ 
         parse_doc(doc.first_child(), &company); 
     }
