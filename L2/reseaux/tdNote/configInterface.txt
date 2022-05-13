@@ -1,0 +1,141 @@
+// Machine 192.168.3.2
+auto lo eth0 eth1
+
+iface lo inet loopback
+
+iface eth0 inet static
+    address 192.168.3.2
+    netmask 255.255.255.0
+    network 192.168.3.0
+    broadcast 192.168.3.255
+    gateway 192.168.3.1
+
+// Machine 192.168.2.2
+auto lo eth0 eth1
+
+iface lo inet loopback
+
+iface eth0 inet static
+    address 192.168.2.2
+    netmask 255.255.255.0
+    network 192.168.2.0
+    broadcast 192.168.2.255
+    gateway 192.168.2.1
+
+
+// Machine 192.168.1.2
+auto lo eth0 eth1
+
+iface lo inet loopback
+
+iface eth0 inet static
+    address 192.168.1.2
+    netmask 255.255.255.0
+    network 192.168.1.0
+    broadcast 192.168.1.255
+    gateway 192.168.1.1
+
+
+// Machine passerelle reseaux 1.0
+auto lo eth0 eth1 eth2
+
+iface lo inet loopback
+
+iface eth0 inet static
+    address 192.168.1.1
+    netmask 255.255.255.0
+    network 192.168.1.0
+    broadcast 192.168.1.255
+
+
+auto lo eth0 eth1 eth2
+
+iface lo inet loopback
+
+iface eth1 inet static
+    address 192.168.4.5
+    netmask 255.255.255.0
+    network 192.168.1.0
+    broadcast 192.168.1.255
+    gateway 192.168.4.4
+
+
+auto lo eth0 eth1 eth2
+
+iface lo inet loopback
+
+iface eth2 inet static
+    address 192.168.4.6
+    netmask 255.255.255.0
+    network 192.168.1.0
+    broadcast 192.168.1.255
+    gateway 192.168.4.4
+
+
+// Machine passerelle reseaux 2.0
+auto lo eth0 eth1 eth2
+
+iface lo inet loopback
+
+iface eth0 inet static
+    address 192.168.2.1
+    netmask 255.255.255.0
+    network 192.168.2.0
+    broadcast 192.168.2.255
+
+
+auto lo eth0 eth1 eth2
+
+iface lo inet loopback
+
+iface eth1 inet static
+    address 192.168.4.3
+    netmask 255.255.255.0
+    network 192.168.4.0
+    broadcast 192.168.4.255
+    gateway 192.168.4.4
+
+
+auto lo eth0 eth1 eth2
+
+iface lo inet loopback
+
+iface eth2 inet static
+    address 192.168.4.2
+    netmask 255.255.255.0
+    network 192.168.4.0
+    broadcast 192.168.4.255
+    gateway 192.168.4.4
+
+// Machine passerelle reseaux 3.0
+auto lo eth0 eth1 eth2
+
+iface lo inet loopback
+
+iface eth0 inet static
+    address 192.168.3.1
+    netmask 255.255.255.0
+    network 192.168.3.0
+    broadcast 192.168.3.255
+
+
+auto lo eth0 eth1 eth2
+
+iface lo inet loopback
+
+iface eth1 inet static
+    address 192.168.4.1
+    netmask 255.255.255.0
+    network 192.168.4.0
+    broadcast 192.168.4.255
+    gateway 192.168.4.4
+
+auto lo eth0 eth1 eth2
+
+iface lo inet loopback
+
+iface eth2 inet static
+    address 192.168.4.4
+    netmask 255.255.255.0
+    network 192.168.4.0
+    broadcast 192.168.4.255

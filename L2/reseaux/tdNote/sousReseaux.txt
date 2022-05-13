@@ -1,0 +1,33 @@
+// Machine 192.168.1.1
+auto lo eth0 eth1
+
+iface lo inet loopback
+
+iface eth0 inet static
+    address 192.168.1.1
+    netmask 255.255.255.0
+    network 192.168.1.0
+    broadcast 192.168.1.31
+    gateway 192.168.1.1
+
+// Machine 192.168.1.33
+auto lo eth0 eth1
+
+iface lo inet loopback
+
+iface eth0 inet static
+    address 192.168.1.33
+    netmask 255.255.255.0
+    network 192.168.1.32
+    broadcast 192.168.1.63
+
+// Machine 192.168.1.65
+auto lo eth0 eth1
+
+iface lo inet loopback
+
+iface eth0 inet static
+    address 192.168.1.65
+    netmask 255.255.255.0
+    network 192.168.1.64
+    broadcast 192.168.1.95
