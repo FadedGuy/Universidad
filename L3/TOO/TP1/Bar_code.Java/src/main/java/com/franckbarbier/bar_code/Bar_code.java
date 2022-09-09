@@ -35,20 +35,18 @@ public class Bar_code {
         int pair = 0; 
         int ctrl = 0;
         
-        for(int i = 0; i < _bar_code.size(); i++){
-            if(i != _bar_code.size() - 1){
-                if(i % 2 == 0){
-                    pair += _bar_code.get(i);
-                }
-                else{
-                    impair += _bar_code.get(i);
-                }
+        for(int i = _bar_code.size()-2; i >= 0; i--){
+            if(i % 2 == 0){
+                pair += _bar_code.get(i);
+            }
+            else{
+                impair += _bar_code.get(i);
             }
         }
         
-        ctrl = pair + (3 * impair) + _bar_code.get(_bar_code.size()-1);
+        ctrl = (10 - (((3 * impair) + pair) % 10)) % 10;
         
-        return ctrl % 10 == 0; // A remplacer
+        return ctrl == _bar_code.get(_bar_code.size()-1)    ; // A remplacer
     }
 
     private boolean _alternative_check_sum() { // Autre méthode de calcul du "check sum" :
