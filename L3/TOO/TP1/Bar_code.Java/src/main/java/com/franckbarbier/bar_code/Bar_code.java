@@ -54,11 +54,33 @@ public class Bar_code {
     private boolean _alternative_check_sum() { // Autre méthode de calcul du "check sum" :
         // (5 + 1 + 3 + 6 + 2 + 3 + 7) + 3 * (0 + 0 + 5 + 8 + 3 + 5) = 90
         // Le code barre est correct si le résultat final est un multiple de '10'
-        return true; // A remplacer
+        int pair = 0;
+        int impair = 0;
+        int ctrl = 0;
+        int i = 0;
+        
+        for(Integer _bar_code1 : _bar_code){
+            if(i == 0){
+                pair += _bar_code1;
+                i = 1;
+            }
+            else{
+                impair += _bar_code1;
+                i = 0;
+            }
+        }
+        
+        ctrl = pair + (3 * impair);
+        
+        return ctrl % 10 == 0; // A remplacer
     }
 
     @Override
     public String toString() {
-        return ""; // A remplacer
+        StringBuilder sb = new StringBuilder();
+        for (Integer _bar_code1 : _bar_code) {
+            sb.append(_bar_code1);
+        }
+        return sb.toString(); // A remplacer
     }
 }
