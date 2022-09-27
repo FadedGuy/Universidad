@@ -10,8 +10,10 @@ package com.mycompany.tp3;
  */
 public class Main {
     public static void main(String[] args) {
-        String res = "";
-        Yesterday yesterday = new Yesterday(9, 5, 2019, res);
-        System.out.println(res);
+        Yesterday yesterday = new Yesterday(9, 5, 2019);
+        System.out.println(yesterday.before_yesterday());
+        
+        Yesterday yesterday1 = new Yesterday(27, 9, 2022);
+        System.out.println(yesterday1.before_yesterday());
     }
 }

@@ -17,19 +17,39 @@ public class Yesterday {
     public static final String apres_demain = "Apres demain";
     public static final String jsp = "Je n'es sais rien";
     
-    Yesterday(final int jour, final int mois, final int annee, String resultat){
+    private final Integer jour;
+    private final Integer mois;
+    private final Integer annee;
+    
+    Yesterday(final int jour, final int mois, final int annee){
         assert(jour > 0 && mois > 0 && annee > 0);
         assert(jour <= 31 && mois <= 12);
         
+        this.jour = jour;
+        this.mois = mois;
+        this.annee = annee;
+    }
+    
+    public String before_yesterday(){
+        String res = jsp;
+       
         java.time.LocalDateTime maintenant = java.time.LocalDateTime.now();
         
         int jour_sys = maintenant.getDayOfMonth();
         int mois_sys = maintenant.getMonthValue();
         int annee_sys = maintenant.getYear();
         
-//        System.out.println(jour_sys + "-" + mois_sys + "-" + annee_sys);
+        res = jsp;
+        if(annee == annee_sys){
+            if(mois == mois_sys){
+                if(jour == jour_sys - 2){ res = avant_hier; }
+                if(jour == jour_sys - 1){ res = hier; }
+                if(jour == jour_sys){ res = aujourd_hui; }
+                if(jour == jour_sys + 1){ res = demain; }
+                if(jour == jour_sys + 2){ res = apres_demain; }
+            }
+        }
         
-        
+        return res;
     }
-    
 }
