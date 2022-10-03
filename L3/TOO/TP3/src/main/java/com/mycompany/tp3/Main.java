@@ -13,7 +13,7 @@ public class Main {
         Yesterday yesterday = new Yesterday(9, 5, 2019);
         System.out.println(yesterday.before_yesterday());
         
-        Yesterday yesterday1 = new Yesterday(27, 9, 2022);
+        Yesterday yesterday1 = new Yesterday(3, 10, 2022);
         System.out.println(yesterday1.before_yesterday());
     }
 }
