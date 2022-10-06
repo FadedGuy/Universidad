@@ -8,6 +8,7 @@
 *.out
 *.o
 *.jpg
+*.png
 *.mp4
 node_modules/
 /L3/TOO/TP1/Bar_code.Java/target/
