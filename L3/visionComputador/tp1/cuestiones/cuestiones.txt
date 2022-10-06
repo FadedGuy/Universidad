@@ -1,0 +1,24 @@
+1. Sabemos el nivel de intensidad de una imagen aumenta de manera exponencial en funcion del 
+numero de bits por pixel (2,4,8,16,32...). Es decir, en un pixel determinado donde haya 2 
+niveles de intensidad (1 bit por pixel es decir 2^1) podemos calcular que en una
+imagen de 160x160 pixeles, esta tendra un peso de 25600 bits siguiendo la formula: 
+total de pixeles * peso de cada pixel
+
+
+256 Ni - 160x160 pixeles = (160*160)*8 = 204800 bits
+256 Ni - 80x80 pixeles = (80*80)*8 = 51200 bits
+256 Ni - 16x16 pixeles = (16*16)*8 = 2048 bits
+16 Ni - 160x160 pixeles = (160*160)*4 = 102400 bits
+8 Ni - 160x160 pixeles = (160*160)*3 = 76800 bits
+2 Ni - 160x160 pixeles = (160*160)*1 = 25600 bits
+
+
+2. Para los dispositivos CCD se generan electrones en funcion de los fotones, donde cada 
+elemento se mueve a una zona de registro, la cual es para todo el sistema.
+Mientras que para los dispositivos CMOS se modifica la conductividad en funcion de los fotones,
+ademas que cada elemento tiene su propia electronica, donde no hay desplazamientos.
+
+3. Las imagenes de tipo mapa de bits usan una matriz de puntos para almacenar la/s diversas magnitudes 
+que describen la imagen en un punto dado, mientras que las imagenes vectoriales almacenan aquellos parametros 
+que definen figuras geometricas. Un ejemplo de formato de este ultimo es el SVG (scalable vector graphics)
+

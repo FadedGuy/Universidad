@@ -7,8 +7,11 @@
 *.aia
 *.out
 *.o
+*.jpg
+*.mp4
 node_modules/
 /L3/TOO/TP1/Bar_code.Java/target/
 /L3/TOO/TP2/N_INSEE/target/
 /L3/TOO/TP3/target/
 /L3/TOO/TP4/target/
+/L3/TOO/TP5/target/
