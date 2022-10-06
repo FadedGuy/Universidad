@@ -6,12 +6,12 @@
 import cv2 as cv
 
 # O en png son imagenes distintas
-chin1 = cv.imread("chin1.jpg")
+chin1 = cv.imread("ching1.png")
 if chin1 is None:
     print("Unable to load chin1")
     exit()
 
-chin2 = cv.imread("chin2.jpg")
+chin2 = cv.imread("ching2.png")
 if chin2 is None:
     print("Unable to load chin2")
     exit()
@@ -35,7 +35,8 @@ dst_res_21 = cv.subtract(chin2, chin1)
 cv.imshow("sub weight 12", dst_res_12)
 cv.imshow("sub weight 21", dst_res_21)
 # No es lo mismo, lo que se nota es que la que vaya primero va a estar por encima de la otra
-# Podria servir para superponer una imagen sobre otra
+# Podria servir para superponer una imagen sobre otra y detectar cambios de una imagen a otra 
+# que pueden ser continuas
 cv.waitKey(0)
 
 cv.destroyAllWindows()
