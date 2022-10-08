@@ -1,7 +1,7 @@
 # Cargar una imagen
 # Obtener el negativo restando 255 a el valor de cada pixel
 # Aplicar un umbral >p<, todos cuya intensidad sea menor a p se pone a 0 y mayor a 255
-from decimal import ROUND_HALF_DOWN
+from pickletools import uint1
 import cv2 as cv
 import numpy as np
 
@@ -16,6 +16,7 @@ _img_bnw = img_bnw
 # cv.imshow("image", img)
 # cv.waitKey(0)
 
+# Iterativamente sobre la misma imagen
 # Obtener el negativo restando 255 al valor de cada pixel
 # for i in range(img.shape[0]):
 #     for j in range(img.shape[1]):
@@ -23,9 +24,13 @@ _img_bnw = img_bnw
 #         r,g,b = img[i,j]
 #         img[i,j] = [255-r, 255-g, 255-b]
 
+# Usando una matriz numpy
+img_bnw_out = np.ones(img_bnw.shape, np.uint8)
+img_bnw_out = 255 - img_bnw
+
 # cv.imshow("image", img)
-# cv.imshow("image bnw", img_bnw)
-# cv.waitKey(0)
+cv.imshow("image bnw", img_bnw_out)
+cv.waitKey(0)
 
 # Aplicar un umbral p
 p = 123

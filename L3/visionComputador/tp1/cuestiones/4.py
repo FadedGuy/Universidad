@@ -16,11 +16,10 @@ cv.waitKey(0)
 cv.destroyAllWindows()
 
 
-# Obtener propiedades de la matriz
+# Obtener propiedades de la imagen
 print(f"Dimensiones: {img.shape}")
-print(f"Altura: {img.shape[0]}")
-print(f"Ancho: {img.shape[1]}")
-print(f"N Canales: {img.shape[2]}")
+print(f"Total pixeles: {img.size}")
+print(f"Tipo de datos: {img.dtype}")
 
 # Obtenemos la rotacion a aplicar y la aplicamos y guardamos como img_rotada.jpg
 row, col, channel = img.shape

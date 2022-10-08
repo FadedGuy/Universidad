@@ -7,6 +7,8 @@
 *.aia
 *.out
 *.o
+*.JPG
+*.jpeg
 *.jpg
 *.png
 *.mp4

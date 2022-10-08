@@ -49,7 +49,8 @@ while True:
     out.write(frame)
 
     cv.imshow('camara', frame)
-    if cv.waitKey(25) == ord('q'):
+    key = cv.waitKey(25)&0xFF
+    if key == ord('q'):
         break
 
 # Siempre liberamos todo lo que usamos al final

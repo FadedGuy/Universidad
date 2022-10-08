@@ -22,3 +22,7 @@ ademas que cada elemento tiene su propia electronica, donde no hay desplazamient
 que describen la imagen en un punto dado, mientras que las imagenes vectoriales almacenan aquellos parametros 
 que definen figuras geometricas. Un ejemplo de formato de este ultimo es el SVG (scalable vector graphics)
 
+9. El rango de frecuencias que se pueden visualizar corretamente es de [-1/2, 1/2]Dx y Dy. Esto ya que 
+la imagen queda limitada por el intervalo de muestreo el cual es menor o igual a 1/2Dx y 1/2Dy. (El cual es tambien la mitad del periodo de muestreo espacial)
+En el caso que la imagen original no hay sido correctamente muestreada, y haya frecuencias de mayor valor
+se producira aliasing
