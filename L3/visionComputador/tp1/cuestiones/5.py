@@ -1,7 +1,6 @@
 # Abrir y reproducir un fichero de vídeo
 # Grabar un vídeo con una cámara y guardar en un fichero
 import cv2 as cv
-import numpy as np
 
 # Abrir y reproducir un fichero de video
 video = cv.VideoCapture("video.mp4")
@@ -49,6 +48,7 @@ while True:
     out.write(frame)
 
     cv.imshow('camara', frame)
+    # Agregamos shift de bits &0xFF para evitar el overflow, es una medida de precaucion
     key = cv.waitKey(25)&0xFF
     if key == ord('q'):
         break

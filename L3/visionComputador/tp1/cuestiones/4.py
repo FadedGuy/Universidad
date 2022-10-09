@@ -3,12 +3,12 @@
 # Modificar una imagen (rotación) y crear un fichero nuevo
 # Capturamos una imagen con la camara conectada al ordenador
 import cv2 as cv
-import sys
 
 # Carga la imagen y se verifica que haya sido cargada correctamente
 img = cv.imread("img.jpg") 
 if img is None:
-    sys.exit("No se pudo leer la imagen")
+    print("No se pudo abrir la imagen")
+    exit()
 
 # Mostramos la imagen en una ventana llamada Imagen, la cual permanecera hasta que presionemos una tecla
 cv.imshow("Imagen", img)
@@ -21,7 +21,7 @@ print(f"Dimensiones: {img.shape}")
 print(f"Total pixeles: {img.size}")
 print(f"Tipo de datos: {img.dtype}")
 
-# Obtenemos la rotacion a aplicar y la aplicamos y guardamos como img_rotada.jpg
+# Obtenemos la rotacion a aplicar la imagen rotada como img_rotada.jpg
 row, col, channel = img.shape
 # Point2, angulo, escala
 rotation = cv.getRotationMatrix2D(((col-1)/2.0,(row-1)/2.0), 90, 1)

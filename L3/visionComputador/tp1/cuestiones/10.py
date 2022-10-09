@@ -10,8 +10,11 @@ if img is None:
     exit()
 
 # Obtenemos la transformada de Fourier y la transformada centrada
-img_FT = np.fft.fft2(img, norm="forward")
-img_FTCentro = np.fft.fftshift(img_FT)
+# En caso que necesitemos normalizar las imagenes
+# _imgNorm = img / np.max(img) # Reales
+# _imgNorm = 255*img/ np.max(img) # Enteros
+img_FT = np.fft.fft2(img, norm="forward") # Transformada de Fourier
+img_FTCentro = np.fft.fftshift(img_FT) # Centrada
 
 # Visualizar su valor abosluto en escala logaritmica
 # En valor absoluto ya que los numeros son complejos y en escala logaritmica ya que las

@@ -1,7 +1,6 @@
 # Cargar una imagen
 # Obtener el negativo restando 255 a el valor de cada pixel
 # Aplicar un umbral >p<, todos cuya intensidad sea menor a p se pone a 0 y mayor a 255
-from pickletools import uint1
 import cv2 as cv
 import numpy as np
 
@@ -11,6 +10,7 @@ if img is None:
     print("No se pudo leer la imagen")
     exit()
 
+# Podemos convertir la imagen a blanco y negro post haberla cargado
 img_bnw = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
 _img_bnw = img_bnw
 # cv.imshow("image", img)
@@ -42,5 +42,5 @@ for i in range(_img_bnw.shape[0]):
             _img_bnw[i,j] = 255
     
 cv.imshow("umbral", _img_bnw)
-cv.waitKey(0)
+cv.waitKey(0)&0xFF
 cv.destroyAllWindows()

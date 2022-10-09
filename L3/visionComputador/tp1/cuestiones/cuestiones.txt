@@ -1,10 +1,4 @@
-1. Sabemos el nivel de intensidad de una imagen aumenta de manera exponencial en funcion del 
-numero de bits por pixel (2,4,8,16,32...). Es decir, en un pixel determinado donde haya 2 
-niveles de intensidad (1 bit por pixel es decir 2^1) podemos calcular que en una
-imagen de 160x160 pixeles, esta tendra un peso de 25600 bits siguiendo la formula: 
-total de pixeles * peso de cada pixel
-
-
+1.
 256 Ni - 160x160 pixeles = (160*160)*8 = 204800 bits
 256 Ni - 80x80 pixeles = (80*80)*8 = 51200 bits
 256 Ni - 16x16 pixeles = (16*16)*8 = 2048 bits

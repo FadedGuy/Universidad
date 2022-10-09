@@ -11,13 +11,14 @@ if image is None:
 
 image = cv.resize(image, (700, 931))
 
-# Matriz 3x3 todoslos elementos igual a 1/9
+# Matriz 3x3 todos los elementos igual a 1/9 (Usada cuando se ponen distintos valores)
 # kernel = np.array([
 #     [1/9, 1/9, 1/9],
 #     [1/9, 1/9, 1/9],
 #     [1/9, 1/9, 1/9]    
 # ])
-# Otra manera de crear una matriz 3x3 igual a 1/9
+
+# Otra manera de crear una matriz 3x3 igual a 1/9 (Usada cuando se tiene el mismo valor)
 kernel = np.ones((3,3))/9
 
 # src, ddepth = -1, kernel
