@@ -7,3 +7,8 @@
 *.aia
 *.out
 *.o
+/L3/TOO/TP1/target/
+/L3/TOO/TP1/Bar_code.Java/target/
+/L3/TOO/TP2/N_INSEE.Java/nbproject/private/
+/L3/TOO/TP2/N_INSEE.Java/build/
+/L3/TOO/TP2/N_INSEE.Java/dist/
