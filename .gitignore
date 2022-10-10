@@ -7,8 +7,22 @@
 *.aia
 *.out
 *.o
+<<<<<<< HEAD
 /L3/TOO/TP1/target/
 /L3/TOO/TP1/Bar_code.Java/target/
 /L3/TOO/TP2/N_INSEE.Java/nbproject/private/
 /L3/TOO/TP2/N_INSEE.Java/build/
 /L3/TOO/TP2/N_INSEE.Java/dist/
+=======
+*.JPG
+*.jpeg
+*.jpg
+*.png
+*.mp4
+node_modules/
+/L3/TOO/TP1/Bar_code.Java/target/
+/L3/TOO/TP2/N_INSEE/target/
+/L3/TOO/TP3/target/
+/L3/TOO/TP4/target/
+/L3/TOO/TP5/target/
+>>>>>>> refs/remotes/origin/main
