@@ -4,6 +4,7 @@ import cv2 as cv
 
 # Abrir y reproducir un fichero de video
 video = cv.VideoCapture("video.mp4")
+cv.namedWindow("Video", cv.WINDOW_NORMAL)
 while video.isOpened():
     confirmacion, frame = video.read()
 
@@ -34,6 +35,7 @@ fcc = cv.VideoWriter_fourcc(*'MJPG')
 out = cv.VideoWriter('out.mp4', fcc, 20.0, (640, 480))
 
 # Mismo pensamiento que la reproducir desde un fichero 
+cv.namedWindow("camara", cv.WINDOW_NORMAL)
 while True:
     confirmacion, frame = camera.read()
 

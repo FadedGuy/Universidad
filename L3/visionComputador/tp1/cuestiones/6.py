@@ -13,6 +13,8 @@ if img is None:
 # Podemos convertir la imagen a blanco y negro post haberla cargado
 img_bnw = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
 _img_bnw = img_bnw
+
+# cv.namedWindow("image", cv.WINDOW_NORMAL) 
 # cv.imshow("image", img)
 # cv.waitKey(0)
 
@@ -28,7 +30,9 @@ _img_bnw = img_bnw
 img_bnw_out = np.ones(img_bnw.shape, np.uint8)
 img_bnw_out = 255 - img_bnw
 
+# cv.namedWindow("image", cv.WINDOW_NORMAL)
 # cv.imshow("image", img)
+cv.namedWindow("image bnw", cv.WINDOW_NORMAL)
 cv.imshow("image bnw", img_bnw_out)
 cv.waitKey(0)
 
@@ -41,6 +45,7 @@ for i in range(_img_bnw.shape[0]):
         else:
             _img_bnw[i,j] = 255
     
+cv.namedWindow("umbral", cv.WINDOW_NORMAL)
 cv.imshow("umbral", _img_bnw)
 cv.waitKey(0)&0xFF
 cv.destroyAllWindows()

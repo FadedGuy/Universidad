@@ -11,6 +11,7 @@ if img is None:
     exit()
 
 # Mostramos la imagen en una ventana llamada Imagen, la cual permanecera hasta que presionemos una tecla
+cv.namedWindow("Imagen", cv.WINDOW_NORMAL)
 cv.imshow("Imagen", img)
 cv.waitKey(0)
 cv.destroyAllWindows()
@@ -31,13 +32,20 @@ cv.imwrite("img_rotada.jpg", dst)
 
 # Se empieza a capturar video de la webcam
 cam = cv.VideoCapture(0)
+cv.namedWindow("Camara", cv.WINDOW_NORMAL)
 # Se lee el siguiente frame 
-confirmacion, frame = cam.read()
-if confirmacion:
-    cv.imshow("Capturado", frame)
-    cv.waitKey(0)
-    cv.destroyAllWindows()
-else:
-    print("Error al acceder a la camara")
+while True:
+    confirmacion, frame = cam.read()
+    cv.imshow("Camara", frame)
+    if confirmacion:
+        key = cv.waitKey(1)&0xFF
+        if key == ord("c"):
+            cv.namedWindow("Capturado", cv.WINDOW_NORMAL)
+            cv.imshow("Capturado", frame)      
+        elif key == ord("q"):
+            break      
+    else:
+        break    
 
+cv.destroyAllWindows()
 cam.release()

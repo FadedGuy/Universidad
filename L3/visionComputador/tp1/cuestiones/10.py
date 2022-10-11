@@ -22,6 +22,8 @@ img_FTCentro = np.fft.fftshift(img_FT) # Centrada
 mag_1 = np.log(np.abs(img_FT) + 0.00001)
 mag_2 = np.log(np.abs(img_FTCentro) + 0.00001)
 
+cv.namedWindow("Fourier", cv.WINDOW_NORMAL)
+cv.namedWindow("Fouri2er", cv.WINDOW_NORMAL)
 cv.imshow("Fourier", mag_1)
 cv.imshow("Fouri2er", mag_2)
 cv.waitKey(0)

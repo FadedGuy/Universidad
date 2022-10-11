@@ -24,6 +24,8 @@ kernel = np.ones((3,3))/9
 # src, ddepth = -1, kernel
 res_img = cv.filter2D(image, -1, kernel)
 
+cv.namedWindow("Image", cv.WINDOW_NORMAL)
+cv.namedWindow("Resultado", cv.WINDOW_NORMAL)
 cv.imshow("Image", image)
 cv.imshow("Resultado", res_img)
 cv.waitKey(0)
