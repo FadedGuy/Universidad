@@ -10,23 +10,36 @@ import java.util.*;
  * @author faded
  */
 public class Polynomial {
-    Map<Integer, Integer> values = new TreeMap<>(Collections.reverseOrder());
+    Map<Integer, Double> values = new TreeMap<>(Collections.reverseOrder());
     
-    Polynomial(Map<Integer, Integer> input){
+    Polynomial(Map<Integer, Double> input){
         input.forEach((k,v) -> values.put(k, v));
     }
     
-    public double eval_Horner(){
-        double coef;
-        double res = values.get(values.size()-1);
-        
-        for(Integer i = values.size()-2; i >= 0; i--){
-            res = res
+    public double eval_Horner(double x){
+        double res = 0.0;
+        boolean first = true;
+
+        for(Map.Entry<Integer, Double> entry : values.entrySet()){
+            if(first){
+                res = entry.getValue();
+                first = false;
+            }
+            else{
+                res = (res*x) + entry.getValue();
+            }
         }
         
-        System.out.println(res);
+        return res;
+    }
+    
+    public double eval(double x){
+        double res = 0.0;
         
+        for(Map.Entry<Integer, Double> entry : values.entrySet()){
+            res += Math.pow(x, entry.getKey()) * entry.getValue();
+        }
         
-        return 0.0;
+        return res;
     }
 }
