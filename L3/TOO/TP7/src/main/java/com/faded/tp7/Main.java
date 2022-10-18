@@ -15,5 +15,6 @@ public class Main {
         Lats lats = new Lats();
         System.out.println(lats.convert_to_euro(100));
         System.out.println(lats.convert_to_dollar(100));
+    
     }
 }

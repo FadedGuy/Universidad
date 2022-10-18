@@ -1,0 +1,13 @@
+
+Bloc 1 (client TS):
+	Prendre la photo du code-barre (Web-RTC chap selfie.ts)
+	
+Bloc 2 (client TS):
+	Convertir le code barre en chaine de caractere (javascript-code-bar)
+
+Web Sockets pour communiquer
+
+Bloc 3 (serveur Java):
+	Interroger openfoodfacts -> openexchangerates principe
+	parser JSON
+	
