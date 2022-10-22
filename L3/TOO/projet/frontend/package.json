@@ -1,0 +1,13 @@
+{
+  "name": "too_project",
+  "version": "1.0.0",
+  "description": "Project made by Faded and Styleex for TOO course",
+  "licence": "MIT",
+  "author": "Faded and Styleex",
+
+  "main": "js/selfie.js",
+  "scripts": {
+    "configuration": "tsc --showConfig",
+    "construction": "tsc"
+  }
+}
