@@ -7,14 +7,17 @@
         <meta name="author" content="Faded and Styleex" />
         <meta name="description" content="Barcode scanner for TOO Project" />
 
+        <script src="https://cdn.jsdelivr.net/npm/@ericblade/quagga2/dist/quagga.js"></script>
         <script src="./js/camera.js"></script>
     </head>
     <body>
         <h1 align="center"><em>Barcode scanner</em></h1>
         <h2 align="center">Press on the camera below, accept permissions if necessary and press again once the barcode is the only thing visible in the frame</h2>
-        <div style="text-align: center;">
-            <video id="camera_feed"></video>
-            <!-- <img id="result_img"> -->
+        <div style="text-align: center; font-weight: bold;">
+            <video id="camera_feed" width="400" height="400" poster="https://cdn-icons-png.flaticon.com/512/685/685655.png"></video>
+            <div>
+                Code captured: <div id="code"></div>
+            </div>  
         </div>
     </body>
 </html>

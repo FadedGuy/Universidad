@@ -4,10 +4,16 @@
   "description": "Project made by Faded and Styleex for TOO course",
   "licence": "MIT",
   "author": "Faded and Styleex",
-
   "main": "js/selfie.js",
   "scripts": {
     "configuration": "tsc --showConfig",
     "construction": "tsc"
+  },
+  "dependencies": {
+    "@ericblade/quagga2": "^1.7.6"
+  },
+  "devDependencies": {
+    "@ericblade/quagga2": "^1.7.6",
+    "@types/node": "^18.11.3"
   }
 }

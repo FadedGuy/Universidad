@@ -1,13 +1,13 @@
 {
   "compilerOptions": {
     "baseUrl": ".",
-    "module": "ES6",
     "moduleResolution": "node",
     "noImplicitAny": true,
+    "allowSyntheticDefaultImports": true,
     "outDir": "js",
     "sourceMap": true,
     "strict": true,
-    "target": "ES2017"
+    "target": "ES6"
   },
   "include": [
     "ts/**/*"
