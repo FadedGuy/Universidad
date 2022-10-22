@@ -71,11 +71,12 @@ window.document.onreadystatechange = _DOM_ready;
                     locate: true, // try to locate the barcode in the image
                     src: _working_canvas.toDataURL("image/png") // or 'data:image/jpg;base64,' + data
                 }, function(result: any){
+                    const _code_label = window.document.getElementById('code') as HTMLDivElement;
                     if(result.codeResult) {
-                        const _code_label = window.document.getElementById('code') as HTMLDivElement;
                         _code_label.textContent = result.codeResult.code;
                         console.log("result", result.codeResult.code);
                     } else {
+                        _code_label.textContent = "not detected";
                         console.log("not detected");
                     }
                 });
