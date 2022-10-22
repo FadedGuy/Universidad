@@ -64,12 +64,13 @@ window.DOM_ready.then(() => {
                     locate: true,
                     src: _working_canvas.toDataURL("image/png") // or 'data:image/jpg;base64,' + data
                 }, function (result) {
-                    if (result.codeResult) {
-                        const _code_label = window.document.getElementById('code');
+                    const _code_label = window.document.getElementById('code');
+                    if (result.codeResult !== null) {
                         _code_label.textContent = result.codeResult.code;
                         console.log("result", result.codeResult.code);
                     }
                     else {
+                        _code_label.textContent = "not detected";
                         console.log("not detected");
                     }
                 });
