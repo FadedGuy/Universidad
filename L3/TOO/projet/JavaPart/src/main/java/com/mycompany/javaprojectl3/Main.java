@@ -1,5 +1,4 @@
 package com.mycompany.javaprojectl3;
-import java.io.*;
 import org.glassfish.tyrus.server.*;
 
 public class Main {
@@ -10,7 +9,7 @@ public class Main {
 //            System.setProperty("http.proxyPort", "3128");
 //        }
     
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws java.io.IOException, javax.websocket.DeploymentException {
 //        String bar_code = "716270001660"; // string given by WebSocket
 //        System.out.println("OpenFoodFacts: " + OpenFoodFacts.getNutriScore(bar_code)); 
 //        
@@ -18,7 +17,7 @@ public class Main {
 //        System.out.println("OpenFoodFacts: " + OpenFoodFacts.getNutriScore(bar_code)); 
         
         Server server = new Server("localhost", 19992, "/", null, Endpoint.class);
-        try{
+        try {
             server.start();
             System.out.println("\n**Press any key to stop the server..**\n");
             java.awt.Desktop.getDesktop().browse(java.nio.file.FileSystems.getDefault().getPath("frontend/index.html").toUri());
@@ -29,7 +28,7 @@ public class Main {
             System.out.println("\n@@@\n" + "@@@\n");
         } catch(Exception e){
             e.printStackTrace();
-        } finally{
+        } finally {
             server.stop();
         }
     }

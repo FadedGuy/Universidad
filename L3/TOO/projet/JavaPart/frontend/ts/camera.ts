@@ -1,36 +1,38 @@
-
 declare const Quagga: any;
 
 let webSocket: WebSocket;
 let wsUrl = "ws://localhost:" + 19992 + "/bc_ws";
 
-function connect(){
-    if(webSocket !== undefined && webSocket.readyState !== WebSocket.CLOSED){
+function connect() {
+    if(webSocket !== undefined && webSocket.readyState !== WebSocket.CLOSED) {
         return;
     }
     console.log("Trying to establish a connection to: " + wsUrl);
 
     webSocket = new WebSocket(wsUrl);
     
-    webSocket.onopen = function(event: any){
+    webSocket.onopen = function() {
         console.log("Connected!");
     };
 
-    webSocket.onmessage = function(event: any){
+    webSocket.onmessage = (event: any) => {
+        let _nutriScore = window.document.getElementById('nutri') as HTMLDivElement;
+        _nutriScore.textContent = event.data.toUpperCase();
         console.log("onmessage: " + event.data);
     };
     
-    webSocket.onclose = function(event: any){
+    webSocket.onclose = function() {
         console.log("Connection closed");
     };
 }
 
-function send(){
-    let txt = document.getElementById("code") as HTMLDivElement;
-    webSocket.send(txt.textContent === null ? "" : txt.textContent);
+function send() {
+    let codeTxt = document.getElementById("code") as HTMLDivElement;
+
+    webSocket.send(codeTxt.textContent === null ? "" : codeTxt.textContent);
 }
 
-function closeSocket(){
+function closeSocket() {
     webSocket.close();
 }
 
@@ -66,7 +68,7 @@ window.document.onreadystatechange = _DOM_ready;
 // Looking at device capabilities:
     // window.alert(JSON.stringify(window.navigator.mediaDevices.getSupportedConstraints()));
 
-    let constraints: { audio: boolean, video: boolean | { facingMode: 'user' } } = {audio: false, video: true};
+    let constraints: {audio: boolean, video: boolean | {facingMode: 'user'}} = {audio: false, video: true};
     if (window.navigator.mediaDevices.getSupportedConstraints().hasOwnProperty('facingMode')) {
         constraints = {audio: false, video: {facingMode: 'user'}}; // Selfie mode...
     }
@@ -105,7 +107,7 @@ window.document.onreadystatechange = _DOM_ready;
                     },
                     locate: true, // try to locate the barcode in the image
                     src: _working_canvas.toDataURL("image/png") // or 'data:image/jpg;base64,' + data
-                }, function(result: any){
+                }, function(result: any) {
                     const _code_label = window.document.getElementById('code') as HTMLDivElement;
                     if(result.codeResult !== null) {
                         _code_label.textContent = result.codeResult.code;

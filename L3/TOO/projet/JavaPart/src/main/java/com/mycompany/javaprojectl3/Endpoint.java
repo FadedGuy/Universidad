@@ -1,17 +1,7 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.mycompany.javaprojectl3;
-
 import javax.websocket.*;
 import javax.websocket.server.ServerEndpoint;
-import java.io.IOException;
 
-/**
- *
- * @author faded
- */
 @ServerEndpoint(value="/bc_ws")
 public class Endpoint {
     @OnOpen
@@ -20,10 +10,10 @@ public class Endpoint {
     }
     
     @OnMessage
-    public void onMessage(String txt, Session session) throws IOException {
+    public void onMessage(String txt, Session session) throws java.io.IOException, javax.websocket.DeploymentException {
         System.out.println("Message received: " + txt);
         System.out.println("OpenFoodFacts: " + OpenFoodFacts.getNutriScore(txt)); 
-        session.getBasicRemote().sendText(txt.toUpperCase());
+        session.getBasicRemote().sendText(OpenFoodFacts.getNutriScore(txt));
     }
 
     @OnClose

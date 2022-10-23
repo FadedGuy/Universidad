@@ -7,19 +7,21 @@ function connect() {
     }
     console.log("Trying to establish a connection to: " + wsUrl);
     webSocket = new WebSocket(wsUrl);
-    webSocket.onopen = function (event) {
+    webSocket.onopen = function () {
         console.log("Connected!");
     };
-    webSocket.onmessage = function (event) {
+    webSocket.onmessage = (event) => {
+        let _nutriScore = window.document.getElementById('nutri');
+        _nutriScore.textContent = event.data.toUpperCase();
         console.log("onmessage: " + event.data);
     };
-    webSocket.onclose = function (event) {
+    webSocket.onclose = function () {
         console.log("Connection closed");
     };
 }
 function send() {
-    let txt = document.getElementById("code");
-    webSocket.send(txt.textContent === null ? "" : txt.textContent);
+    let codeTxt = document.getElementById("code");
+    webSocket.send(codeTxt.textContent === null ? "" : codeTxt.textContent);
 }
 function closeSocket() {
     webSocket.close();

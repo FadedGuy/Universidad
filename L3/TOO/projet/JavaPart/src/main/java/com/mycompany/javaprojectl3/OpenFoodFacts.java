@@ -25,6 +25,10 @@ public class OpenFoodFacts {
         if(nutriScoreGrade.equals("\0")) {
             return "Nutriscore grade could not be found"; 
         }
+        if (nutriScoreGrade.startsWith("\"") && nutriScoreGrade.endsWith("\"")) {
+            String noQuotesNutriScoreGrade = nutriScoreGrade.substring(1, nutriScoreGrade.length() - 1);
+            return noQuotesNutriScoreGrade;
+        }
         return nutriScoreGrade;
     }
 
