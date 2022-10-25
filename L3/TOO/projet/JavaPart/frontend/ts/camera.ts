@@ -17,6 +17,7 @@ function connect() {
 
     webSocket.onmessage = (event: any) => {
         let _nutriScore = window.document.getElementById('nutri') as HTMLDivElement;
+        console.log(event.data);
         _nutriScore.textContent = event.data.toUpperCase();
         console.log("onmessage: " + event.data);
     };
