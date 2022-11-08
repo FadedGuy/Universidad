@@ -1,1 +1,0 @@
-Crear mi propia libreria para simplificar ciertos comportamientos o cosas que se hacen

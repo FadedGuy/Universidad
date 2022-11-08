@@ -3,6 +3,7 @@
 # Visualizar su valor absoluto en escala logaritmica
 import cv2 as cv
 import numpy as np
+import matplotlib.pyplot as plt
 
 img = cv.imread('Ventana.jpg',0)
 if img is None:

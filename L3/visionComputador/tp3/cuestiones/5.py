@@ -11,7 +11,7 @@ import Ruido
 # Cargar una imagen en b&w
 img_original = cv.imread("img.jpg", 0)
 
-# Agregamos ruido "falso" a la imagen
+# Agregamos ruido "falso" a la imagen sea SalyPimienta o RuidoGaussiano
 img_ruido = Ruido.SalyPimienta(img_original)
 # img_ruido = Ruido.RuidoGaussiano(img_original, .3)
 
@@ -41,3 +41,4 @@ cv.namedWindow("Imagen Mediana", cv.WINDOW_NORMAL)
 cv.imshow("Imagen Mediana", img_mediana)
 
 cv.waitKey(0)
+cv.destroyAllWindows()
