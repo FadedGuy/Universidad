@@ -19,6 +19,7 @@
 *.jpg
 *.png
 *.mp4
+__pycache__/
 node_modules/
 /L3/TOO/TP1/Bar_code.Java/target/
 /L3/TOO/TP2/N_INSEE/target/
