@@ -1,0 +1,161 @@
+#include <algorithm>
+#include <boost/graph/adjacency_list.hpp>
+#include <boost/graph/depth_first_search.hpp>
+#include <boost/graph/graphviz.hpp>
+#include <boost/graph/reverse_graph.hpp>
+#include <boost/graph/graph_utility.hpp>
+
+#include <iostream>
+
+struct VertexProperties{
+    unsigned id;
+
+    VertexProperties() : id(0) {}
+    VertexProperties(unsigned _id): id(_id){}
+};
+
+typedef boost::adjacency_list<
+    boost::vecS,
+    boost::vecS,
+    boost::bidirectionalS,
+    VertexProperties
+> Graph;
+
+class custom_dfs_visitor_end : public boost::default_dfs_visitor{
+    private:
+        boost::shared_ptr<std::vector<int>> vv;
+
+    public:
+        custom_dfs_visitor_end() : vv(new std::vector<int>) {}
+        
+        template <typename Vertex, typename Graph>
+        void finish_vertex(Vertex u, const Graph &g) const {
+            VertexProperties const &vProperties = g[u];
+
+            // std::cout << "Fini id: " << vProperties.id << "\n";
+
+            vv->push_back(g[u].id);
+        }
+        
+        std::vector<int> &GetVector() const {return *vv;}
+};
+
+class custom_dfs_visitor_found : public boost::default_dfs_visitor{
+    private:
+        boost::shared_ptr<std::vector<int>> vv;
+
+    public:
+        custom_dfs_visitor_found() : vv(new std::vector<int>) {}
+        
+        template <typename Vertex, typename Graph>
+        void discover_vertex(Vertex u, const Graph &g) const {
+            VertexProperties const &fProperties = g[u];
+
+            // std::cout << "New id: " << vProperties.id << "\n";
+
+            vv->push_back(g[u].id);
+        }
+        
+        std::vector<int> &GetVector() const {return *vv;}
+};
+
+int getIndexVec(std::vector<std::string> names, std::string search){
+    for(int i = 0; i < names.size(); i ++){
+        if(names[i] == search){
+            return i;
+        }
+    }
+    return -1;
+}
+
+int main(int, char*[]){
+    typedef boost::graph_traits<Graph>::vertex_descriptor vertex_t;
+    typedef boost::graph_traits<Graph>::edge_descriptor edge_t;
+
+    std::string filenameInit = "init.dot";
+    // std::string filenameRes = "res.dot";
+    std::ofstream outInit(filenameInit.c_str());
+    // std::ofstream outRes(filenameRes.c_str());
+
+    custom_dfs_visitor_end vis;
+    const std::vector<std::string> names = {"A", "B", "C", "D", "E", "F", "G", "H"};
+    Graph g;
+
+    std::vector<vertex_t> vertices;
+    for(int i = 1; i <= names.size(); i++){
+        vertices.push_back(boost::add_vertex(VertexProperties(i), g));
+    }
+
+    boost::add_edge(vertices[0], vertices[1], g);
+    boost::add_edge(vertices[0], vertices[4], g);
+    boost::add_edge(vertices[1], vertices[2], g);
+    boost::add_edge(vertices[1], vertices[4], g);
+    boost::add_edge(vertices[2], vertices[5], g);
+    boost::add_edge(vertices[2], vertices[6], g);
+    boost::add_edge(vertices[3], vertices[6], g);
+    boost::add_edge(vertices[3], vertices[7], g);
+    boost::add_edge(vertices[4], vertices[5], g);
+    boost::add_edge(vertices[5], vertices[1], g);
+    boost::add_edge(vertices[6], vertices[5], g);
+    boost::add_edge(vertices[7], vertices[6], g);
+
+    std::cout << "Etape 1: Recherche en profondeur sur le graphe\n";
+    boost::depth_first_search(g, boost::visitor(vis));
+
+    std::cout << "Etape 1: Trier liste dans l'ordre decroissant de date de fin\n";
+    std::vector<int> rVis = vis.GetVector();
+    std::reverse(rVis.begin(), rVis.end());
+
+    std::cout << "Etape 2: Creation du graphe dual\n";
+    custom_dfs_visitor_found rVisitor;
+    auto indexmap = boost::get(boost::vertex_index, g);
+    auto colormap = boost::make_vector_property_map<boost::default_color_type>(indexmap);
+
+    std::cout << "Etape 2: Parcours en profondeur partant de la liste\n";
+    int sizeVisitor = 0;
+    std::vector<std::vector<std::string>> cfc;
+
+    while(rVisitor.GetVector().size() != rVis.size()){
+        std::cout << "Etape 2: Recherche a partir de " << names[rVis[sizeVisitor]-1] << "\n";
+        boost::depth_first_visit(boost::make_reverse_graph(g), rVis[sizeVisitor]-1, rVisitor, colormap);
+
+        std::vector<int> nodesList = rVisitor.GetVector();
+        std::vector<std::string> list;
+        for(int i = sizeVisitor; i < nodesList.size(); i++){
+            list.push_back(names[nodesList[i]-1]);
+        }
+        cfc.push_back(list);
+        
+        sizeVisitor = rVisitor.GetVector().size();
+    }
+
+    // Graph result;
+    // std::vector<std::string> namesRes;
+
+    std::cout << "Composants fortement connexe:\n";
+    for(auto composant : cfc){
+        // bool pass = false;
+        for(auto node : composant){
+            std::cout << node << " ";
+            // if(composant.size() == 1){
+            //     namesRes.push_back(node);
+            //     boost::add_vertex(VertexProperties(getIndexVec(names, node)+1), result);
+            // }
+            // else if(!pass){
+            //     namesRes.push_back(node+"1");
+            //     boost::add_vertex(VertexProperties(getIndexVec(names, node)+1), result);
+            //     pass = true;
+            // }
+        }
+        std::cout << "\n"; 
+    }
+
+    std::cout << "Make graphic\n";
+    boost::write_graphviz(outInit, g, boost::make_label_writer(&names[0]));
+    // boost::write_graphviz(outRes, result, boost::make_label_writer(&namesRes[0]));
+    system("neato -Tpng init.dot > init.png");
+    // system("neato -Tpng res.dot > res.png");
+
+    std::cout << "Finished\n";
+    return 0;
+}
