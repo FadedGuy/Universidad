@@ -78,7 +78,8 @@ int main(int, char*[]){
     // std::ofstream outRes(filenameRes.c_str());
 
     custom_dfs_visitor_end vis;
-    const std::vector<std::string> names = {"A", "B", "C", "D", "E", "F", "G", "H"};
+    // const std::vector<std::string> names = {"A", "B", "C", "D", "E", "F", "G", "H"};
+    const std::vector<std::string> names = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15"};
     Graph g;
 
     std::vector<vertex_t> vertices;
@@ -87,17 +88,68 @@ int main(int, char*[]){
     }
 
     boost::add_edge(vertices[0], vertices[1], g);
-    boost::add_edge(vertices[0], vertices[4], g);
+    boost::add_edge(vertices[0], vertices[3], g);
+    boost::add_edge(vertices[0], vertices[9], g);
+    boost::add_edge(vertices[0], vertices[10], g);
+    boost::add_edge(vertices[0], vertices[14], g);
+
     boost::add_edge(vertices[1], vertices[2], g);
-    boost::add_edge(vertices[1], vertices[4], g);
-    boost::add_edge(vertices[2], vertices[5], g);
+    boost::add_edge(vertices[1], vertices[5], g);
+    boost::add_edge(vertices[1], vertices[8], g);
+    boost::add_edge(vertices[1], vertices[13], g);
+
+    boost::add_edge(vertices[2], vertices[3], g);
     boost::add_edge(vertices[2], vertices[6], g);
-    boost::add_edge(vertices[3], vertices[6], g);
-    boost::add_edge(vertices[3], vertices[7], g);
-    boost::add_edge(vertices[4], vertices[5], g);
-    boost::add_edge(vertices[5], vertices[1], g);
-    boost::add_edge(vertices[6], vertices[5], g);
-    boost::add_edge(vertices[7], vertices[6], g);
+
+    boost::add_edge(vertices[3], vertices[4], g);    
+    boost::add_edge(vertices[3], vertices[8], g);    
+    boost::add_edge(vertices[3], vertices[14], g);    
+
+    boost::add_edge(vertices[4], vertices[5], g);    
+    boost::add_edge(vertices[4], vertices[7], g);    
+    boost::add_edge(vertices[4], vertices[11], g);
+
+    boost::add_edge(vertices[5], vertices[8], g);    
+    boost::add_edge(vertices[5], vertices[13], g);
+
+    boost::add_edge(vertices[6], vertices[5], g);    
+    boost::add_edge(vertices[6], vertices[14], g);
+
+    boost::add_edge(vertices[7], vertices[5], g);    
+    boost::add_edge(vertices[7], vertices[6], g);    
+    boost::add_edge(vertices[7], vertices[10], g);
+
+    boost::add_edge(vertices[8], vertices[6], g);    
+    boost::add_edge(vertices[8], vertices[7], g);    
+    boost::add_edge(vertices[8], vertices[9], g);
+
+    boost::add_edge(vertices[9], vertices[12], g);
+
+    boost::add_edge(vertices[10], vertices[9], g);    
+    boost::add_edge(vertices[10], vertices[14], g);
+
+    boost::add_edge(vertices[11], vertices[10], g);   
+
+    boost::add_edge(vertices[12], vertices[11], g);    
+
+    boost::add_edge(vertices[13], vertices[10], g);    
+    boost::add_edge(vertices[13], vertices[11], g);
+
+    boost::add_edge(vertices[14], vertices[9], g);    
+    boost::add_edge(vertices[14], vertices[13], g);    
+
+    // boost::add_edge(vertices[0], vertices[1], g);
+    // boost::add_edge(vertices[0], vertices[4], g);
+    // boost::add_edge(vertices[1], vertices[2], g);
+    // boost::add_edge(vertices[1], vertices[4], g);
+    // boost::add_edge(vertices[2], vertices[5], g);
+    // boost::add_edge(vertices[2], vertices[6], g);
+    // boost::add_edge(vertices[3], vertices[6], g);
+    // boost::add_edge(vertices[3], vertices[7], g);
+    // boost::add_edge(vertices[4], vertices[5], g);
+    // boost::add_edge(vertices[5], vertices[1], g);
+    // boost::add_edge(vertices[6], vertices[5], g);
+    // boost::add_edge(vertices[7], vertices[6], g);
 
     std::cout << "Etape 1: Recherche en profondeur sur le graphe\n";
     boost::depth_first_search(g, boost::visitor(vis));
@@ -153,7 +205,7 @@ int main(int, char*[]){
     std::cout << "Make graphic\n";
     boost::write_graphviz(outInit, g, boost::make_label_writer(&names[0]));
     // boost::write_graphviz(outRes, result, boost::make_label_writer(&namesRes[0]));
-    system("neato -Tpng init.dot > init.png");
+    system("dot -Tpng init.dot > init.png");
     // system("neato -Tpng res.dot > res.png");
 
     std::cout << "Finished\n";
