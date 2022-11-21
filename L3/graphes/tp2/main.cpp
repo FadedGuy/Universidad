@@ -2,10 +2,11 @@
 #include <boost/graph/graphviz.hpp>
 #include <boost/graph/graph_utility.hpp>
 #include <boost/graph/kruskal_min_spanning_tree.hpp>
-// #include <boost/graph/prim_minimum_spanning_tree.hpp>
+#include <boost/graph/prim_minimum_spanning_tree.hpp>
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <chrono>
 
 struct VertexProperties{
     unsigned id;
@@ -19,6 +20,11 @@ typedef boost::adjacency_matrix<
     VertexProperties,
     boost::property<boost::edge_weight_t, int>
 > Graph;
+
+typedef boost::graph_traits<Graph>::vertex_descriptor vertex_t;
+typedef boost::graph_traits<Graph>::edge_descriptor edge_t;    
+typedef std::pair<int, int> E;
+    
 
 void print_all(Graph graph, std::vector<std::string> names){
     std::cout << "vertex: \n";
@@ -34,11 +40,53 @@ void print_all(Graph graph, std::vector<std::string> names){
     std::cout << "\n";
 }
 
-int main(int, char*[]){
-    typedef boost::graph_traits<Graph>::vertex_descriptor vertex_t;
-    typedef boost::graph_traits<Graph>::edge_descriptor edge_t;    
-    typedef std::pair<int, int> E;
+// O(|E| log |E|)
+// Plus rapide que le graphe connexe est pauvre en aretes (degre faible)
+// Moins d'aretes = mieux
+void applyKrukal(Graph g){
+    using namespace boost;
+
+    property_map<Graph, edge_weight_t>::type weight = get(edge_weight, g);
+    std::vector<edge_t> mst;
+
+    kruskal_minimum_spanning_tree(g, std::back_inserter(mst));
+
+    std::cout << "Print the edges in the MST:\n";
+    for(std::vector<edge_t>::iterator ei = mst.begin(); ei != mst.end(); ++ei){
+        std::cout << source(*ei, g)+1 << "-->" << target(*ei, g)+1 << " with a weight of: "
+                  << weight[*ei] << "\n";
+        
+    }
+
+    int total_weight = 0;
+    for(int e = 0; e < mst.size(); ++e){
+        total_weight += get(weight, mst[e]);
+    }
+    std::cout << "total weight: " << total_weight << "\n";
     
+}
+
+// O(V^2)
+// Quand le graphe est tres dense et il y a beaucoup d'aretes
+// Plus dense
+void applyPrim(Graph g){
+    using namespace boost;
+
+    std::vector<vertex_t> parent(num_vertices (g));
+    prim_minimum_spanning_tree(g, &parent[0]);
+
+    property_map<Graph, edge_weight_t>::type weight = get(edge_weight, g);
+    int total_weight = 0;
+    for(int v = 0; v < num_vertices(g); ++v){
+        if(parent[v] != v){
+            total_weight += get(weight, edge(parent[v], v, g).first);
+        }
+    }
+
+    std::cout << "total weight: " << total_weight << "\n";
+}
+
+int main(int, char*[]){
     int nodes = 34;
     E edge_array[] = {
         E(0, 1), E(0, 2), E(0, 5), E(0, 10),
@@ -119,24 +167,35 @@ int main(int, char*[]){
 
     
     // Algo de Kruskal
-    boost::property_map<Graph, boost::edge_weight_t>::type weight = get(boost::edge_weight, g);
-    std::vector<edge_t> mst;
+    auto start = std::chrono::high_resolution_clock::now();
+    applyKrukal(g);
+    auto end = std::chrono::high_resolution_clock::now();
 
-    boost::kruskal_minimum_spanning_tree(g, std::back_inserter(mst));
+    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end-start);
+    std::cout << "Krukal time: " << duration.count() << "\n";
+    // Create new graph that represents the resulting MST
 
-    std::cout << "Print the edges in the MST:\n";
-    for(std::vector<edge_t>::iterator ei = mst.begin(); ei != mst.end(); ++ei){
-        std::cout << boost::source(*ei, g)+1 << "-->" << boost::target(*ei, g)+1 << " with a weight of: "
-                  << weight[*ei] << "\n";
-        
-    }
+    // Algo de Prim
+    start = std::chrono::high_resolution_clock::now();
+    applyPrim(g);
+    end = std::chrono::high_resolution_clock::now();
 
-    int total_weight = 0;
-    for(int e = 0; e < mst.size(); ++e){
-        total_weight += get(weight, mst[e]);
-    }
-    std::cout << "total weight: " << total_weight << "\n";
+    duration = std::chrono::duration_cast<std::chrono::microseconds>(end-start);
+    std::cout << "Prim time: " << duration.count() << "\n";
 
+    // CR RAISON
+    // Analizar la complexidad y el tiempo de ejecuccion de cada algoritmo asi como 
+    // cual es mejor para cierto caso, dependiendo de por ejemplo la densidad 
+    // Tener en cuenta que estamos usando una matriz de adyacencias en ambos casos, por lo que
+    // que el performance podria disminuir 
+
+    // Diria que hay dos maneras de razonarlo y sacar una solucion; la primera de ellas
+    // es viendo la densidad del grafo y en base a eso determinar si hacer un algoritmo u otro
+    // O usar prim ya qie de todas maneras deberian de estar fuertemente conectados y no deberia de haber
+    // componentes desconectados y por la naturaleza de una red seria mejor usar Prim ya que 
+    // comunmente una red es mas densa
+
+    // Como podemos determinar la densidad de un grafo en terminos generales?
 
     // print_all(g, names);
     std::string filenameInit = "init.dot";
