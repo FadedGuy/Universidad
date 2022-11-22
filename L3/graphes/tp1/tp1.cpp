@@ -59,26 +59,11 @@ class custom_dfs_visitor_found : public boost::default_dfs_visitor{
         std::vector<int> &GetVector() const {return *vv;}
 };
 
-int getIndexVec(std::vector<std::string> names, std::string search){
-    for(int i = 0; i < names.size(); i ++){
-        if(names[i] == search){
-            return i;
-        }
-    }
-    return -1;
-}
-
 int main(int, char*[]){
     typedef boost::graph_traits<Graph>::vertex_descriptor vertex_t;
     typedef boost::graph_traits<Graph>::edge_descriptor edge_t;
 
-    std::string filenameInit = "init.dot";
-    // std::string filenameRes = "res.dot";
-    std::ofstream outInit(filenameInit.c_str());
-    // std::ofstream outRes(filenameRes.c_str());
-
     custom_dfs_visitor_end vis;
-    // const std::vector<std::string> names = {"A", "B", "C", "D", "E", "F", "G", "H"};
     const std::vector<std::string> names = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15"};
     Graph g;
 
@@ -96,7 +81,6 @@ int main(int, char*[]){
     boost::add_edge(vertices[1], vertices[2], g);
     boost::add_edge(vertices[1], vertices[5], g);
     boost::add_edge(vertices[1], vertices[8], g);
-    boost::add_edge(vertices[1], vertices[13], g);
 
     boost::add_edge(vertices[2], vertices[3], g);
     boost::add_edge(vertices[2], vertices[6], g);
@@ -138,19 +122,6 @@ int main(int, char*[]){
     boost::add_edge(vertices[14], vertices[9], g);    
     boost::add_edge(vertices[14], vertices[13], g);    
 
-    // boost::add_edge(vertices[0], vertices[1], g);
-    // boost::add_edge(vertices[0], vertices[4], g);
-    // boost::add_edge(vertices[1], vertices[2], g);
-    // boost::add_edge(vertices[1], vertices[4], g);
-    // boost::add_edge(vertices[2], vertices[5], g);
-    // boost::add_edge(vertices[2], vertices[6], g);
-    // boost::add_edge(vertices[3], vertices[6], g);
-    // boost::add_edge(vertices[3], vertices[7], g);
-    // boost::add_edge(vertices[4], vertices[5], g);
-    // boost::add_edge(vertices[5], vertices[1], g);
-    // boost::add_edge(vertices[6], vertices[5], g);
-    // boost::add_edge(vertices[7], vertices[6], g);
-
     std::cout << "Etape 1: Recherche en profondeur sur le graphe\n";
     boost::depth_first_search(g, boost::visitor(vis));
 
@@ -162,6 +133,7 @@ int main(int, char*[]){
     custom_dfs_visitor_found rVisitor;
     auto indexmap = boost::get(boost::vertex_index, g);
     auto colormap = boost::make_vector_property_map<boost::default_color_type>(indexmap);
+    Graph gRes = g;
 
     std::cout << "Etape 2: Parcours en profondeur partant de la liste\n";
     int sizeVisitor = 0;
@@ -181,33 +153,26 @@ int main(int, char*[]){
         sizeVisitor = rVisitor.GetVector().size();
     }
 
-    // Graph result;
-    // std::vector<std::string> namesRes;
-
     std::cout << "Composants fortement connexe:\n";
     for(auto composant : cfc){
-        // bool pass = false;
         for(auto node : composant){
             std::cout << node << " ";
-            // if(composant.size() == 1){
-            //     namesRes.push_back(node);
-            //     boost::add_vertex(VertexProperties(getIndexVec(names, node)+1), result);
-            // }
-            // else if(!pass){
-            //     namesRes.push_back(node+"1");
-            //     boost::add_vertex(VertexProperties(getIndexVec(names, node)+1), result);
-            //     pass = true;
-            // }
         }
         std::cout << "\n"; 
     }
 
-    std::cout << "Make graphic\n";
-    boost::write_graphviz(outInit, g, boost::make_label_writer(&names[0]));
-    // boost::write_graphviz(outRes, result, boost::make_label_writer(&namesRes[0]));
-    system("dot -Tpng init.dot > init.png");
-    // system("neato -Tpng res.dot > res.png");
+    std::cout << "Faire graphe\n";
+    std::string filenameInit = "init.dot";
+    std::ofstream outInit(filenameInit.c_str());
+    std::string filenameRes = "res.dot";
+    std::ofstream outRes(filenameRes.c_str());
 
-    std::cout << "Finished\n";
+    boost::write_graphviz(outInit, g, boost::make_label_writer(&names[0]));
+    system("dot -Tpng init.dot > init.png");
+
+    boost::write_graphviz(outRes, g, boost::make_label_writer(&names[0]));
+    system("dot -Tpng init.dot > init.png");
+
+    std::cout << "Fini\n";
     return 0;
 }
