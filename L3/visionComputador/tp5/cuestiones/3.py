@@ -2,8 +2,8 @@ import cv2 as cv
 
 img_original = cv.imread("imgs/formas.JPG")
 
-img_envolturas = img_original.copy()
 img_bnw = cv.cvtColor(img_original, cv.COLOR_BGR2GRAY)
+img_envolturas = img_bnw.copy()
 
 retval, img_binary = cv.threshold(img_bnw, 150, 255, cv.THRESH_BINARY_INV)
 countours, hierarchy = cv.findContours(img_binary, cv.RETR_CCOMP, cv.CHAIN_APPROX_SIMPLE)
