@@ -18,13 +18,12 @@ struct VertexProperties{
 typedef boost::adjacency_matrix<
     boost::directedS,
     VertexProperties,
-    boost::property<boost::edge_weight_t, int>
+    boost::property<boost::edge_weight_t, int, boost::property<boost::edge_color_t, boost::default_color_type>>
 > Graph;
 
 typedef boost::graph_traits<Graph>::vertex_descriptor vertex_t;
 typedef boost::graph_traits<Graph>::edge_descriptor edge_t;    
 typedef std::pair<int, int> E;
-    
 
 void print_all(Graph graph, std::vector<std::string> names){
     std::cout << "vertex: \n";
@@ -40,23 +39,22 @@ void print_all(Graph graph, std::vector<std::string> names){
     std::cout << "\n";
 }
 
-// O(|E| log |E|)
-// Plus rapide que le graphe connexe est pauvre en aretes (degre faible)
-// Moins d'aretes = mieux
-void applyKrukal(Graph g){
+std::vector<edge_t> applyKrukal(Graph g){
     using namespace boost;
 
     property_map<Graph, edge_weight_t>::type weight = get(edge_weight, g);
     std::vector<edge_t> mst;
 
+    auto start = std::chrono::high_resolution_clock::now();
     kruskal_minimum_spanning_tree(g, std::back_inserter(mst));
-
-    std::cout << "Print the edges in the MST:\n";
-    for(std::vector<edge_t>::iterator ei = mst.begin(); ei != mst.end(); ++ei){
-        std::cout << source(*ei, g)+1 << "-->" << target(*ei, g)+1 << " with a weight of: "
-                  << weight[*ei] << "\n";
-        
-    }
+    auto end = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end-start);
+    std::cout << "Kruskal time: " << duration.count() << "ms\n";
+    // std::cout << "Print the edges in the MST:\n";
+    // for(std::vector<edge_t>::iterator ei = mst.begin(); ei != mst.end(); ++ei){
+    //     std::cout << source(*ei, g)+1 << "-->" << target(*ei, g)+1 << " with a weight of: "
+    //               << weight[*ei] << "\n";
+    // }
 
     int total_weight = 0;
     for(int e = 0; e < mst.size(); ++e){
@@ -64,17 +62,20 @@ void applyKrukal(Graph g){
     }
     std::cout << "total weight: " << total_weight << "\n";
     
+    return mst;
 }
 
-// O(V^2)
-// Quand le graphe est tres dense et il y a beaucoup d'aretes
-// Plus dense
 void applyPrim(Graph g){
     using namespace boost;
 
     std::vector<vertex_t> parent(num_vertices (g));
+    auto start = std::chrono::high_resolution_clock::now();
     prim_minimum_spanning_tree(g, &parent[0]);
+    auto end = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end-start);
+    std::cout << "Prim time: " << duration.count() << "ms\n";
 
+    
     property_map<Graph, edge_weight_t>::type weight = get(edge_weight, g);
     int total_weight = 0;
     for(int v = 0; v < num_vertices(g); ++v){
@@ -85,6 +86,33 @@ void applyPrim(Graph g){
 
     std::cout << "total weight: " << total_weight << "\n";
 }
+
+// Colorer les arc/aretes 
+class color_writer{
+    private:
+        Graph& graph;
+        std::vector<edge_t>& mst;
+
+    public:
+        color_writer(Graph& g, std::vector<edge_t>& mst) : graph(g), mst(mst) {}
+
+        template <class VertexorEdge>
+        void operator()(std::ostream& out, const VertexorEdge& e) const{
+            bool has = false;
+            for(std::vector<edge_t>::iterator ei = mst.begin(); ei != mst.end(); ++ei){
+                if (boost::source(e, graph) == boost::source(*ei, graph) && boost::target(e, graph) == boost::target(*ei, graph)){
+                    out << "[color=navy]";
+                    has = true;
+                }
+            }
+            if(!has){
+                out << "[color=gray]";
+            }
+            
+            boost::property_map<Graph, boost::edge_weight_t>::type weight = get(boost::edge_weight, graph);
+            out << "[label=\"" << get(weight, edge(boost::source(e, graph), boost::target(e, graph), graph).first) << "\"]";
+        }
+};
 
 int main(int, char*[]){
     int nodes = 34;
@@ -167,43 +195,18 @@ int main(int, char*[]){
 
     
     // Algo de Kruskal
-    auto start = std::chrono::high_resolution_clock::now();
-    applyKrukal(g);
-    auto end = std::chrono::high_resolution_clock::now();
-
-    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end-start);
-    std::cout << "Krukal time: " << duration.count() << "\n";
-    // Create new graph that represents the resulting MST
+    std::vector<edge_t> mst;
+    mst = applyKrukal(g);
 
     // Algo de Prim
-    start = std::chrono::high_resolution_clock::now();
-    applyPrim(g);
-    end = std::chrono::high_resolution_clock::now();
-
-    duration = std::chrono::duration_cast<std::chrono::microseconds>(end-start);
-    std::cout << "Prim time: " << duration.count() << "\n";
-
-    // CR RAISON
-    // Analizar la complexidad y el tiempo de ejecuccion de cada algoritmo asi como 
-    // cual es mejor para cierto caso, dependiendo de por ejemplo la densidad 
-    // Tener en cuenta que estamos usando una matriz de adyacencias en ambos casos, por lo que
-    // que el performance podria disminuir 
-
-    // Diria que hay dos maneras de razonarlo y sacar una solucion; la primera de ellas
-    // es viendo la densidad del grafo y en base a eso determinar si hacer un algoritmo u otro
-    // O usar prim ya qie de todas maneras deberian de estar fuertemente conectados y no deberia de haber
-    // componentes desconectados y por la naturaleza de una red seria mejor usar Prim ya que 
-    // comunmente una red es mas densa
-
-    // Como podemos determinar la densidad de un grafo en terminos generales?
+    // applyPrim(g);
 
     // print_all(g, names);
     std::string filenameInit = "init.dot";
     std::ofstream outfig(filenameInit.c_str());    
 
-    boost::write_graphviz(outfig, g, boost::make_label_writer(&names[0]));
+    boost::write_graphviz(outfig, g, boost::make_label_writer(&names[0]), color_writer(g, mst));
     system("dot -Tpng init.dot > init.png");
-
 
     return 0;
 }
