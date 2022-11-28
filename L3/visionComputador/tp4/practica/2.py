@@ -5,14 +5,14 @@ from enum import Enum
 import math
 
 class Imagenes(Enum):
-    ALL1 = "combinacion1.jpg"
-    ALL2 = "combinacion2.jpg"
-    GOMA1 = "goma1.jpg"
-    GOMA2 = "goma2.jpg"
-    LAPIZ1 = "lapiz1.jpg"
-    LAPIZ2 = "lapiz2.jpg"
-    ROT1 = "rotulador1.jpg"
-    ROT2 = "rotulador2.jpg"
+    ALL1 = "ALL1.jpg"
+    ALL2 = "ALL2.jpg"
+    GOMA1 = "GOMA1.jpg"
+    GOMA2 = "GOMA2.jpg"
+    LAPIZ1 = "LAPIZ1.jpg"
+    LAPIZ2 = "LAPIZ2.jpg"
+    ROT1 = "ROT1.jpg"
+    ROT2 = "ROT2.jpg"
 
 
 def binarizar(img):
@@ -25,7 +25,7 @@ def binarizar(img):
     # plt.show()
 
     # 40 valor mas optimo
-    retval, img_binaria = cv.threshold(img_limpia, 40, 255, type=cv.THRESH_BINARY_INV+cv.THRESH_OTSU)
+    retval, img_binaria = cv.threshold(img_limpia, 40, 255, type=cv.THRESH_BINARY_INV)
     # retval, img_binaria = cv.threshold(img_limpia, 40, 255, type=cv.THRESH_BINARY_INV+cv.THRESH_OTSU)
 
     # Pasamos de nuevo un filtro de mediana en el caso que el umbral no haya sido el mas optimo
@@ -98,7 +98,7 @@ def procesar(_val):
     # cv.imshow(f"After {img.name}", img_clean)
 # plt.show()
 
-img_original, img_binary, img_contour, img_tag, tag_imgs = procesar(f"imgs/{Imagenes.LAPIZ2.value}")
+img_original, img_binary, img_contour, img_tag, tag_imgs = procesar(f"imgs/{Imagenes.GOMA1.value}")
 
 # fig.add_subplot(fila, columna, 1)
 # plt.imshow(img_original, cmap='gray')
