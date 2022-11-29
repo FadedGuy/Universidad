@@ -64,8 +64,89 @@ alter table exemplaires add constraint CK_EXEMPLAIRES_CODOUV check(codouv is not
 alter table exemplaires add constraint CK_EXEMPLAIRES_CODBIB check(codbib is not null);
 
 
+create table personnes as 
+select *
+from TPBD.L2PERSONNES;
+
+alter table personnes add constraint PK_PERSONNES primary key(codpers);
+alter table personnes add constraint FK_PERSONNES_BIBLIOTHEQUES foreign key(codbib) references bibliotheques;
+alter table personnes add constraint CK_PERSONNES_CODBIB check(codbib is not null);
 
 
+create table pret as
+select *
+from TPBD.l2pret;
+
+alter table pret add constraint PK_PRET primary key(codex);
+alter table pret add constraint FK_PRET_EXEMPLAIRES foreign key(codex) references exemplaires;
+alter table pret add constraint FK_PRET_PERSONNES foreign key(codpers) references personnes;
+alter table pret add constraint CK_PRET_CODPERS check(codpers is not null);
 
 
+create table histopret (
+    codex char(5),
+    datepret date,
+    codpers char(4),
+    dateret date,
+    
+    constraint PK_HISTOPRET primary key(codex, datepret),
+    constraint FK_HISTOPRET_EXEMPLAIRES foreign key(codex) references exemplaires,
+    constraint FK_HISTOPRET_PERSONNES foreign key(codpers) references personnes,
+    constraint CK_HISTOPRET_CODPERS check(codpers is not null)
+);
+
+
+create table auteurs(
+    codaut number,
+    nomaut varchar(20),
+    prenomaut varchar(20),
+    
+    constraint PK_AUTEURS primary key(codaut)
+);
+
+create sequence seqcodaut;
+
+create view auteursAux as
+select distinct nomaut, prenomaut
+from tpbd.l2ouvrages;
+
+insert into auteurs 
+select seqcodaut.nextval, nomaut, prenomaut
+from auteursAux;
+
+
+create table ecrit(
+    codaut number,
+    codouv char(4),
+    
+    constraint PK_ECRIT primary key(codaut, codouv),
+    constraint FK_ECRIT_AUTEURS foreign key(codaut) references auteurs,
+    constraint FK_ECRIT_LIVRES foreign key(codouv) references livres
+);
+
+insert into ecrit 
+select a.codaut, o.codouv
+from AUTEURS a, TPBD.L2OUVRAGES o 
+where a.nomaut = o.nomaut
+  and a.prenomaut = o.prenomaut;
+
+
+create table MOTSCLES(
+    codmot char(4),
+    libelleMot varchar(30),
+    codmotpere char(4),
+    
+    constraint PK_MOTSCLES primary key(codmot),
+    constraint FK_MOTSCLES_MOTSCLES foreign key(codmotpere) references motscles
+);
+
+
+create table traite(
+    codouv char(4),
+    codmot char(4),
+    
+    constraint PK_TRAITE primary key(codouv, codmot),
+    constraint FK_TRAITE_OUVRAGES foreign key(codouv) references ouvrages,
+    constraint FK_TRAITE_MOTSCLES foreign key(codmot) references motscles
+);
 
