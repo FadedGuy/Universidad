@@ -14,25 +14,41 @@ class Imagenes(Enum):
     ROT1 = "ROT1.jpg"
     ROT2 = "ROT2.jpg"
 
+def expandHist(img, gamma, p1 = 0, p2 = 255):
+    aux = np.maximum(img, p1)
+    aux2 = np.minimum(aux, p2)
+
+    sub = np.subtract(aux2, p1)
+    img2 = np.true_divide(sub, (p2-p1))
+
+    img3 = np.power(img2, gamma)
+
+    return img3
 
 def binarizar(img):
     # Equalizamos la imagen en blanco y negro para resultar los objetos lo mas posible
     img_limpia = cv.GaussianBlur(img, (25,25), 25, cv.BORDER_CONSTANT)
+    img_limpia = expandHist(img, 0.4)
+
     # img_limpia = cv.equalizeHist(img_limpia)
     # Para obtener el umbral optimo
     # histograma = cv.calcHist([img_limpia], [0], None, [256], [0, 256])
     # plt.plot(histograma)
     # plt.show()
-
+    img_limpia = cv.normalize(img_limpia, None, 255, 0, cv.NORM_MINMAX, cv.CV_8UC1)
     # 40 valor mas optimo
-    retval, img_binaria = cv.threshold(img_limpia, 40, 255, type=cv.THRESH_BINARY_INV)
-    # retval, img_binaria = cv.threshold(img_limpia, 40, 255, type=cv.THRESH_BINARY_INV+cv.THRESH_OTSU)
+    retval, img_binaria = cv.threshold(img_limpia, 80, 255, type=cv.THRESH_BINARY_INV|cv.THRESH_OTSU)
+    # img_binaria = cv.adaptiveThreshold(img_limpia, 255, cv.ADAPTIVE_THRESH_MEAN_C, cv.THRESH_BINARY_INV, 5, 2)
+
+    cv.namedWindow("hi", cv.WINDOW_NORMAL)
+    cv.imshow("hi", img_limpia)
+    cv.waitKey()
 
     # Pasamos de nuevo un filtro de mediana en el caso que el umbral no haya sido el mas optimo
-    # img_binaria_limpia = cv.medianBlur(img_binaria, 25)
+    img_binaria_limpia = cv.medianBlur(img_binaria, 25)
 
-    kernel = cv.getStructuringElement(cv.MORPH_RECT, (35,35))
-    img_binaria_limpia = cv.dilate(img_binaria, kernel)
+    kernel = cv.getStructuringElement(cv.MORPH_RECT, (55,55))
+    img_binaria_limpia = cv.erode(img_binaria_limpia, kernel)
     img_binaria_limpia = cv.morphologyEx(img_binaria_limpia, cv.MORPH_CLOSE, kernel)
 
     return img_binaria_limpia
@@ -98,7 +114,7 @@ def procesar(_val):
     # cv.imshow(f"After {img.name}", img_clean)
 # plt.show()
 
-img_original, img_binary, img_contour, img_tag, tag_imgs = procesar(f"imgs/{Imagenes.GOMA1.value}")
+img_original, img_binary, img_contour, img_tag, tag_imgs = procesar(f"imgs/{Imagenes.LAPIZ2.value}")
 
 # fig.add_subplot(fila, columna, 1)
 # plt.imshow(img_original, cmap='gray')
