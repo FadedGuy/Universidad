@@ -3,14 +3,17 @@ import numpy as np
 import matplotlib.pyplot as plt
 from MiLib import CalculoLBP
 
+# Cargamos las imagenes 
 img_original_1 = cv.imread("imgs/Textura1.jpg", 0)
 img_original_2 = cv.imread("imgs/Textura2.jpg", 0)
 img_original_3 = cv.imread("imgs/Textura3.jpg", 0)
 
+# Obtenemos el histograma de las imagenes
 hist_1 = cv.calcHist([img_original_1], [0], None, [256], [0,256])
 hist_2 = cv.calcHist([img_original_2], [0], None, [256], [0,256])
 hist_3 = cv.calcHist([img_original_3], [0], None, [256], [0,256])
 
+# Realizamos la transformada de Fourir en las imagenes
 fft_1 = np.fft.fft2(img_original_1)
 fft_2 = np.fft.fft2(img_original_2)
 fft_3 = np.fft.fft2(img_original_3)
@@ -22,14 +25,17 @@ img_fft_2 = img_fft_2 / img_fft_2.max()
 img_fft_3 = np.log(np.abs(fft_3) + 0.001)
 img_fft_3 = img_fft_3 / img_fft_3.max()
 
+# Obtenemos el histograma de la LBP
 lbp_1 = CalculoLBP(img_original_1)
 lbp_2 = CalculoLBP(img_original_2)
 lbp_3 = CalculoLBP(img_original_3)
 
-print(cv.compareHist(lbp_1, lbp_1, cv.HISTCMP_CHISQR_ALT))
-print(cv.compareHist(lbp_1, lbp_2, cv.HISTCMP_CHISQR_ALT))
-print(cv.compareHist(lbp_1, lbp_3, cv.HISTCMP_CHISQR_ALT))
+# Comparamos los histogramas LBP entre ellos
+print(cv.compareHist(lbp_2, lbp_1, cv.HISTCMP_CHISQR_ALT))
+print(cv.compareHist(lbp_2, lbp_2, cv.HISTCMP_CHISQR_ALT))
+print(cv.compareHist(lbp_2, lbp_3, cv.HISTCMP_CHISQR_ALT))
 
+# Dibujamos las imagenes, los histogramas y la fft
 columna = 3
 fila = 4
 fig = plt.figure(figsize=(fila, columna))
@@ -63,11 +69,3 @@ fig.add_subplot(fila, columna, 12)
 plt.plot(lbp_3)
 
 plt.show()
-
-# cv.namedWindow("Original 1", cv.WINDOW_NORMAL)
-# cv.namedWindow("Original 2", cv.WINDOW_NORMAL)
-# cv.namedWindow("Original 3", cv.WINDOW_NORMAL)
-# cv.imshow("Original 1", img_original_1)
-# cv.imshow("Original 2", img_original_2)
-# cv.imshow("Original 3", img_original_3)
-# cv.waitKey()
