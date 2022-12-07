@@ -20,12 +20,14 @@
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/graphviz.hpp>
 #include <boost/graph/graph_utility.hpp>
-
+#include <boost/graph/dijkstra_shortest_paths.hpp>
 #include <iostream>
-
+#include <vector>
 
 #define ARRAYSIZE(b) (sizeof(b)/sizeof(b[0]))
 #define NUMNODES 12
+#define INITNODE 0
+#define TARGETNODE 13
 
 
 struct VertexProperties{
@@ -88,15 +90,16 @@ class edge_writer{
 int main(int, char*[]){
     int nNodes = NUMNODES+2;
     E edgeArray[] = {
-        E(3, 4),
-        E(1, 5),
-        E(1, 6),
+        E(0, 1), E(0, 2), E(0, 3),
+        E(1, 5), E(1, 6), 
         E(2, 7),
-        E(5, 8), E(6, 8), E(7, 8),
+        E(3, 4),
         E(4, 9),
-        E(9, 10),
+        E(5, 8), E(6, 8), E(7, 8),
         E(8, 11),
-        E(10, 12), E(11, 12)
+        E(9, 10),
+        E(10, 12), E(11, 12),
+        E(12, 13)
     };
 
     int weights[] = {
@@ -115,18 +118,54 @@ int main(int, char*[]){
 
     // Ajout noeuds
     for(int i = 0; i < nNodes; i++){
-        names.push_back(std::to_string(i));
-        vertices.push_back(boost::add_vertex(VertexProperties(i, 0, 0), g));
+        if(i == debutNode || i == finalNode){
+            vertices.push_back(boost::add_vertex(VertexProperties(i, 0, 0), g));
+            names.push_back(i == debutNode ? "Init" : "Fin");
+        }else{
+            vertices.push_back(boost::add_vertex(VertexProperties(i, 0, 0), g));
+            names.push_back(std::to_string(i));
+        }
     }
 
     // Ajout arcs
-    edges.push_back(boost::add_edge(vertices[debutNode], vertices[1], weights[1], g));
-    edges.push_back(boost::add_edge(vertices[debutNode], vertices[2], weights[2], g));
-    edges.push_back(boost::add_edge(vertices[debutNode], vertices[3], weights[3], g));
     for(int i = 0; i < num_edges; i++){
         edges.push_back(boost::add_edge(vertices[edgeArray[i].first], vertices[edgeArray[i].second], weights[edgeArray[i].second], g));
     }
-    edges.push_back(boost::add_edge(vertices[12], vertices[finalNode], weights[finalNode], g));
+
+
+    // Dijkstra
+    // Liste des ascendants du noeuds i
+    std::vector<vertex_t> parent(nNodes);
+    // Liste des distances depuis INITNODE (Init/0)
+    std::vector<int> distance(nNodes); 
+    // Noeuds init pour dijkstra
+    vertex_t s = vertices[INITNODE];
+
+    boost::dijkstra_shortest_paths(g, s, boost::weight_map(boost::get(boost::edge_weight, g))
+                                         .distance_map(boost::make_iterator_property_map(distance.begin(), boost::get(boost::vertex_index, g)))
+                                         .predecessor_map(boost::make_iterator_property_map(parent.begin(), boost::get(boost::vertex_index, g))));
+
+
+    // Results dijkstra
+    std::vector<edge_t> path;
+    vertex_t end = vertices[TARGETNODE];
+    for(vertex_t u = parent[end]; u != end; end=u, u=parent[end]){
+        std::pair<edge_t, bool> edge = boost::edge(u, end, g);
+        path.push_back(edge.first);
+    }
+
+    // Retrieve path
+    auto totalWeight = weights[0];
+    std::cout << "Shortest path from " << names[INITNODE] << " to " << names[TARGETNODE] << std::endl;
+    for(std::vector<edge_t>::reverse_iterator riter = path.rbegin(); riter != path.rend(); ++riter){
+        vertex_t u_tmp = boost::source(*riter, g);
+        vertex_t v_tmp = boost::target(*riter, g);
+        edge_t e_tmp = boost::edge(u_tmp, v_tmp, g).first;
+
+        std::cout << names[g[u_tmp].id] << "->" << names[g[v_tmp].id] << " weight=" << weights[e_tmp.m_target] << std::endl; 
+        totalWeight += weights[e_tmp.m_target];
+    }
+    std::cout << std::endl << "Total weight: " << totalWeight << std::endl;
 
     
     // Faire graph graphique
