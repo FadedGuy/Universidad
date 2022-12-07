@@ -27,7 +27,8 @@
 #define ARRAYSIZE(b) (sizeof(b)/sizeof(b[0]))
 #define NUMNODES 12
 #define INITNODE 0
-#define TARGETNODE 13
+#define TARGETNODE 12
+#define COLORPATH "blue"
 
 
 struct VertexProperties{
@@ -51,13 +52,13 @@ typedef boost::graph_traits<Graph>::vertex_descriptor vertex_t;
 typedef boost::graph_traits<Graph>::edge_descriptor edge_t;    
 typedef std::pair<int, int> E;
 
-class label_writer{
+class vertex_writer{
     private:
         int debutNode;
         int finalNode;
-    
+        std::vector<vertex_t> path;
     public:
-        label_writer(int debut, int final) : debutNode(debut), finalNode(final) {}
+        vertex_writer(int debut, int final, std::vector<vertex_t> _path) : debutNode(debut), finalNode(final), path(_path) {}
 
         template <class VertexorEdge>
         void operator()(std::ostream& out, const VertexorEdge& e) const{
@@ -70,18 +71,25 @@ class label_writer{
             else{
                 out << "[label=" << e << "]";
             }
+
+            if(std::find(path.begin(), path.end(), e) != path.end()){
+                out << "[color=" << COLORPATH << "]";
+            }
         }
 };
 
 class edge_writer{
     private:
         Graph& graph;
-    
+        std::vector<edge_t> path;
     public:
-        edge_writer(Graph& _graph) : graph(_graph) {}
+        edge_writer(Graph& _graph, std::vector<edge_t> _path) : graph(_graph), path(_path) {}
 
         template <class VertexorEdge>
         void operator()(std::ostream& out, const VertexorEdge& e) const{
+            if(std::find(path.begin(), path.end(), e) != path.end()){
+                out << "[color=" << COLORPATH << "]";
+            }
             boost::property_map<Graph, boost::edge_weight_t>::type weight = get(boost::edge_weight, graph);
             out << "[label=\"" << get(weight, edge(boost::source(e, graph), boost::target(e, graph), graph).first) << "\"]";
         }
@@ -147,17 +155,21 @@ int main(int, char*[]){
 
 
     // Results dijkstra
-    std::vector<edge_t> path;
+    std::vector<edge_t> e_path;
+    std::vector<vertex_t> v_path;
+    v_path.push_back(s);
+
     vertex_t end = vertices[TARGETNODE];
     for(vertex_t u = parent[end]; u != end; end=u, u=parent[end]){
         std::pair<edge_t, bool> edge = boost::edge(u, end, g);
-        path.push_back(edge.first);
+        e_path.push_back(edge.first);
+        v_path.push_back(edge.first.m_target);
     }
 
     // Retrieve path
     auto totalWeight = weights[0];
     std::cout << "Shortest path from " << names[INITNODE] << " to " << names[TARGETNODE] << std::endl;
-    for(std::vector<edge_t>::reverse_iterator riter = path.rbegin(); riter != path.rend(); ++riter){
+    for(std::vector<edge_t>::reverse_iterator riter = e_path.rbegin(); riter != e_path.rend(); ++riter){
         vertex_t u_tmp = boost::source(*riter, g);
         vertex_t v_tmp = boost::target(*riter, g);
         edge_t e_tmp = boost::edge(u_tmp, v_tmp, g).first;
@@ -172,7 +184,7 @@ int main(int, char*[]){
     std::string filenameInit = "init.dot";
     std::ofstream outfig(filenameInit.c_str());    
 
-    boost::write_graphviz(outfig, g, label_writer(debutNode, finalNode), edge_writer(g));
+    boost::write_graphviz(outfig, g, vertex_writer(debutNode, finalNode, v_path), edge_writer(g, e_path));
     system("dot -Tpng init.dot > init.png");
 
     return 0;
