@@ -11,9 +11,7 @@ public class Main {
         }*/
     
     public static void main(String[] args) throws java.io.IOException, javax.websocket.DeploymentException {
-        String bar_code = "716270001660"; // string given by WebSocket
-        System.out.println("OpenFoodFacts: " + OpenFoodFacts.getNutriScore(bar_code)); 
-
+        
         Server server = new Server("localhost", 19992, "/", null, Endpoint.class);
         try {
             // starting server and opening the browser
