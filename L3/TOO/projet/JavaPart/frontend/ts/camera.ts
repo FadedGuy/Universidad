@@ -3,6 +3,7 @@ declare const Quagga: any;
 let webSocket: WebSocket;
 let wsUrl = "ws://localhost:" + 19992 + "/bc_ws";
 
+// console.log for debug and on message displaying the message below nutriscore grade
 function connect() {
     if(webSocket !== undefined && webSocket.readyState !== WebSocket.CLOSED) {
         return;
@@ -15,6 +16,7 @@ function connect() {
         console.log("Connected!");
     };
 
+    // message given is nutriscore grade from OpenFoodFacts API
     webSocket.onmessage = (event: any) => {
         let _nutriScore = window.document.getElementById('nutri') as HTMLDivElement;
         console.log(event.data);
@@ -27,6 +29,7 @@ function connect() {
     };
 }
 
+// sending code captured by quagga converted to string
 function send() {
     let codeTxt = document.getElementById("code") as HTMLDivElement;
 
@@ -59,27 +62,10 @@ window.document.onreadystatechange = _DOM_ready;
     });
     const _working_canvas = window.document.createElement('canvas') as HTMLCanvasElement;
 
-    // window.alert("typeof window.navigator.mediaDevices.getUserMedia: " + typeof window.navigator.mediaDevices.getUserMedia); // 'function'
-    // window.alert("Is Promise? " + (window.navigator.mediaDevices.getUserMedia({
-    //     audio: false,
-    //     video: true
-    // }) instanceof Promise)); // 'true'
-// Safari: see also "Development" tab, option WebRTC
-    /* Not supported by Safari : {video: {width: 512, height: 512, facingMode: 'user'}} */
-// Looking at device capabilities:
-    // window.alert(JSON.stringify(window.navigator.mediaDevices.getSupportedConstraints()));
-
     let constraints: {audio: boolean, video: boolean | {facingMode: 'user'}} = {audio: false, video: true};
     if (window.navigator.mediaDevices.getSupportedConstraints().hasOwnProperty('facingMode')) {
         constraints = {audio: false, video: {facingMode: 'user'}}; // Selfie mode...
     }
-    // For test:
-    // window.navigator.mediaDevices.getUserMedia(constraints).then((stream: MediaStream) => {
-    //     _my_video.srcObject = stream; // Assign the webcam to the "my_video" HTML element...
-    //     _my_video.play(); // Start playing video...
-    // }).catch((error) => {
-    //     window.alert("window.navigator.mediaDevices.getUserMedia: " + error.message);
-    // });
 
     const _video_management = () => {
         if (_my_video.srcObject !== null) {

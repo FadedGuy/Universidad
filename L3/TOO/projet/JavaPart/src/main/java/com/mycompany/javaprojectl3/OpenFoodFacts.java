@@ -11,6 +11,7 @@ public class OpenFoodFacts {
         javax.json.stream.JsonParser parser = factory.createParser(connection.getInputStream());
         while (parser.hasNext()) {
             javax.json.stream.JsonParser.Event event = parser.next();
+            // looking for nutriscore_grade in the json and put value in nutriScoreGrade
             if (event == javax.json.stream.JsonParser.Event.KEY_NAME && parser.getString().equals("nutriscore_grade")) {
                 while (parser.hasNext()) {
                     event = parser.next();
@@ -25,6 +26,7 @@ public class OpenFoodFacts {
         if(nutriScoreGrade.equals("\0")) {
             return "Nutriscore grade could not be found"; 
         }
+        // just to display nutriScoreGrade without quotes
         if (nutriScoreGrade.startsWith("\"") && nutriScoreGrade.endsWith("\"")) {
             String noQuotesNutriScoreGrade = nutriScoreGrade.substring(1, nutriScoreGrade.length() - 1);
             return noQuotesNutriScoreGrade;
