@@ -48,7 +48,6 @@ def binarizar(img):
 
 
 def etiquetas(img_draw, img_binary):
-    # Etiquetas
     n_etiquetas, map_etiquetas, stats, centroids = cv.connectedComponentsWithStats(img_binary, 4, cv.CV_32S)
     salto = 255//map_etiquetas.max()
 
@@ -86,18 +85,20 @@ def medidas(_img):
     img_bnw = cv.cvtColor(_img, cv.COLOR_BGR2GRAY)
     countours, hierarchy = cv.findContours(img_bnw, cv.RETR_CCOMP, cv.CHAIN_APPROX_SIMPLE)
 
-    (xx, yy), (MA, ma), angle = cv.fitEllipse(countours[0])
+    try:
+        (xx, yy), (MA, ma), angle = cv.fitEllipse(countours[0])
+    except cv.error:
+        (xx, yy), (MA, ma), angle = cv.fitEllipse(countours[1])
 
-    # cv.drawContours(img_bnw, countours,-1, 170, 5)
-    # cv.namedWindow("huh", cv.WINDOW_NORMAL)
-    # cv.imshow("huh", img_bnw)
-    # cv.waitKey()
-    scale_percent = 10 # percent of original size
+
+    # Reescalado de imagen debido a que el coste de lbp es demasiado alto en la imagen original (4032x3024)
+    scale_percent = 10 # % Original
     width = int(img_bnw.shape[1] * scale_percent / 100)
     height = int(img_bnw.shape[0] * scale_percent / 100)
     dim = (width, height)
     img_resized = cv.resize(img_bnw, dim, interpolation=cv.INTER_AREA)
 
+    # Obtenemos las 6 medidas
     area = cv.contourArea(countours[0])
     cc = codigoCadena(countours[0])
     elongacion = MA/ma
@@ -107,6 +108,8 @@ def medidas(_img):
     envolturas = cv.convexHull(countours[0])
     solidez = area / cv.contourArea(envolturas)
 
+    # Escribe a res.txt la informacion en el siguiente orden del objeto actual
+    # Area, codigoCadena, elongacion, lbp, momentosHu, solidez
     with open("res.txt", 'a') as file:
         file.write(f"{area}")
 
@@ -128,21 +131,22 @@ def medidas(_img):
         file.write(f"{solidez}\n")
 
 
-img_original, img_tag, tag_imgs = procesar(f"imgs/{Imagenes.ALL2.value}")
+if __name__ == "__main__":
+    img_original, img_tag, tag_imgs = procesar(f"imgs/{Imagenes.ALL2.value}")
 
-cv.namedWindow("Original", cv.WINDOW_NORMAL)
-cv.imshow("Original", img_original)
+    cv.namedWindow("Original", cv.WINDOW_NORMAL)
+    cv.imshow("Original", img_original)
 
-cv.namedWindow("Etiqueta", cv.WINDOW_NORMAL)
-cv.imshow("Etiqueta", img_tag)
+    cv.namedWindow("Etiqueta", cv.WINDOW_NORMAL)
+    cv.imshow("Etiqueta", img_tag)
 
-i = 0
-# medidas(tag_imgs[i])
-for obj in tag_imgs:
-    cv.namedWindow(f"objeto {i}", cv.WINDOW_NORMAL)
-    cv.imshow(f"objeto {i}", obj)
-    medidas(obj)
-    i = i + 1
+    # Las medidas apareceren en el orden de los objetos en el archivo res.txt
+    i = 0
+    for obj in tag_imgs:
+        cv.namedWindow(f"objeto {i}", cv.WINDOW_NORMAL)
+        cv.imshow(f"objeto {i}", obj)
+        medidas(obj)
+        i = i + 1
 
-cv.waitKey()
-cv.destroyAllWindows()
+    cv.waitKey()
+    cv.destroyAllWindows()
