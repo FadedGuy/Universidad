@@ -1,7 +1,6 @@
 import cv2 as cv
 import json
-from enum import Enum
-from mediciones import procesar
+from mediciones import procesar, Imagenes
 
 # Nombre del archivo con las medidas de las clases
 ARCHIVO_MEDIDAS = "Medidas.json"
@@ -9,17 +8,6 @@ ARCHIVO_MEDIDAS = "Medidas.json"
 MAX_STEPS = 5
 # Modificacion por paso de la tolerancia
 STEPS_TOLERANCIA = 0.05
-
-
-class Imagenes(Enum):
-    ALL1 = "ALL1.jpg"
-    ALL2 = "ALL2.jpg"
-    GOMA1 = "GOMA1.jpg"
-    GOMA2 = "GOMA2.jpg"
-    LAPIZ1 = "LAPIZ1.jpg"
-    LAPIZ2 = "LAPIZ2.jpg"
-    ROT1 = "ROT1.jpg"
-    ROT2 = "ROT2.jpg"
 
 
 # Usando json obtenemos los datos del archivo
@@ -83,6 +71,9 @@ def clasificador(obj, data, tolerancia = 1.2):
 
 if __name__ == "__main__":
     data = obtener_medidas_discriminantes(ARCHIVO_MEDIDAS)
+    if data is None:
+        print("Error obtiendo data de las clases")
+        exit()
     # Usamos la misma funcion de obtencion de etiquetas que para la obtencion de mediciones
     # img_original, img_tag, tag_imgs = procesar(f"imgs/{Imagenes.ALL1.value}")
     img_original, img_tag, tag_imgs = procesar(f"imgs/{Imagenes.ALL2.value}")
@@ -93,8 +84,8 @@ if __name__ == "__main__":
         clasificacion, punto_clave = clasificador(obj, data)
         cv.putText(img_cpy, clasificacion, (punto_clave[0][0], punto_clave[0][1]), cv.FONT_HERSHEY_PLAIN, 15, 250, 15, cv.LINE_4)
 
-    cv.namedWindow("Etiquetada", cv.WINDOW_NORMAL)
-    cv.imshow("Etiquetada", img_cpy)
+    cv.namedWindow("Resultado", cv.WINDOW_NORMAL)
+    cv.imshow("Resultado", img_cpy)
 
     cv.waitKey()
     cv.destroyAllWindows()
