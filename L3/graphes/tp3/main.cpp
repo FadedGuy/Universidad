@@ -90,26 +90,6 @@ class color_writer{
 
 int main(int, char*[]){
     int nodes = 'T'-'A';
-    // int nodes = '7'-'1';
-    // E edge_array[]{
-    //     E(getNum('1'), getNum('2')),
-    //     E(getNum('1'), getNum('3')),
-
-    //     E(getNum('2'), getNum('3')),
-    //     E(getNum('2'), getNum('4')),
-    //     E(getNum('2'), getNum('7')),
-
-    //     E(getNum('3'), getNum('4')),
-    //     E(getNum('3'), getNum('7')),
-
-    //     E(getNum('4'), getNum('5')),
-    //     E(getNum('4'), getNum('7')),
-        
-    //     E(getNum('5'), getNum('7')),
-    //     E(getNum('5'), getNum('6')),
-
-    //     E(getNum('6'), getNum('7')),
-    // };
 
     E edge_array[]{
         E(getNum('A'), getNum('D')), 
@@ -166,7 +146,6 @@ int main(int, char*[]){
     std::vector<std::pair<Graph::edge_descriptor, bool>> edges;
     std::vector<int> colored;
     for(int i = 0; i <= nodes; i++){
-        // names.push_back(char('1'+i));
         names.push_back(char('A'+i));
         vertices.push_back(boost::add_vertex(VertexProperties(char('A'+i)), g));
         colored.push_back(0);
@@ -186,7 +165,6 @@ int main(int, char*[]){
     std::sort(degrees.begin(), degrees.end(), compareDegree);
 
     int numColors = 1;
-
     std::cout << "Etape 2: Parcourir la liste dans l'ordre du tri\n";
     for(int i = 0; i < degrees.size(); i++){
         std::cout << "Etape 2: Partant du noeud: " << degrees[i].first << "\n";
@@ -207,6 +185,7 @@ int main(int, char*[]){
         }
     }
 
+    std::cout << "NB couleurs: " << numColors << "\nNoeuds par ordre avec son couleur\n";
     for(auto colors: colored){
         std::cout << colors << "\t";
     }
