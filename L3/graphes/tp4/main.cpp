@@ -15,19 +15,23 @@
 
     Cout: 
         Duree maximum d'execution du thread y 
+
+    Date plus tot: Djistra des Debut a chaque autre noued du graphe
+    Date plus
 */
 
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/graphviz.hpp>
 #include <boost/graph/graph_utility.hpp>
 #include <boost/graph/dijkstra_shortest_paths.hpp>
+#include <boost/graph/bellman_ford_shortest_paths.hpp>
 #include <iostream>
 #include <vector>
 
 #define ARRAYSIZE(b) (sizeof(b)/sizeof(b[0]))
 #define NUMNODES 12
 #define INITNODE 0
-#define TARGETNODE 12
+#define TARGETNODE 11
 #define COLORPATH "blue"
 
 
@@ -57,11 +61,13 @@ class vertex_writer{
         int debutNode;
         int finalNode;
         std::vector<vertex_t> path;
+        Graph g;
     public:
-        vertex_writer(int debut, int final, std::vector<vertex_t> _path) : debutNode(debut), finalNode(final), path(_path) {}
+        vertex_writer(int debut, int final, std::vector<vertex_t> _path, Graph _g) : debutNode(debut), finalNode(final), path(_path), g(_g) {}
 
         template <class VertexorEdge>
         void operator()(std::ostream& out, const VertexorEdge& e) const{
+            std::cout << g[e].dateTot << "\n";
             if(e == debutNode){
                 out << "[label=\"Init\"]";
             }
@@ -94,6 +100,22 @@ class edge_writer{
             out << "[label=\"" << get(weight, edge(boost::source(e, graph), boost::target(e, graph), graph).first) << "\"]";
         }
 };
+
+int dateTotPath(int targetNode, int weights[], std::vector<std::string> names, Graph g, std::vector<edge_t> e_path){
+    auto totalWeight = weights[0];
+    std::cout << "Shortest path from " << names[INITNODE] << " to " << names[targetNode] << std::endl;
+    for(std::vector<edge_t>::reverse_iterator riter = e_path.rbegin(); riter != e_path.rend(); ++riter){
+        vertex_t u_tmp = boost::source(*riter, g);
+        vertex_t v_tmp = boost::target(*riter, g);
+        edge_t e_tmp = boost::edge(u_tmp, v_tmp, g).first;
+
+        // std::cout << names[g[u_tmp].id] << "->" << names[g[v_tmp].id] << " weight=" << weights[e_tmp.m_target] << std::endl; 
+        totalWeight += weights[e_tmp.m_target];
+    }
+    std::cout << "Total weight: " << totalWeight << std::endl << std::endl;
+
+    return totalWeight;
+}
 
 int main(int, char*[]){
     int nNodes = NUMNODES+2;
@@ -137,7 +159,7 @@ int main(int, char*[]){
 
     // Ajout arcs
     for(int i = 0; i < num_edges; i++){
-        edges.push_back(boost::add_edge(vertices[edgeArray[i].first], vertices[edgeArray[i].second], weights[edgeArray[i].second], g));
+        edges.push_back(boost::add_edge(vertices[edgeArray[i].first], vertices[edgeArray[i].second], weights[edgeArray[i].first], g));
     }
 
 
@@ -154,37 +176,43 @@ int main(int, char*[]){
                                          .predecessor_map(boost::make_iterator_property_map(parent.begin(), boost::get(boost::vertex_index, g))));
 
 
-    // Results dijkstra
+    // dateTot each node calculation
     std::vector<edge_t> e_path;
     std::vector<vertex_t> v_path;
-    v_path.push_back(s);
 
-    vertex_t end = vertices[TARGETNODE];
-    for(vertex_t u = parent[end]; u != end; end=u, u=parent[end]){
-        std::pair<edge_t, bool> edge = boost::edge(u, end, g);
-        e_path.push_back(edge.first);
-        v_path.push_back(edge.first.m_target);
+    for(int i = INITNODE; i <= finalNode; i++){
+        v_path.push_back(s);
+
+        vertex_t end = vertices[i];
+        for(vertex_t u = parent[end]; u != end; end=u, u=parent[end]){
+            std::pair<edge_t, bool> edge = boost::edge(u, end, g);
+            e_path.push_back(edge.first);
+            v_path.push_back(edge.first.m_target);
+        }
+        int r_weight = dateTotPath(i, weights, names, g, e_path);
+        g[i].dateTot = r_weight;
+        e_path.clear();
+        v_path.clear();
     }
-
-    // Retrieve path
-    auto totalWeight = weights[0];
-    std::cout << "Shortest path from " << names[INITNODE] << " to " << names[TARGETNODE] << std::endl;
-    for(std::vector<edge_t>::reverse_iterator riter = e_path.rbegin(); riter != e_path.rend(); ++riter){
-        vertex_t u_tmp = boost::source(*riter, g);
-        vertex_t v_tmp = boost::target(*riter, g);
-        edge_t e_tmp = boost::edge(u_tmp, v_tmp, g).first;
-
-        std::cout << names[g[u_tmp].id] << "->" << names[g[v_tmp].id] << " weight=" << weights[e_tmp.m_target] << std::endl; 
-        totalWeight += weights[e_tmp.m_target];
-    }
-    std::cout << std::endl << "Total weight: " << totalWeight << std::endl;
-
     
+    std::vector<int> distance_2(finalNode, std::numeric_limits<short>::max());
+    std::vector<std::size_t> parent_2(finalNode);
+    for(int i = 0; i < finalNode; ++i){
+        parent_2[i] = i;
+    }
+    distance_2[finalNode] = 0;
+    bool r = boost::bellman_ford_shortest_paths(g, finalNode, boost::weight_map(boost::get(boost::edge_weight, g)).distance_map(&distance_2[0]).predecessor_map(&parent_2[0]));
+    if(r){
+        for(int i = 0; i < finalNode; ++i){
+            std::cout << names[i] << ": " << std::setw(3) << distance_2[i] << " " << names[parent_2[i]] << std::endl;
+        }
+    }
+
     // Faire graph graphique
     std::string filenameInit = "init.dot";
     std::ofstream outfig(filenameInit.c_str());    
 
-    boost::write_graphviz(outfig, g, vertex_writer(debutNode, finalNode, v_path), edge_writer(g, e_path));
+    boost::write_graphviz(outfig, g, vertex_writer(debutNode, finalNode, v_path, g), edge_writer(g, e_path));
     system("dot -Tpng init.dot > init.png");
 
     return 0;
