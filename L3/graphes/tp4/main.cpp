@@ -17,7 +17,7 @@
         Duree maximum d'execution du thread y 
 
     Date plus tot: Djistra des Debut a chaque autre noued du graphe
-    Date plus
+    Date plus tard: Bellman
 */
 
 #include <boost/graph/adjacency_list.hpp>
@@ -27,11 +27,11 @@
 #include <boost/graph/bellman_ford_shortest_paths.hpp>
 #include <iostream>
 #include <vector>
+#include <algorithm>
 
 #define ARRAYSIZE(b) (sizeof(b)/sizeof(b[0]))
 #define NUMNODES 12
 #define INITNODE 0
-// #define TARGETNODE 11
 #define COLORPATH "blue"
 
 
@@ -93,21 +93,23 @@ class edge_writer{
         }
 };
 
-void calculDateTot(int noeudInitial, Graph g, int numNoeuds, std::vector<std::string> names){
-    std::vector<int> parent_2(numNoeuds);
-    std::vector<int> distance_2(numNoeuds, (std::numeric_limits <int>::max)());
+
+void bellman(int noeudInitial, Graph g, int numNoeuds, std::vector<std::string> names){
+    std::vector<int> parent(numNoeuds);
+    std::vector<int> distance(numNoeuds, (std::numeric_limits <int>::max)());
     for(int i = 0; i < numNoeuds; ++i){
-        parent_2[i] = i;
+        parent[i] = i;
     }
-    distance_2[noeudInitial] = 0;
-    bool r = boost::bellman_ford_shortest_paths(g, numNoeuds, 
+    distance[noeudInitial] = 0;
+    bool r = boost::bellman_ford_shortest_paths(g, numNoeuds-1, 
                                                 boost::weight_map(boost::get(boost::edge_weight, g))
-                                                .distance_map(&distance_2[0])
-                                                .predecessor_map(&parent_2[0]));
+                                                .distance_map(&distance[0])
+                                                .predecessor_map(&parent[0]));
     if(r){
-        for(int i = 0; i < numNoeuds; ++i){
-            std::cout << names[i] << ": " << distance_2[i] << " " << names[parent_2[i]] << std::endl;
-            g[i].dateTot = distance_2[i];
+        std::cout << "Node, Distance, Parent Node\n";
+        for(int i = 1; i < numNoeuds; ++i){
+            std::cout << i << " " << distance[i] << " " << parent[i] << std::endl;
+            g[i].dateTot = distance[i];
         }
     }
     else{
@@ -115,7 +117,7 @@ void calculDateTot(int noeudInitial, Graph g, int numNoeuds, std::vector<std::st
     }
 }
 
-int dateTard(int targetNode, int weights[], Graph g, std::vector<edge_t> e_path, std::vector<std::string> names){
+int date_dijkstra(int targetNode, int weights[], Graph g, std::vector<edge_t> e_path, std::vector<std::string> names){
     auto totalWeight = weights[0];
     std::cout << "Plus direct path de " << names[INITNODE] << " a " << names[targetNode];
     for(std::vector<edge_t>::reverse_iterator riter = e_path.rbegin(); riter != e_path.rend(); ++riter){
@@ -129,7 +131,7 @@ int dateTard(int targetNode, int weights[], Graph g, std::vector<edge_t> e_path,
     return totalWeight;
 }
 
-void calculDateTard(vertex_t noeudInitial, std::vector<vertex_t> vertices, int weights[], Graph g, int numNoeuds, std::vector<std::string> names){
+void dijkstra(vertex_t noeudInitial, std::vector<vertex_t> vertices, int weights[], Graph g, int numNoeuds, std::vector<std::string> names){
     // Liste des ascendants du noeuds i
     std::vector<vertex_t> parent(numNoeuds);
     // Liste des distances depuis INITNODE (Init/0)
@@ -152,7 +154,7 @@ void calculDateTard(vertex_t noeudInitial, std::vector<vertex_t> vertices, int w
             e_path.push_back(edge.first);
             v_path.push_back(edge.first.m_target);
         }
-        int r_weight = dateTard(i, weights, g, e_path, names);
+        int r_weight = date_dijkstra(i, weights, g, e_path, names);
         g[i].dateTard = r_weight;
         e_path.clear();
         v_path.clear();
@@ -204,15 +206,15 @@ int main(int, char*[]){
         edges.push_back(boost::add_edge(vertices[edgeArray[i].first], vertices[edgeArray[i].second], weights[edgeArray[i].first], g));
     }
 
-    // Bellman pour calculer date au plus tot
-    // chemin optimal entre Debut et noeud T
-    std::cout << "Algo de Bellman pour date au plus tot\n";
-    calculDateTot(0, g, nNodes, names);
-
-    // Dijkstra pour calculer date au plus tard 
+    // Dijkstra pour calculer date au plus tot 
     // chemin optimal entre tous les sommets et Fin
-    std::cout << "\nAlgo de Dijkstra pour date au plus tard\n";
-    calculDateTard(vertices[0], vertices, weights, g, nNodes, names);
+    std::cout << "\nAlgo de Dijkstra\n";
+    dijkstra(vertices[0], vertices, weights, g, nNodes, names);
+    
+    // Bellman pour calculer date au plus tard
+    // chemin optimal entre Debut et noeud T
+    std::cout << "Algo de Bellman\n";
+    bellman(0, g, nNodes, names);
 
 
     // Faire graph graphique
