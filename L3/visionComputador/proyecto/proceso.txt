@@ -1,0 +1,27 @@
+1. Incluir la presentacion del sistema, y describir las condiciones de 
+funcionamiento.
+
+2. Describir la base de imagenes que se usaran; la cantidad de cada grupo, de 
+donde se obtuvo, etc.
+
+3. Programa de entrenamiento comentado explicando las diferentes opciones
+elegidas.
+-Explicar la estructura de la red neutronal y las principales opciones de 
+	entrenamiento elegidas.
+-Representacion grafica de las perdidas y exactitud de entrenamiento y 
+	validacion.
+
+4. Programa de prediccion comentado.
+
+5. Carpetas con las imagenes usadas en el entrenamiento y validacion	
+   Programa de entrenamiento
+   Programa de prediccion
+   Estructura de la red utilizada en el entrenamiento y graficas asociadas
+	al entrenamiento y validacion
+   Video explicativo del trabajo
+	-Descripcion del problema a resolver
+	-Presentacion de los conjuntos de entrenamiento y validacion: 
+		nb elementos, recopilacion
+	-Descripcion de la red neuronal convolucional que forma el modelo 
+		y las principales opciones de entrenamiento elegidas
+ 
