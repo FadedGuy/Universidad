@@ -1,43 +1,49 @@
+import cv2 as cv
 from keras.models import load_model
 import keras.utils as image
-import os
 import numpy as np
-import matplotlib.pyplot as plt
-from functions import *
 
-import cv2 as cv
+from utils import *
 
+# Cargamos el modelo entrenado 
 model = load_model(MODEL_FILENAME)
 
+# Obtenemos la camara del ordenador y checamos por errores
 camera = cv.VideoCapture(0)
 if not camera.isOpened():
     print('Error al abrir la camara')
     exit()
 
+# Creamos la ventana donde se mostrara el feed de la camara 
 cv.namedWindow("Camara", cv.WINDOW_NORMAL)
 while True:
+    # Leemos el frame actual de la camara y verificamos errores
     valid, frame = camera.read()
-
     if not valid:
         print("Error al recibir el siguiente frame")
         break
 
-    frame_tensor = cv.resize(frame, INPUT_SIZE)
-    frame_tensor = image.img_to_array(frame_tensor)
+    # Adaptamos el frame a una imagen aceptada por el modelo
+    frame = cv.resize(frame, INPUT_SIZE)
+    frame_tensor = image.img_to_array(frame)
     frame_tensor = np.expand_dims(frame_tensor, axis=0)
     frame_tensor /= 255
 
+    # Identificamos el objeto que se muestra en la camara 
+    # usando la prediccion de nuestro modelo
     prediccion = model.predict(frame_tensor, batch_size=1, steps=1)
-    print(np.argmax(prediccion, axis=1)[0])
+    prediccion_label = class_labels[np.argmax(prediccion, axis=1)[0]]
+    print(prediccion_label)
 
+    # Se muestra el frame de la camara
     cv.imshow("Camara", frame)
     key = cv.waitKey(24)&0xFF
     if key == ord('q'):
         break
 
+# Liberamos la camara y destruimos todas las ventanas
 camera.release()
 cv.destroyAllWindows()
-        
 
 
 # model = load_model('model.h5')
