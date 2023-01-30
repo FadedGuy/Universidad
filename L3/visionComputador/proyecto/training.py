@@ -4,12 +4,14 @@ import shutil
 
 from keras import optimizers
 from keras.applications import MobileNetV2
-from keras.layers import Input, Dense, Flatten, MaxPooling2D
+from keras.layers import Input, Dense, Flatten, MaxPooling2D, Dropout
 from keras.models import Model
 from keras.preprocessing.image import ImageDataGenerator
 import matplotlib.pyplot as plt
 
 from utils import *
+
+import visualkeras
 
 # Funcion que crea el directorio si no existe, en caso que el directorio
 # exista, se borra y crea uno nuevo
@@ -54,28 +56,36 @@ def create_model():
     base_model = MobileNetV2(weights='imagenet', 
                              include_top=False, 
                              input_tensor=Input(shape=INPUT_SHAPE))
-    # Indicamos que no re-entrenaremos las capas del modelo ya entrenado
-    base_model.trainable = False
 
-    # Creamos la capa de ingreso y la añadimos al inicio del modelo base
-    inputs = Input(shape=INPUT_SHAPE)
-    x = base_model(inputs, training=False)
+    # Creamos la capa de ingreso a nuestra parte de la red, esta debe ser de igual
+    # talla al de MobileNetV2 especificado arriba
+    head = base_model.output
 
-    # Creamos las capas del final del modelo
-    x = MaxPooling2D((2,2))(x)
-    x = Flatten()(x)
-    outputs = Dense(512, activation='relu')(x)
+    # Creamos las capas del final del modelo para ajustarlo a nuestras necesidades
+    head = MaxPooling2D((2, 2))(head)
+    head = Dropout(0.2)(head)
+    head = Flatten()(head)
+    # Uso 1000 ya que es la salida original que tiene el modelo MobileNetV2
+    head = Dense(1000, activation='relu')(head)
     # La ultima capa muestra el numero de clases que deseamos detectar con 
     # un vector de la probabilidad de pertenecer a las distintas clases
-    # La suma de todas las clases es 1.0
-    outputs = Dense(NUMBER_CLASSES, activation='softmax')(x)
+    # La suma de todas las clases debe ser 1.0
+    head = Dense(3, activation='softmax')(head)
+
+    # Indicamos que no re-entrenaremos las capas del modelo ya entrenado (transfer learning)
+    for layer in base_model.layers:
+        layer.trainable = False
 
     # Juntamos los dos modelos, los compilamos e imprimimos su estructura
-    model = Model(inputs, outputs)
+    model = Model(base_model.inputs, head)
     model.compile(loss='categorical_crossentropy', 
-                  optimizer=optimizers.RMSprop(learning_rate=1e-4), 
+                  optimizer=optimizers.RMSprop(learning_rate=1e-5), 
                   metrics=['acc'])
     model.summary()
+
+    # Muestra el modelo de una manera mas visual que el resumen en consola
+    # requiere visualkeras instalable desde pip
+    # visualkeras.layered_view(model, legend=True).show()    
 
     return model
 
@@ -101,12 +111,10 @@ def plot_results(history):
     plt.show()
 
 
-def main():
+# Funcion que ordena el dataset en las carpetas correspondientes
+def setup(dir_base):
     # Creamos los 3 directorios que se usaran (train, validate, test)
     # con las respectivas clases dentro de cada uno (goma, rotulador, lapiz)
-    dir_actual = os.getcwd() 
-    dir_base = os.path.join(dir_actual, 'dataset')
-
     dir_train = os.path.join(dir_base, 'train')
     mkdir_custom(dir_train)
     dir_validate = os.path.join(dir_base, 'validate')
@@ -138,14 +146,17 @@ def main():
 
     # Copiamos nuestro dataset a sus respectivas carpetas
     separate_files('Goma_', dir_base, dir_test_goma, dir_train_goma, dir_validate_goma)
-    separate_files('Lapiz_', dir_base, dir_test_goma, dir_train_goma, dir_validate_goma)
-    separate_files('Rotulador_', dir_base, dir_test_goma, dir_train_goma, dir_validate_goma)
+    separate_files('Lapiz_', dir_base, dir_test_lapiz, dir_train_lapiz, dir_validate_lapiz)
+    separate_files('Rotulador_', dir_base, dir_test_rotulador, dir_train_rotulador, dir_validate_rotulador)
+
+    return dir_train
 
 
-    # Hacemos un preprocesado de las imagenes de entrenamiento y validacion
-    # Se normalizan, escalan, y aplican diversas transformacion para aumentar 
-    # la diversidad de las imagenes
-    train_datagen = ImageDataGenerator(rescale=1./255)
+def main(dir_train):
+    # Hacemos un preprocesado de las imagenes de entrenamiento y validacion (normalizacion a ambas)
+    # Se escalan, y aplican diversas de transformacion para aumentar 
+    # la diversidad de las imagenes de entrenamiento ya que nuestro dataset es poco
+    train_datagen = ImageDataGenerator(rescale=1./255, rotation_range=40, width_shift_range=0.2, height_shift_range=0.2, shear_range=0.2, zoom_range=0.2, horizontal_flip=True)
     valid_datagen = ImageDataGenerator(rescale=1./255)
     train_generator = train_datagen.flow_from_directory(dir_train, target_size=INPUT_SIZE, batch_size=5, class_mode='categorical')
     validation_generator = valid_datagen.flow_from_directory(dir_train, target_size=INPUT_SIZE, batch_size=5, class_mode='categorical')
@@ -155,10 +166,16 @@ def main():
     history = model.fit(train_generator, steps_per_epoch=5, epochs=12, validation_data=validation_generator, validation_steps=3)
     # Guardamos el modelo para utilizarlo a futuro sin volver a crear y entrenarlo
     model.save(MODEL_FILENAME)
-
+    
     # Graficamos los resultados de perdida y precision el entrenamiento y validacion
     plot_results(history)
 
 
 if __name__ == "__main__":
-    main()
+    dir_actual = os.getcwd() 
+    dir_base = os.path.join(dir_actual, 'dataset')
+    dir_train = os.path.join(dir_base, 'train')
+
+    # Activar setup solo la primera vez que se corra el programa
+    # dir_train = setup(dir_base)
+    main(dir_train)
