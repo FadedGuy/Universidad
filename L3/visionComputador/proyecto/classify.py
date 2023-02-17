@@ -99,5 +99,5 @@ if __name__ == "__main__":
     # Cargamos el modelo entrenado 
     model = load_model(MODEL_FILENAME)
     
-    predict_from_camera(model)
-    # predict_from_file(model)
+    # predict_from_camera(model)
+    predict_from_file(model)
