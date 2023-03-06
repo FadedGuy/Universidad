@@ -13,43 +13,83 @@
 
 #define TAILLEBUF 50
 
-void write_file(int sock){
-    int n;
-    FILE *file = fopen("file_received.txt", "w");
-    char buffer[TAILLEBUF];
-
-    while(1){
-        n = recv(sock, buffer, TAILLEBUF, 0);
-        if(n <= 0){
-            break;
-            return;
-        }
-        
-        fprintf(file, "%s", buffer);
-        bzero(buffer, TAILLEBUF);
-    }
-    return;
-}
 
 void traiter_communication(int socket){
-    char nb_octets;
-    char* reponse = "bien recu";
-    char message[TAILLEBUF];
-    char* chaine_recu;
+    struct request req;
+    int nb_octets, size;
+    printf(".. client connecte\n");
+    while(1){
+        nb_octets = read(socket, (struct request*)&req, sizeof(struct request));
+        if(nb_octets <= 0){
+            perror("error receiving data1\n");
+            break;
+        }
 
-    // Wait for client message
-    nb_octets = read(socket, message, TAILLEBUF);
-    // write_file(socket);
+        if(req.type == FACTORIEL){
+            int nb;
+            long res;
+            nb_octets = read(socket, &nb, sizeof(int));
+            if(nb_octets <= 0){
+                perror("error receiving data2\n");
+                break;
+            }
 
-    // Show message
-    chaine_recu = (char*) malloc(nb_octets*sizeof(char));
-    memcpy(chaine_recu, message, nb_octets);
-    printf("Message received: %s", chaine_recu);
-    // Traiter message
-    // ...
+            res = factoriel(nb);
 
-    // Send response
-    write(socket, reponse, strlen(reponse)+1);
+            if(write(socket, (char*)&res, sizeof(long)) <= 0){
+                perror("error receiving data3\n");
+                break;                
+            }
+        }
+        if(req.type == PUISSANCE){
+            int x, puis;
+            long res;
+            nb_octets = read(socket, &x, sizeof(int));
+            if(nb_octets <= 0){
+                perror("error receiving data2\n");
+                break;
+            }            
+            nb_octets = read(socket, &puis, sizeof(int));
+            if(nb_octets <= 0){
+                perror("error receiving data2\n");
+                break;
+            }
+
+            res = puissance(x, puis);
+
+            if(write(socket, (char*)&res, sizeof(long)) <= 0){
+                perror("error receiving data3\n");
+                break;                
+            }
+        }
+        if(req.type == STATS){
+            int size;
+            int* arr;
+            struct res_analyse_donnees res;
+
+            nb_octets = read(socket, &size, sizeof(int));
+            if(nb_octets <= 0){
+                perror("error receiving data2\n");
+                break;
+            }            
+            
+            arr = (int*)malloc(sizeof(int)*size);            
+            nb_octets = read(socket, arr, sizeof(int)*size);
+            if(nb_octets <= 0){
+                perror("error receiving data2\n");
+                break;
+            }
+
+            analyser_donnees(arr, size, &res);
+
+            if(write(socket, (char*)&res, sizeof(struct res_analyse_donnees)) <= 0){
+                perror("error receiving data3\n");
+                break;                
+            }
+        }
+    }
+
+    printf(".. client deconnecte\n");
 }
 
 int main(int argc, char** argv){

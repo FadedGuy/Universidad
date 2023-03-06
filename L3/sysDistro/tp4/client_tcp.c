@@ -9,22 +9,93 @@
 #include <string.h>
 
 #include "fonction.h"
+#include "calculs.h"
 
 #define TAILLEBUF 50
 #define N 500
 
-void send_file(FILE *fp, int sock){
-    int n;
-    char data[TAILLEBUF];
+long factoriel_client(int num, int sock){
+    struct request req;
+    char* message;
+    int size;
+    long res;
 
-    while(fgets(data, TAILLEBUF, fp) != NULL){
-        if(send(sock, data, sizeof(data), 0) == -1){
-            perror("Error sending file");
-            exit(1);
-        }
-        bzero(data, TAILLEBUF);
+    req.type = FACTORIEL;
+    req.size_request = sizeof(int);
+
+    size = sizeof(struct request) + req.size_request;
+    message = (char*)malloc(size);
+    memcpy(message, &req, sizeof(struct request));
+    memcpy(message+sizeof(struct request), &num, sizeof(int));
+
+    if(write(sock, message, size) <= 0){
+        free(message);
+        return -1;
     }
-    printf("File sent\n");
+    if(read(sock, (long*)&res, sizeof(long)) <= 0){
+        free(message);
+        return -1;
+    }
+
+    free(message);
+    return res;
+} 
+
+long puissance_client(int x, int puis, int sock){
+    struct request req;
+    char* message;
+    int size;
+    long res;
+
+    req.type = PUISSANCE;
+    req.size_request = sizeof(int)*2;
+
+    size = sizeof(struct request) + req.size_request;
+    message = (char*)malloc(size);
+    memcpy(message, &req, sizeof(struct request));
+    memcpy(message+sizeof(struct request), &x, sizeof(int));
+    memcpy(message+sizeof(struct request)+sizeof(int), &puis, sizeof(int));
+
+    if(write(sock, message, size) <= 0){
+        free(message);
+        return -1;
+    }
+    if(read(sock, (long*)&res, sizeof(long)) <= 0){
+        free(message);
+        return -1;
+    }
+
+    free(message);
+    return res;
+
+}
+
+struct res_analyse_donnees donnees_client(int donnees[], int size_donnees, int sock){
+    struct request req;
+    char* message;
+    int size;
+    struct res_analyse_donnees res;
+
+    req.type = STATS;
+    req.size_request = sizeof(int)*(size_donnees+1);
+
+    size = sizeof(struct request) + req.size_request;
+    message = (char*)malloc(size);
+    memcpy(message, &req, sizeof(struct request));
+    memcpy(message+sizeof(struct request), &size_donnees, sizeof(int));
+    memcpy(message+sizeof(struct request)+sizeof(int), &donnees, sizeof(int)*size_donnees);
+
+    if(write(sock, message, size) <= 0){
+        free(message);
+        return res;
+    }
+    if(read(sock, (struct res_analyse_donnees*)&res, sizeof(struct res_analyse_donnees)) <= 0){
+        free(message);
+        return res;
+    }
+
+    free(message);
+    return res;    
 }
 
 int main(int argc, char** argv){
@@ -77,44 +148,26 @@ int main(int argc, char** argv){
         exit(1);
     }
 
-    // Envoyer message personnalise
-    // function_number params
-    // factoriel = 0, nb
-    // analyse_donnees = 1, donnees, taille(?)
-    // puissance = 2, nb, puiss
-    int opc, nb, puiss, taille;
-    int donnees[N];
-    do{
-        printf("Message to send: ");
-        scanf("%d", &opc);
-    }while(opc < 0 && opc > 3);
-    
-    sprintf(message, "%d", opc);
-    printf("%s\n", message);
+    // long nb = 5;
+    // long res = factoriel_client(nb, sock);
+    // if(res == -1){
+    //     perror("Error factoriel");
+    //     exit(1);
+    // }
+    // printf("Le factoriel de %ld est: %ld\n", nb, res);
 
-    switch (opc)
-    {
-        case 0:
-            scanf("%d", &nb);
-            break;
-        case 1:
-            
-            break;
-        case 2:
-            
-            break;
-    }
+    // long x = 5, puis = 5;
+    // long res = puissance_client(x, puis, sock);
+    // if(res == -1){
+    //     perror("Error puissance");
+    //     exit(1);
+    // }
+    // printf("La puissance de %ld^%ld est: %ld\n", x, puis, res);
 
-    // Send message
-    nb_octets = write(sock, message, strlen(message)+1);
-    // send_file(file, sock);
-    
-    // Wait response
-    nb_octets = read(sock, reponse, TAILLEBUF);
-    printf("Reponse: %s\n", reponse);
-
-    // Close socket
-    close(sock);
+    int taille = 5;
+    int arr[] = {4,5,7,1,5};
+    struct res_analyse_donnees res = donnees_client(arr, taille, sock);
+    printf("Les donnees sont: %f, %d, %d\n", res.moy, res.max, res.min);
 
     return 0;
 }
