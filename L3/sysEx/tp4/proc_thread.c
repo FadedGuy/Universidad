@@ -7,8 +7,16 @@
 #include <sys/shm.h>
 #include <time.h>
 #include <unistd.h>
+#include <pthread.h>    
 
 #define N_PHIL 5
+
+typedef struct {
+    sem_t *arg0;
+    int arg1;
+    int arg2;
+    int arg3;
+} ThreadArgs;
 
 union semun {
     int val;
@@ -61,7 +69,8 @@ void philosopher(int id, int semid, int *baguette) {
 int main() {
     int i;
     int semid;
-    int baguettes;
+    sem_t baguettes[N_PHIL];
+    pthread_t philo[N_PHIL];
 
     srand(time(NULL));
 
@@ -71,14 +80,16 @@ int main() {
     }
 
     for(i = 0; i < N_PHIL; i++) {
-        if(fork()==0) {
-            philosopher(i, semid, &baguettes);
-            exit(0);
-        }
+        ThreadArgs* args = malloc(sizeof(ThreadArgs));
+        args->arg0 = baguettes;
+        args->arg1 = i;
+        args->arg2 = N_PHIL;
+        args->arg3 = 0;
+        pthread_create(&philo[i], NULL, philosopher, args);
     }
 
     for(i = 0; i < N_PHIL; i++) {
-        wait(NULL);
+        pthread_join(philo[i], NULL);
     }
 
     semctl(semid, 0, IPC_RMID, 0);
