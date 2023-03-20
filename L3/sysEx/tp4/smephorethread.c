@@ -3,7 +3,7 @@
 #include <stdio.h> // pour printf
 #include <stdlib.h>
 #include <sys/wait.h>
-#include "/usr/include/semaphore.h"
+#include "semaphore.h"
 
 void miam(sem_t *f, int id, int nb_fils){
     

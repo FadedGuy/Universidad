@@ -45,7 +45,7 @@ long puissance_client(int x, int puis, int sock){
     struct request req;
     char* message;
     int size;
-    long res;
+    int res;
 
     req.type = PUISSANCE;
     req.size_request = sizeof(int)*2;
@@ -80,10 +80,13 @@ struct res_analyse_donnees donnees_client(int donnees[], int size_donnees, int s
     req.size_request = sizeof(int)*(size_donnees+1);
 
     size = sizeof(struct request) + req.size_request;
+
     message = (char*)malloc(size);
     memcpy(message, &req, sizeof(struct request));
     memcpy(message+sizeof(struct request), &size_donnees, sizeof(int));
-    memcpy(message+sizeof(struct request)+sizeof(int), &donnees, sizeof(int)*size_donnees);
+    for(int i = 1; i <= size_donnees; i++){
+        memcpy(message+sizeof(struct request)+(sizeof(int)*i), &donnees[i-1], sizeof(int));
+    }
 
     if(write(sock, message, size) <= 0){
         free(message);
@@ -164,8 +167,9 @@ int main(int argc, char** argv){
     // }
     // printf("La puissance de %ld^%ld est: %ld\n", x, puis, res);
 
-    int taille = 5;
-    int arr[] = {4,5,7,1,5};
+    int taille = 4;
+    int arr[] = {3,1,26,4};
+    // int arr[] = {4};
     struct res_analyse_donnees res = donnees_client(arr, taille, sock);
     printf("Les donnees sont: %f, %d, %d\n", res.moy, res.max, res.min);
 

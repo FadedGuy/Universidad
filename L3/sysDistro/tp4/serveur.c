@@ -43,44 +43,33 @@ void traiter_communication(int socket){
         }
         if(req.type == PUISSANCE){
             int x, puis;
-            long res;
-            nb_octets = read(socket, &x, sizeof(int));
+            int res;
+            int var[2];
+
+            nb_octets = read(socket, &var, req.size_request);
             if(nb_octets <= 0){
                 perror("error receiving data2\n");
                 break;
             }            
-            nb_octets = read(socket, &puis, sizeof(int));
-            if(nb_octets <= 0){
-                perror("error receiving data2\n");
-                break;
-            }
+            res = puissance(var[0], var[1]);
 
-            res = puissance(x, puis);
-
-            if(write(socket, (char*)&res, sizeof(long)) <= 0){
+            if(write(socket, (char*)&res, sizeof(int)) <= 0){
                 perror("error receiving data3\n");
                 break;                
             }
         }
         if(req.type == STATS){
             int size;
-            int* arr;
+            int arr[6];
             struct res_analyse_donnees res;
-
-            nb_octets = read(socket, &size, sizeof(int));
-            if(nb_octets <= 0){
-                perror("error receiving data2\n");
-                break;
-            }            
             
-            arr = (int*)malloc(sizeof(int)*size);            
-            nb_octets = read(socket, arr, sizeof(int)*size);
+            nb_octets = read(socket, &arr, req.size_request);
             if(nb_octets <= 0){
                 perror("error receiving data2\n");
                 break;
             }
 
-            analyser_donnees(arr, size, &res);
+            analyser_donnees(arr+1, arr[0], &res);
 
             if(write(socket, (char*)&res, sizeof(struct res_analyse_donnees)) <= 0){
                 perror("error receiving data3\n");
