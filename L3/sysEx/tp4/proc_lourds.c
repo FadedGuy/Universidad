@@ -39,7 +39,7 @@ void custom_post(int semid, int sem_num){
 
 }
 
-void philosopher(int id, int semid, int *baguette) {
+void philosopher(int id, int semid) {
     int left = id;
     int right = (id + 1) % N_PHIL;
 
@@ -66,20 +66,21 @@ int main() {
     srand(time(NULL));
 
     semid = semget(IPC_PRIVATE, N_PHIL, IPC_CREAT | 0666);
+    printf("%d\n\n",semid);
     for(i = 0; i < N_PHIL; i++) {
         semctl(semid, i, SETVAL, 1);
     }
 
-    for(i = 0; i < N_PHIL; i++) {
-        if(fork()==0) {
-            philosopher(i, semid, &baguettes);
-            exit(0);
-        }
-    }
+    // for(i = 0; i < N_PHIL; i++) {
+    //     if(fork()==0) {
+    //         philosopher(i, semid);
+    //         exit(0);
+    //     }
+    // }
 
-    for(i = 0; i < N_PHIL; i++) {
-        wait(NULL);
-    }
+    // for(i = 0; i < N_PHIL; i++) {
+    //     wait(NULL);
+    // }
 
     semctl(semid, 0, IPC_RMID, 0);
     return 0;

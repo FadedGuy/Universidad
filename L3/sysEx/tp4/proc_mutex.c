@@ -10,6 +10,7 @@
 #include <pthread.h>    
 
 #define N_PHIL 5
+pthread_mutex_t mutex[N_PHIL];
 
 typedef struct {
     int semid;
@@ -23,28 +24,6 @@ union semun {
     struct seminfo *__buf;
 };
 
-// P(S)
-void custom_wait(int semid, int sem_num) {
-    struct sembuf buf;
-
-    buf.sem_op = -1;
-    buf.sem_flg = 0;
-    buf.sem_num=sem_num;
-    semop(semid, &buf, 1);
-    
-}
-
-// V(S)
-void custom_post(int semid, int sem_num){
-    struct sembuf buf;
-
-    buf.sem_op =1;
-    buf.sem_flg =0;
-    buf.sem_num=sem_num;
-    semop(semid, &buf, 1);
-
-}
-
 void *philosopher(void *args) {
     ThreadArgs arguments = *((ThreadArgs*)args); 
     int left = arguments.id % N_PHIL;
@@ -52,18 +31,23 @@ void *philosopher(void *args) {
     int right = (left + 1) % N_PHIL;
     int semid = arguments.semid;
 
-
     while(1) {
         printf("Philosophe %d reflechit..\n", id+1);
+        sleep(1);
         usleep(rand()%500000);
-        custom_wait(semid, left);
-        custom_wait(semid, right);
-
+        pthread_mutex_lock(&mutex[left]);
+        printf("Philosophe %d prend la baguette gauche %d\n", id+1, left);
+        pthread_mutex_lock(&mutex[right]);
+        printf("Philosophe %d prend la baguette droite  %d\n", id+1, right);
+        sleep(1);
         printf("Philosophe %d mange.. \n", id+1);
+        sleep(1);
         usleep(rand()%500000);
-
-        custom_post(semid, right);
-        custom_post(semid, left);
+        pthread_mutex_unlock(&mutex[left]);
+        printf("Philosophe %d pose la baguette gauche %d\n", id+1, left);
+        pthread_mutex_unlock(&mutex[right]);
+        printf("Philosophe %d pose la baguette droite  %d\n", id+1, right);
+        sleep(1);
     }
     
 }
@@ -72,23 +56,30 @@ void *philosopher(void *args) {
 int main() {
     int i;
     int semid;
-    sem_t baguettes[N_PHIL];
     pthread_t philo[N_PHIL];
     ThreadArgs* args = (ThreadArgs*)malloc(sizeof(ThreadArgs)*N_PHIL);
 
     srand(time(NULL));
 
     semid = semget(IPC_PRIVATE, N_PHIL, IPC_CREAT | 0666);
-    printf("%d\n\n", semid);
-    for(i = 0; i < N_PHIL; i++) {
+
+    for(i = 0; i < N_PHIL; i++){
+        pthread_mutex_init(&mutex[i], NULL);
         semctl(semid, i, SETVAL, 1);
         args[i].id = i;
         args[i].semid = semid;
+    }    
+
+    for(i = 0; i < N_PHIL; i++) {
         pthread_create(&philo[i], NULL, philosopher, &args[i]);
     }
 
     for(i = 0; i < N_PHIL; i++) {
         pthread_join(philo[i], NULL);
+    }
+
+    for(i = 0; i < N_PHIL; i++){
+        pthread_mutex_destroy(&mutex[i]);
     }
 
     semctl(semid, 0, IPC_RMID, 0);
