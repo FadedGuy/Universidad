@@ -5,27 +5,6 @@
 
 #define N_PROCESSES 5
 
-void sort_process(struct Process *proc, int n){
-    int i, j;
-    struct Process temp;
-    for(i = 0; i < n; i++){
-        for(j = i+1; j < n; j++){
-            // Sort by arrival
-            if(proc[i].arrival_time > proc[j].arrival_time) {
-                temp = proc[i];
-                proc[i] = proc[j];
-                proc[j] = temp;
-            }
-            // Sort by burst_time, can add prio also
-            else if(proc[i].arrival_time == proc[j].arrival_time && proc[i].burst_time > proc[j].burst_time){
-                temp = proc[i];
-                proc[i] = proc[j];
-                proc[j] = temp;
-            }
-        }
-    }
-}
-
 int main(){
     int n, i, j;
     float avg_wait_time = 0, avg_turn_time = 0;
@@ -36,7 +15,7 @@ int main(){
         random_initialize_process(proc + i);
         proc[i].id = i;
     }
-    sort_process(proc, N_PROCESSES);
+    sort_process_sjf(proc, N_PROCESSES);
 
     // Abstract stats
     int completion_time[N_PROCESSES], waiting_time[N_PROCESSES], turnaround_time[N_PROCESSES];
