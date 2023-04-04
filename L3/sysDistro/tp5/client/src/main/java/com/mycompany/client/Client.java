@@ -40,7 +40,7 @@ public class Client {
     
     public Personne getPersonne(int id) throws InvalidExceptionMessage {
         try {
-            output.writeObject(new GetPersonneMessage(id));
+            output.writeObject(new GetIdPersonne(id));
             Object obj = input.readObject();
             if(obj instanceof PersonneMessage) {
                 return ((PersonneMessage)obj).getPersonne();

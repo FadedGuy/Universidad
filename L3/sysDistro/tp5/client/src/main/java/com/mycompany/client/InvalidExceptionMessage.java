@@ -9,5 +9,17 @@ package com.mycompany.client;
  * @author kasiordia
  */
 public class InvalidExceptionMessage extends Exception {
+
+    InvalidExceptionMessage(InvalidExceptionMessage invEx) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    InvalidExceptionMessage(int id) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    Exception getException() {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
     
 }

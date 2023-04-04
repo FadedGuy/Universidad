@@ -9,5 +9,13 @@ package com.mycompany.client;
  * @author kasiordia
  */
 public class GetIdPersonne extends IdMessage {
+
+    GetIdPersonne(int id) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    int getID() {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
     
 }

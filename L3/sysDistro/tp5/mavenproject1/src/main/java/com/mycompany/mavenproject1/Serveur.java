@@ -34,28 +34,35 @@ public class Serveur extends Thread{
                 cf = new Serveur(socket);
                 cf.start();
             }
-        } catch (Exception e) {
+        } catch (IOException e) {
             System.err.println("erreur " + e);
         }
         
     }
     
     public void run(){
-        System.out.println("Hello thread!");
-        
+        ObjectOutputStream output = null;
+        ObjectInputStream input = null;
         try{
-            ObjectOutputStream output = new ObjectOutputStream(this.socket.getOutputStream());
-            ObjectInputStream input = new ObjectInputStream(this.socket.getInputStream());
-
-            String chaine = (String) input.readObject();
-            System.out.println("recu: " + chaine);
-            System.out.println("ca vient de: " + this.socket.getInetAddress() + " : " + this.socket.getPort());
-            output.writeObject("bien recu");
+            output = new ObjectOutputStream(this.socket.getOutputStream());
+            input = new ObjectInputStream(this.socket.getInputStream());
+            while(true){
+                Message msg = (Message) input.readObject();
+                if(msg instanceof AddPersonneMessage){
+                    Personne p = ((AddPersonneMessage) msg).getPersonne();
+                    int nb = dataManager.addPersonne(p);
+                    output.writeObject(new IdMessage(nb));
+                }
+                if(msg instanceof GetIdPersonne){
+                    int id = ((GetIdPersonne)msg).getID();
+                    Personne p = dataManager.getPersonne(id);
+                    output.writeObject(new GetIdPersonne());
+                }
+            }
+            
+        }catch(IOException | ClassNotFoundException ex){
+            System.err.println(ex);
         }
-        catch(IOException | ClassNotFoundException ex){
-            System.err.println(ex.getMessage());
-        }
-        
     }
 }
     

@@ -8,10 +8,6 @@ package com.mycompany.client;
  *
  * @author kasiordia
  */
-public class IdMessage extends Message {
-
-    IdMessage(int nb) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
+class objectOutputStream {
     
 }
