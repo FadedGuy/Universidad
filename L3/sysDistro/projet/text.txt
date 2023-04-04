@@ -1,0 +1,38 @@
+Bar
+	Barman
+		Ordonnanceur RR
+		3 processus
+			- Main
+				Ordonnanceur FIFO
+				Communication memoire partage SHM voir disponibilite biere
+			- Communication
+				Avertir au client boisson pas dispo -> 
+			- Securite
+		
+			- Controle
+				Verifie etat des futs dans SHM
+					Si vide -> Envoie commande processus commande via UDP
+	
+		Commande (java)
+			- IHM voir catalogue, acheter biere
+			- Met a jour la SHM avec nouveau fut a controle via 
+	Tireuses
+	5 litre c/u
+	1/2 2s | Pinte 4s
+		SHM: Type, nom, quantite dispo
+		Type: Ambree, Blonde
+
+		
+Fournisseur (java)
+	Fournisseur
+		- 
+
+Client connectes via TCP
+	Requetes:
+		- Demander info sur les bieres dispo
+		- Commander une biere:
+			Servi
+			Exception -> Client est informe
+
+
+
