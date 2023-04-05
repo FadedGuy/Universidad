@@ -49,7 +49,7 @@ int main() {
     for (boost::tie(ei, e_end) = out_edges(*u_iter, g); ei != e_end; ++ei)
       if (capacity[*ei] > 0)
         std::cout << "f " << *u_iter << " " << target(*ei, g) << " "
-          << (capacity[*ei] - residual_capacity[*ei]) << std::endl;
+          << (capacity[*ei]) << std::endl;
 
   return EXIT_SUCCESS;
 }
