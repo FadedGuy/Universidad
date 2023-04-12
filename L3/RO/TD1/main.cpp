@@ -67,10 +67,22 @@ long edmondKarps(vertex_t s, vertex_t t, Graph& g){
 
         // Determine the maximum flow that can be added along the augmenting path
         long path_flow = numeric_limits<long>::max();
+        vector<vertex_t> pathForward;
+        long min_flows = INT_MAX;
         for (vertex_t u = t; u != s; u = parent[u]) {
             auto e = edge(parent[u], u, g).first;
             path_flow = min(path_flow, residual_capacity[e]);
+            pathForward.push_back(u);
+            min_flows = min(min_flows, residual_capacity[e]);
+            // cout << parent[u] << "->" << u << ":" << residual_capacity[e] << "\n";
         }
+        pathForward.push_back(s);
+
+        for(int i = pathForward.size()-1; i >= 0; i--){
+            cout << pathForward[i] << (i == 0 ? " " : " -> ");
+        }
+        cout << ":+" << min_flows << "\n";
+
 
         // Add the path flow to the overall flow, and update the residual capacities and reverse edges
         for (vertex_t u = t; u != s; u = parent[u]) {
@@ -102,7 +114,7 @@ int main() {
         residual_capacity[*ei] = capacity[*ei];
     }
 
-    cout << edmondKarps(s, t, g) << "\n";
+    cout << "Max Flow: " << edmondKarps(s, t, g) << "\n";
     print_graph(g);    
     std::string filenameRes = "res.dot";
     std::ofstream outRes(filenameRes.c_str());
