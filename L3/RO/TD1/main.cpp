@@ -114,7 +114,9 @@ int main() {
         residual_capacity[*ei] = capacity[*ei];
     }
 
-    cout << "Max Flow: " << edmondKarps(s, t, g) << "\n";
+    long maxFlow = edmondKarps(s, t, g);
+
+    cout << "Max Flow: " << maxFlow << "\n";
     print_graph(g);    
     std::string filenameRes = "res.dot";
     std::ofstream outRes(filenameRes.c_str());
