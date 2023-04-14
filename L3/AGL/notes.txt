@@ -1,0 +1,9 @@
+Plan d'analyse 
+1. Comment caracteriser l'etat du systeme?
+2. Quel est l'etati inital du systeme?
+3. Quelles sont les entrees dy systeme? 
+4. Quels evenements affectent l'etat du systeme?
+5. Quelles sont les reactions du systeme?
+6. Proposer un modele formel pour le systeme
+
+
