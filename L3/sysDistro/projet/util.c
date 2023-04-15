@@ -11,11 +11,6 @@
 
 #include "util.h"
 
-/*
-    Prints formated 
-    We could change it to accept an error code aswell
-    Can also change to accept different streams, not only stderr
-*/
 void printError(const char* format, ...){
     va_list args;
 
@@ -26,10 +21,6 @@ void printError(const char* format, ...){
     va_end(args);
 }
 
-/*
-    Creates a TCP socket and binds it to the given port, if the 
-    port is 0 then it assigns a random available port
-*/
 int createTCPSocket(int port){
     static struct sockaddr_in serverAddress;
     int sock;
@@ -55,3 +46,26 @@ int createTCPSocket(int port){
 
     return sock;
 }
+
+int connectToSocket(const int sock, const char* serverName, const long serverPort){
+    static struct sockaddr_in serverAddress;
+    struct hostent* serverHostname;
+
+    serverHostname = gethostbyname(serverName);
+    if(serverHostname == NULL){
+        printError("Error retrieving server IP for hostname \"%s\"", serverName);
+        return -1;
+    }
+
+    memset(&serverAddress, 0, sizeof(serverAddress));
+    serverAddress.sin_family = AF_INET;
+    serverAddress.sin_port = htons(serverPort);
+    memcpy(&serverAddress.sin_addr.s_addr, serverHostname->h_addr_list[0], serverHostname->h_length);
+    if(connect(sock, (struct sockaddr*)&serverAddress, sizeof(struct sockaddr_in)) == -1){
+        printError("Error connecting to server");
+        return -1;
+    }
+
+    return 0;
+}
+
