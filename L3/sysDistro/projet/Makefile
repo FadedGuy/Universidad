@@ -12,10 +12,10 @@ client: client.out
 %.o: %.c %.h
 	$(CC) $(CFLAGS) -c -o $@ $<
 
-client.out: client.c util.o
+client.out: client.c util.o request.o
 	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS) $(LDLIBS)
 
-barman.out: barman.c util.o
+barman.out: barman.c util.o request.o
 	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS) $(LDLIBS)
 
 clean:

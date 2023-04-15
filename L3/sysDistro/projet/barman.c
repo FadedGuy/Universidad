@@ -9,6 +9,7 @@
 #include <string.h>
 
 #include "util.h"
+#include "request.h"
 
 #define BUFFER 50
 #define MAX_REQUESTS 5
@@ -30,25 +31,52 @@ int parseArgInfo(int argc, char** argv, long* port){
     return 0;
 }
 
+int receivePacket(int sock, requestPacket* packet){
+    int nbBytes;
+
+    nbBytes = recv(sock, &(packet->requestType), sizeof(requestType_t), 0);
+    if(nbBytes != sizeof(requestType_t)){
+        printError("requestType error");
+        return -1;
+    }
+
+    nbBytes = recv(sock, &(packet->payloadLength), sizeof(size_t), 0);
+    if(nbBytes != sizeof(size_t)){
+        printError("payloadLength error");
+        return -1;
+    }
+
+    packet->payload = malloc(packet->payloadLength + 1);
+    if(packet->payload == NULL){
+        printError("Unable to allocate for payload");
+        return -1;
+    }
+
+    nbBytes = recv(sock, packet->payload, packet->payloadLength, 0);
+    if(nbBytes != packet->payloadLength){
+        printError("payload error");
+        free(packet->payload);
+        return -1;
+    }
+
+    packet->payload[packet->payloadLength] = '\0';
+
+    return 0;
+}
+
 int communications(int sock){
     int nbBytes;
-    char* message = NULL;
+    int statusCode;
     char response[] = "Hi there client";
+    requestPacket request;
 
-    message = malloc(sizeof(char)*BUFFER);
-    if(message == NULL){
-        printError("Unable to allocate more memory");
+    statusCode = receivePacket(sock, &request);
+    if(statusCode == -1){
+        printError("Error receiving packet from client");
         return -1;
     }
 
-    nbBytes = read(sock, message, BUFFER);
-    if(nbBytes == -1){
-        printError("Error receiving message from client, ERRNO=%d", errno);
-        return -1;
-    } else if(nbBytes == 0){
-        printf("Reached EOF\n");
-    }
-    printf("Received %d bytes: %s\n", nbBytes, message);
+    printf("Client said: %d %s\n", request.requestType, request.payload);
 
     nbBytes = write(sock, response, strlen(response)+1);
     if(nbBytes == -1 || nbBytes != strlen(response)+1){

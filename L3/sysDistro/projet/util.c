@@ -9,6 +9,8 @@
 #include <errno.h>
 #include <string.h>
 
+#include "util.h"
+
 /*
     Prints formated 
     We could change it to accept an error code aswell
