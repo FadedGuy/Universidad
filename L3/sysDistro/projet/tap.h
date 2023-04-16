@@ -5,6 +5,10 @@
 #define SERVE_HALF_PINT 2
 #define SERVE_PINT 4
 
+#define SHM_KEY 99
+#define N_TAPS 2
+#define SEM_KEY "tap_semaphore"
+
 typedef enum {
     AMBER = 1,
     LAGER,
@@ -12,7 +16,7 @@ typedef enum {
 
 typedef struct{
     beer_type_t type;
-    char* name;
+    char name[15];
     float quantity;
     float capacity;
 } tap_t;

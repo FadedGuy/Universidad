@@ -35,4 +35,5 @@ Client connectes via TCP
 			Exception -> Client est informe
 
 
-
+ipcrm
+ipcs

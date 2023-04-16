@@ -7,6 +7,10 @@
 #include <netinet/in.h>
 #include <errno.h>
 #include <string.h>
+#include <sys/ipc.h>
+#include <sys/shm.h>
+#include <semaphore.h>
+#include <fcntl.h>
 
 #include "util.h"
 #include "request.h"
@@ -18,7 +22,6 @@
 /*
     Struct named process for ordennanceur
     In main create the different processes
-    SHM for two taps one of each, array protected by semaphore
     Response to client:
         available beer: comma separated beer types from array of taps (check for quantity)
         order beer: wait for turn, "serve", substract from given tap & return response if successful serve
@@ -137,50 +140,117 @@ int communications(int sock){
 }
 
 int main(int argc, char** argv){
-    static struct sockaddr_in clientAddress;
-    unsigned int lgAddress;
-    int listeningSocket, serviceSocket;
-    long localListeningPort;
+    // static struct sockaddr_in clientAddress;
+    // unsigned int lgAddress;
+    // int listeningSocket, serviceSocket;
+    // long localListeningPort;
 
-    int statusCode;
+    // int statusCode;
 
-    statusCode = parseArgInfo(argc, argv, &localListeningPort);
-    if(statusCode == -1){
-        printError("Error while parsing arguments");
-        exit(EXIT_FAILURE);
+    // statusCode = parseArgInfo(argc, argv, &localListeningPort);
+    // if(statusCode == -1){
+    //     printError("Error while parsing arguments");
+    //     exit(EXIT_FAILURE);
+    // }
+
+    // listeningSocket = createTCPSocket(localListeningPort);
+    // if(listeningSocket == -1){
+    //     printError("Error while creating TCP socket");
+    //     close(listeningSocket);
+    //     exit(EXIT_FAILURE);
+    // }
+
+    // statusCode = listen(listeningSocket, MAX_REQUESTS);
+    // if(statusCode == -1){
+    //     printError("Error trying to listen for messages");
+    //     close(listeningSocket);
+    //     exit(EXIT_FAILURE);
+    // }
+
+    // while(1){
+    //     lgAddress = sizeof(struct sockaddr_in);
+    //     serviceSocket = accept(listeningSocket, (struct sockaddr*)&clientAddress, &lgAddress);
+    //     if(serviceSocket == -1){
+    //         printError("Error while accepting incoming connection from: \"%s\"", clientAddress.sin_addr.s_addr);
+    //         exit(EXIT_FAILURE);
+    //     }
+    //     if(fork() == 0){
+    //         close(listeningSocket);
+    //         communications(serviceSocket);
+    //         exit(EXIT_SUCCESS);
+    //     }
+
+    //     close(serviceSocket);
+    // }
+    
+    // close(listeningSocket);
+
+    tap_t* taps;
+    sem_t* semaphore[N_TAPS];
+    int status, i;
+    float missing;
+
+    if(( status = shmget(SHM_KEY, N_TAPS*sizeof(tap_t), IPC_CREAT|IPC_EXCL|0600)) == -1) {
+        printf("shm1.shmget: %s\n", strerror(errno));
+        exit(1);
     }
-
-    listeningSocket = createTCPSocket(localListeningPort);
-    if(listeningSocket == -1){
-        printError("Error while creating TCP socket");
-        close(listeningSocket);
-        exit(EXIT_FAILURE);
-    }
-
-    statusCode = listen(listeningSocket, MAX_REQUESTS);
-    if(statusCode == -1){
-        printError("Error trying to listen for messages");
-        close(listeningSocket);
-        exit(EXIT_FAILURE);
-    }
-
-    while(1){
-        lgAddress = sizeof(struct sockaddr_in);
-        serviceSocket = accept(listeningSocket, (struct sockaddr*)&clientAddress, &lgAddress);
-        if(serviceSocket == -1){
-            printError("Error while accepting incoming connection from: \"%s\"", clientAddress.sin_addr.s_addr);
-            exit(EXIT_FAILURE);
-        }
-        if(fork() == 0){
-            close(listeningSocket);
-            communications(serviceSocket);
-            exit(EXIT_SUCCESS);
-        }
-
-        close(serviceSocket);
+    printf("status = %d\n", status);
+    
+    if(( taps = (tap_t*) shmat(status, NULL, 0)) == (tap_t*)-1){
+        printf("shm1.shmat: %s\n", strerror(errno));
+        exit(1);
     }
     
-    close(listeningSocket);
+    for(i = 0; i < N_TAPS; i++){
+        if((semaphore[i] = sem_open(SEM_KEY, O_CREAT, 0666, 1)) == SEM_FAILED){
+            printf("sem_open: %s\n", strerror(errno));
+            exit(1);
+        }
+    }
 
+    sem_wait(semaphore[0]);
+    taps[0].type = AMBER;
+    taps[0].quantity = KEG_CAPACITY;
+    missing = taps[0].quantity;
+    sem_post(semaphore[0]);
+
+    printf("Info saved to shared memory\n");
+    
+    sleep(5);
+
+    while (missing > 0){
+        printf("Sleeping for 2 seconds\n");
+        sleep(2);
+
+        printf("Accesing tap to see current level\n");
+        sem_wait(semaphore[0]);
+        printf("taps = %p, *taps = %d %f \n", (void*)taps, taps[0].type, taps[0].quantity);
+        missing = taps[0].quantity;
+        sem_post(semaphore[0]);
+
+        sleep(0.5);        
+    }
+    
+
+    
+    if(shmdt(taps) == -1) {
+        printf("shm1.shmdt: %s\n", strerror(errno));
+        exit(1);
+    }
+    
+
+    for(i = 0; i < 2; i++){
+        if(sem_close(semaphore[i]) == -1){
+            printf("sem_close: %s\n", strerror(errno));
+            exit(1);
+        }
+    }
+
+    if(shmctl(status, IPC_RMID, NULL) == -1) {
+        printf("shm1.shmctl: %s\n", strerror(errno));
+        exit(1);
+    }
+    
+    sleep(2);
     return EXIT_SUCCESS;
 }
