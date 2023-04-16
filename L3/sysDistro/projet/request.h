@@ -2,10 +2,12 @@
 #define REQUEST
 
 #define BUFFER 50
+#define END_RESPONSE "END_OF_RESPONSE"
 
 typedef enum {
-    AVAILABLE_BEER,
-    ORDER_BEER,
+    AVAILABLE_BEER = 1,
+    ORDER_BEER = 2,
+    EXIT_BAR = 3,
 } requestType_t;
 
 typedef struct{
@@ -30,12 +32,12 @@ requestPacket* createRequestPacket(const requestType_t type, const char* payload
 void freeRequestPacket(requestPacket* packet);
 
 /**
- * Send the packet to the socket
+ * Send a given packet to the server via socket
  * @param sock Socket to which the packet will be sent to
  * @param packet Packet to be sent
  * @return 0 on sucess, -1 for errors
 */
-int writeClientRequestPacket(const int sock, const requestPacket* packet);
+int writeServerRequest(const int sock, const requestPacket* packet);
 
 /**
  * Reads response sent by the server
@@ -49,9 +51,27 @@ int readServerResponse(const int sock, char** response, int* responseSize);
 /**
  * Sends a packet to the given socket
  * @param type Type of request packet to be sent
- * @param sock Socket to whihc packet will be sent 
+ * @param sock Socket to which packet will be sent 
  * @return 0 on sucess, -1 for errors
 */
 int sendRequest(const requestType_t type, const int sock, const char* payload);
+
+/**
+ * Writes a response with a terminating text to the client
+ * @param sock Socket where data will be sent
+ * @param response Response that will be sent to the client
+ * @return 0 on sucess, -1 for errors
+*/
+int writeClientResponse(const int sock, const char* response);
+
+/**
+ * Assigns to packet the values received from the client's request
+ * @param sock Socket where data is received
+ * @param packet Packet where data will be stored
+ * @return 0 on sucess, -1 for errors
+*/
+int readClientRequest(const int sock, requestPacket* packet);
+
+
 
 #endif

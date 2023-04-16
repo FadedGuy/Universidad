@@ -34,7 +34,7 @@ void freeRequestPacket(requestPacket* packet){
     free(packet);
 }
 
-int writeClientRequestPacket(const int sock, const requestPacket* packet){
+int writeServerRequest(const int sock, const requestPacket* packet){
     int totalSize = sizeof(requestType_t) + sizeof(size_t) + packet->payloadLength;
     int nbBytes;
     char* buffer = malloc(totalSize);
@@ -94,6 +94,10 @@ int readServerResponse(const int sock, char** response, int* responseSize){
 
         memcpy(*response + totalBytesRead, buffer, bytesRead);
         totalBytesRead += bytesRead;
+
+        if (totalBytesRead >= strlen(END_RESPONSE)-1 && strcmp(*response + totalBytesRead - strlen(END_RESPONSE)-1, END_RESPONSE) == 0) {
+            break;
+        }   
     }
 
     (*response)[totalBytesRead] = '\0';
@@ -111,6 +115,7 @@ int sendRequest(const requestType_t type, const int sock, const char* payload){
     switch(type){
         case AVAILABLE_BEER:
         case ORDER_BEER:
+        case EXIT_BAR:
             packet = createRequestPacket(type, payload, strlen(payload));
             break;
         default:
@@ -121,18 +126,15 @@ int sendRequest(const requestType_t type, const int sock, const char* payload){
     
     if(packet == NULL){
         printError("Error creating request");
-        freeRequestPacket(packet);
         return -1;
     }
-    printf("Request has been created\n");
 
-    statusCode = writeClientRequestPacket(sock, packet);
+    statusCode = writeServerRequest(sock, packet);
     if(statusCode == -1){
         printError("Error sending packet to server");
         freeRequestPacket(packet);
         return -1;
     }
-    printf("Request has been sent to server\n");
 
     responseSize = BUFFER;
     response = malloc(responseSize);
@@ -151,7 +153,61 @@ int sendRequest(const requestType_t type, const int sock, const char* payload){
     }
     printf("Response received from server: %s\n", response);
 
-    free(response);
+    if(response !=  NULL){
+        free(response);
+    }
     freeRequestPacket(packet);
     return 0;
 }
+
+int writeClientResponse(const int sock, const char* response){
+    int nbBytes;
+
+    nbBytes = send(sock, response, strlen(response)+1, 0);
+    if(nbBytes == -1 || nbBytes != strlen(response)+1){
+        printError("Error sending message to client: only %d/%d bytes were sent", nbBytes, strlen(response)+1);
+        return -1;
+    }    
+
+    nbBytes = send(sock, END_RESPONSE, strlen(END_RESPONSE)+1, 0);
+    if(nbBytes == -1 || nbBytes != strlen(END_RESPONSE)+1){
+        printError("Error sending end message to client: only %d/%d bytes were sent", nbBytes, strlen(END_RESPONSE)+1);
+        return -1;
+    } 
+
+    return 0;
+}
+
+int readClientRequest(const int sock, requestPacket* packet){
+    int nbBytes;
+
+    nbBytes = recv(sock, &(packet->requestType), sizeof(requestType_t), 0);
+    if(nbBytes != sizeof(requestType_t)){
+        printError("requestType error");
+        return -1;
+    }
+
+    nbBytes = recv(sock, &(packet->payloadLength), sizeof(size_t), 0);
+    if(nbBytes != sizeof(size_t)){
+        printError("payloadLength error");
+        return -1;
+    }
+
+    packet->payload = malloc(packet->payloadLength + 1);
+    if(packet->payload == NULL){
+        printError("Unable to allocate for payload");
+        return -1;
+    }
+
+    nbBytes = recv(sock, packet->payload, packet->payloadLength, 0);
+    if(nbBytes != packet->payloadLength){
+        printError("payload error");
+        free(packet->payload);
+        return -1;
+    }
+
+    packet->payload[packet->payloadLength] = '\0';
+
+    return 0;
+}
+

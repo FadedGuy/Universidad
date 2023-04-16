@@ -31,58 +31,51 @@ int parseArgInfo(int argc, char** argv, long* port){
     return 0;
 }
 
-int receivePacket(int sock, requestPacket* packet){
-    int nbBytes;
-
-    nbBytes = recv(sock, &(packet->requestType), sizeof(requestType_t), 0);
-    if(nbBytes != sizeof(requestType_t)){
-        printError("requestType error");
-        return -1;
-    }
-
-    nbBytes = recv(sock, &(packet->payloadLength), sizeof(size_t), 0);
-    if(nbBytes != sizeof(size_t)){
-        printError("payloadLength error");
-        return -1;
-    }
-
-    packet->payload = malloc(packet->payloadLength + 1);
-    if(packet->payload == NULL){
-        printError("Unable to allocate for payload");
-        return -1;
-    }
-
-    nbBytes = recv(sock, packet->payload, packet->payloadLength, 0);
-    if(nbBytes != packet->payloadLength){
-        printError("payload error");
-        free(packet->payload);
-        return -1;
-    }
-
-    packet->payload[packet->payloadLength] = '\0';
-
-    return 0;
-}
-
 int communications(int sock){
-    int nbBytes;
     int statusCode;
-    char response[] = "Hi there client";
+    char* response;
     requestPacket request;
 
-    statusCode = receivePacket(sock, &request);
-    if(statusCode == -1){
-        printError("Error receiving packet from client");
-        return -1;
+    while(1){
+        statusCode = readClientRequest(sock, &request);
+        if(statusCode == -1){
+            printError("Error receiving packet from client #%d", sock);
+            return -1;
+        }
+
+        printf("Client #%d said: %s\n", sock, request.payload);
+
+        // Process request
+        switch(request.requestType){
+            case AVAILABLE_BEER:
+                response = malloc(strlen("These are available:")+1);
+                strcpy(response, "These are available:");
+                break;
+            case ORDER_BEER:
+                response = malloc(strlen("Here u go")+1);
+                strcpy(response, "Here u go");
+                break;
+            case EXIT_BAR:
+                response = malloc(strlen("Come back later!")+1);
+                strcpy(response, "Come back later!");
+                break;
+            default:
+                printError("Request type \"%d\" not recognised", request.requestType);
+        }
+
+
+        statusCode = writeClientResponse(sock, response);
+        if(statusCode == -1){
+            printError("Error sending response to client");
+            return -1;
+        }
+        printf("Reponse sent to client #%d\n", sock);
+        
+        if(request.requestType == EXIT_BAR){
+            printf("Client #%d exited bar\n", sock);
+            return 0;
+        }
     }
-
-    printf("Client said: %d %s\n", request.requestType, request.payload);
-
-    nbBytes = write(sock, response, strlen(response)+1);
-    if(nbBytes == -1 || nbBytes != strlen(response)+1){
-        printError("Error sending message to client: only %d/%d bytes were sent", nbBytes, strlen(response)+1);
-        return -1;
-    } 
 
     return 0;
 }

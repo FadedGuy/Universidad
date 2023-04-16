@@ -8,14 +8,18 @@
 #include <errno.h>
 #include <string.h>
 
+
 #include "util.h"
 #include "request.h"
 
+#define CLEAR_TERMINAL printf("\033[2J\033[1;1H");
 #define BUFFER 50
 
 /*
     We could add support for SIGINT or any other for when the program closes
     so it properly cleans up
+    Can also send with the request an ID to know which client is the server talking about and 
+    it can be identified
 */
 
 /**
@@ -48,13 +52,87 @@ int parseArgInfo(int nbArgs, char** args, char** name, long* port){
     return 0;
 }
 
+/**
+ * Prompts the user for an integer and checks it's within range
+ * @param prompt Text user will see
+ * @param upper Choice upper limit inclusive
+ * @param lower Choice lower limit inclusive
+ * @return Choice on sucess, -1 if error
+*/
+long getMenuChoice(const char* prompt, const long lower, const long upper){
+    char input[1024];
+    char* endptr;    
+    int sucess;
+    long choice;
+
+    do{
+        printf("%s", prompt);
+        if(!fgets(input, 1024, stdin)){
+            printError("Reading input failed");
+            return -1;
+        }
+
+        endptr = NULL;
+        errno = 0;
+        choice = strtol(input, &endptr, 10);
+        if(errno == ERANGE){
+            printError("Number is outside of long range");
+            continue;
+        } else if(endptr == input){
+            printError("No characters were read");
+            sucess = 0;
+        } else if(*endptr && *endptr != '\n'){
+            printError("Unable to convert all input");
+            sucess = 0;
+        } else if(choice < lower || choice > upper){
+            printError("Choice is not within menu range of %d-%d", lower, upper);
+            sucess = 0;
+        } else{
+            sucess = 1;
+        }
+
+    }while(!sucess);
+
+    return choice;
+}
+
 int clientMenu(const int sock){
     int statusCode;
-    
-    statusCode = sendRequest(AVAILABLE_BEER, sock, "0");
-    if(statusCode == -1){
-        printError("Error processing request \"%d\"", AVAILABLE_BEER);
-        return -1;
+    long choice;
+    char* requestPayload;
+
+    while(1){
+        printf("-------------------------\n\tMENU\n");
+        printf("Choose an option:\n");
+        printf("1. Show available beers\n");
+        printf("2. Order a beer\n");
+        printf("3. Exit\n");
+
+        choice = getMenuChoice("Enter your choice: ", 1, 3);
+        switch(choice){
+            case 1:
+                requestPayload = "0";
+                break;
+            case 2:
+                requestPayload = "biere";
+                break;
+            case 3:
+                requestPayload = "Didn't pay";
+                break;
+            default:
+                printError("Choice \"%ld\" is not known", choice);
+                return -1;
+        }
+
+        statusCode = sendRequest(choice, sock, requestPayload);
+        if(statusCode == -1){
+            printError("Unable to process request \"%d\"", choice);
+            return -1;
+        }
+
+        if(choice == 3){
+            return 0;
+        }
     }
 
     return 0;
@@ -71,7 +149,6 @@ int main(int argc, char** argv){
         printError("Error while parsing arguments");
         exit(EXIT_FAILURE);
     }
-    printf("Arguments parsed\n");
 
     sock = createTCPSocket(0);
     if(sock == -1){
@@ -79,7 +156,6 @@ int main(int argc, char** argv){
         close(sock);
         exit(EXIT_FAILURE);
     }
-    printf("Created TCP Socket\n");
 
     statusCode = connectToSocket(sock, serverName, serverPort);
     if(statusCode == -1){
@@ -87,7 +163,6 @@ int main(int argc, char** argv){
         close(sock);
         exit(EXIT_FAILURE);
     }
-    printf("Conencted to socket!\n");
 
 
     statusCode = clientMenu(sock);
@@ -98,7 +173,7 @@ int main(int argc, char** argv){
     }
     printf("Client exited successfully!\n");
     
+
     close(sock);
-    
     return EXIT_SUCCESS;
 }   
