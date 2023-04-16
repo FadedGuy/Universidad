@@ -4,10 +4,18 @@
 #define BUFFER 50
 #define END_RESPONSE "END_OF_RESPONSE"
 
+#define CLIENT_LOWER C_AVAILABLE_BEER
+#define CLIENT_UPPER C_EXIT_BAR
+#define SERVER_LOWER S_AVAILABLE_BEER
+#define SERVER_UPPER S_EXIT_BAR
+
 typedef enum {
-    AVAILABLE_BEER = 1,
-    ORDER_BEER = 2,
-    EXIT_BAR = 3,
+    C_AVAILABLE_BEER = 1,
+    C_ORDER_BEER,
+    C_EXIT_BAR,
+    S_AVAILABLE_BEER,
+    S_ORDER_BEER,
+    S_EXIT_BAR,
 } requestType_t;
 
 typedef struct{
@@ -32,21 +40,20 @@ requestPacket* createRequestPacket(const requestType_t type, const char* payload
 void freeRequestPacket(requestPacket* packet);
 
 /**
- * Send a given packet to the server via socket
+ * Send a packet to the socket
  * @param sock Socket to which the packet will be sent to
  * @param packet Packet to be sent
  * @return 0 on sucess, -1 for errors
 */
-int writeServerRequest(const int sock, const requestPacket* packet);
+int writeRequest(const int sock, const requestPacket* packet);
 
 /**
- * Reads response sent by the server
- * @param sock Socket from which to read data
- * @param response Where the response will be saved
- * @param responseSize Where the size of the response will be saved
+ * Reads the incoming packet from socket
+ * @param sock Socket where data is received
+ * @param packet Packet where data will be stored
  * @return 0 on sucess, -1 for errors
 */
-int readServerResponse(const int sock, char** response, int* responseSize);
+int readRequest(const int sock, requestPacket* packet);
 
 /**
  * Sends a packet to the given socket
@@ -54,24 +61,7 @@ int readServerResponse(const int sock, char** response, int* responseSize);
  * @param sock Socket to which packet will be sent 
  * @return 0 on sucess, -1 for errors
 */
-int sendRequest(const requestType_t type, const int sock, const char* payload);
-
-/**
- * Writes a response with a terminating text to the client
- * @param sock Socket where data will be sent
- * @param response Response that will be sent to the client
- * @return 0 on sucess, -1 for errors
-*/
-int writeClientResponse(const int sock, const char* response);
-
-/**
- * Assigns to packet the values received from the client's request
- * @param sock Socket where data is received
- * @param packet Packet where data will be stored
- * @return 0 on sucess, -1 for errors
-*/
-int readClientRequest(const int sock, requestPacket* packet);
-
+int sendRequest(const requestType_t type, const int sock, const char* payload, requestPacket* response);
 
 
 #endif

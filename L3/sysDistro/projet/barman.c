@@ -33,11 +33,12 @@ int parseArgInfo(int argc, char** argv, long* port){
 
 int communications(int sock){
     int statusCode;
-    char* response;
+    char* responsePayload;
     requestPacket request;
+    requestType_t responseType;
 
     while(1){
-        statusCode = readClientRequest(sock, &request);
+        statusCode = readRequest(sock, &request);
         if(statusCode == -1){
             printError("Error receiving packet from client #%d", sock);
             return -1;
@@ -47,31 +48,32 @@ int communications(int sock){
 
         // Process request
         switch(request.requestType){
-            case AVAILABLE_BEER:
-                response = malloc(strlen("These are available:")+1);
-                strcpy(response, "These are available:");
+            case C_AVAILABLE_BEER:
+                responsePayload = "These are available";
+                responseType = S_AVAILABLE_BEER;
                 break;
-            case ORDER_BEER:
-                response = malloc(strlen("Here u go")+1);
-                strcpy(response, "Here u go");
+            case C_ORDER_BEER:
+                responsePayload = "Here u go";
+                responseType = S_ORDER_BEER;
                 break;
-            case EXIT_BAR:
-                response = malloc(strlen("Come back later!")+1);
-                strcpy(response, "Come back later!");
+            case C_EXIT_BAR:
+                responsePayload = "Come back later";
+                responseType = S_EXIT_BAR;
                 break;
             default:
                 printError("Request type \"%d\" not recognised", request.requestType);
+                return -1;
         }
 
 
-        statusCode = writeClientResponse(sock, response);
+        statusCode = sendRequest(responseType, sock, responsePayload, &request);
         if(statusCode == -1){
             printError("Error sending response to client");
             return -1;
         }
         printf("Reponse sent to client #%d\n", sock);
         
-        if(request.requestType == EXIT_BAR){
+        if(request.requestType == C_EXIT_BAR){
             printf("Client #%d exited bar\n", sock);
             return 0;
         }

@@ -100,6 +100,7 @@ int clientMenu(const int sock){
     int statusCode;
     long choice;
     char* requestPayload;
+    requestPacket response;
 
     while(1){
         printf("-------------------------\n\tMENU\n");
@@ -108,15 +109,15 @@ int clientMenu(const int sock){
         printf("2. Order a beer\n");
         printf("3. Exit\n");
 
-        choice = getMenuChoice("Enter your choice: ", 1, 3);
+        choice = getMenuChoice("Enter your choice: ", CLIENT_LOWER, CLIENT_UPPER);
         switch(choice){
-            case 1:
+            case C_AVAILABLE_BEER:
                 requestPayload = "0";
                 break;
-            case 2:
+            case C_ORDER_BEER:
                 requestPayload = "biere";
                 break;
-            case 3:
+            case C_EXIT_BAR:
                 requestPayload = "Didn't pay";
                 break;
             default:
@@ -124,11 +125,12 @@ int clientMenu(const int sock){
                 return -1;
         }
 
-        statusCode = sendRequest(choice, sock, requestPayload);
+        statusCode = sendRequest(choice, sock, requestPayload, &response);
         if(statusCode == -1){
             printError("Unable to process request \"%d\"", choice);
             return -1;
         }
+        printf("Got at the very end: %s\n", response.payload);
 
         if(choice == 3){
             return 0;

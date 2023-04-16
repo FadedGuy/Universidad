@@ -34,7 +34,7 @@ void freeRequestPacket(requestPacket* packet){
     free(packet);
 }
 
-int writeServerRequest(const int sock, const requestPacket* packet){
+int writeRequest(const int sock, const requestPacket* packet){
     int totalSize = sizeof(requestType_t) + sizeof(size_t) + packet->payloadLength;
     int nbBytes;
     char* buffer = malloc(totalSize);
@@ -59,126 +59,7 @@ int writeServerRequest(const int sock, const requestPacket* packet){
     return 0;
 }
 
-int readServerResponse(const int sock, char** response, int* responseSize){
-    int totalBytesRead = 0;
-    int bytesRead = 0;
-    char* buffer = malloc(BUFFER);
-
-    if (buffer == NULL) {
-        printf("Error: Unable to allocate memory for buffer\n");
-        return -1;
-    }
-
-    while (1) {
-        if (totalBytesRead + BUFFER + 1 > *responseSize) {
-            int newResponseSize = *responseSize + BUFFER + 1;
-            char* newResponse = realloc(*response, newResponseSize);
-            if (newResponse == NULL) {
-                printf("Error: Unable to allocate memory for response\n");
-                free(buffer);
-                return -1;
-            }
-            *response = newResponse;
-            *responseSize = newResponseSize;
-        }
-
-        bytesRead = recv(sock, buffer, BUFFER, 0);
-        if (bytesRead == -1) {
-            printf("Error: Unable to receive data from server\n");
-            free(buffer);
-            return -1;
-        }
-        if (bytesRead == 0) {
-            break;
-        }
-
-        memcpy(*response + totalBytesRead, buffer, bytesRead);
-        totalBytesRead += bytesRead;
-
-        if (totalBytesRead >= strlen(END_RESPONSE)-1 && strcmp(*response + totalBytesRead - strlen(END_RESPONSE)-1, END_RESPONSE) == 0) {
-            break;
-        }   
-    }
-
-    (*response)[totalBytesRead] = '\0';
-
-    free(buffer);
-    return 0;
-}
-
-int sendRequest(const requestType_t type, const int sock, const char* payload){
-    requestPacket* packet;
-    int statusCode;
-    char* response = NULL;
-    int responseSize = 0;
-
-    switch(type){
-        case AVAILABLE_BEER:
-        case ORDER_BEER:
-        case EXIT_BAR:
-            packet = createRequestPacket(type, payload, strlen(payload));
-            break;
-        default:
-            printError("Request type given not recognised: \"%d\"", type);
-            statusCode = -1;
-            break;
-    };
-    
-    if(packet == NULL){
-        printError("Error creating request");
-        return -1;
-    }
-
-    statusCode = writeServerRequest(sock, packet);
-    if(statusCode == -1){
-        printError("Error sending packet to server");
-        freeRequestPacket(packet);
-        return -1;
-    }
-
-    responseSize = BUFFER;
-    response = malloc(responseSize);
-    if(response == NULL){
-        printError("Unable to allocate memory for response");
-        freeRequestPacket(packet);
-        return -1;
-    }
-    
-    statusCode = readServerResponse(sock, &response, &responseSize);
-    if(statusCode == -1){
-        printError("Error reading packets from server");
-        free(response);
-        freeRequestPacket(packet);
-        return -1;
-    }
-    printf("Response received from server: %s\n", response);
-
-    if(response !=  NULL){
-        free(response);
-    }
-    freeRequestPacket(packet);
-    return 0;
-}
-
-int writeClientResponse(const int sock, const char* response){
-    int nbBytes;
-
-    nbBytes = send(sock, response, strlen(response)+1, 0);
-    if(nbBytes == -1 || nbBytes != strlen(response)+1){
-        printError("Error sending message to client: only %d/%d bytes were sent", nbBytes, strlen(response)+1);
-        return -1;
-    }    
-
-    nbBytes = send(sock, END_RESPONSE, strlen(END_RESPONSE)+1, 0);
-    if(nbBytes == -1 || nbBytes != strlen(END_RESPONSE)+1){
-        printError("Error sending end message to client: only %d/%d bytes were sent", nbBytes, strlen(END_RESPONSE)+1);
-        return -1;
-    } 
-
-    return 0;
-}
-
-int readClientRequest(const int sock, requestPacket* packet){
+int readRequest(const int sock, requestPacket* packet){
     int nbBytes;
 
     nbBytes = recv(sock, &(packet->requestType), sizeof(requestType_t), 0);
@@ -210,4 +91,51 @@ int readClientRequest(const int sock, requestPacket* packet){
 
     return 0;
 }
+
+int sendRequest(const requestType_t type, const int sock, const char* payload, requestPacket* response){
+    requestPacket* packet;
+    int statusCode;
+
+    switch(type){
+        case C_AVAILABLE_BEER:
+        case C_ORDER_BEER:
+        case C_EXIT_BAR:
+        case S_AVAILABLE_BEER:
+        case S_ORDER_BEER:
+        case S_EXIT_BAR:
+            packet = createRequestPacket(type, payload, strlen(payload));
+            break;
+        default:
+            printError("Request type given not recognised: \"%d\"", type);
+            statusCode = -1;
+            break;
+    };
+    
+    if(packet == NULL){
+        printError("Error creating request");
+        return -1;
+    }
+
+    statusCode = writeRequest(sock, packet);
+    if(statusCode == -1){
+        printError("Error sending packet");
+        freeRequestPacket(packet);
+        return -1;
+    }
+
+    if(type >= CLIENT_LOWER && type <= CLIENT_UPPER){
+        // Client request type
+        statusCode = readRequest(sock, response);
+        if(statusCode == -1){
+            printError("Error reading packets from server");
+            freeRequestPacket(packet);
+            return -1;
+        }
+        printf("Response received from server: %s\n", response->payload);
+    } 
+
+    freeRequestPacket(packet);
+    return 0;
+}
+
 
