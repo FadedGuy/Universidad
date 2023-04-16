@@ -131,7 +131,6 @@ int sendRequest(const requestType_t type, const int sock, const char* payload, r
             freeRequestPacket(packet);
             return -1;
         }
-        printf("Response received from server: %s\n", response->payload);
     } 
 
     freeRequestPacket(packet);

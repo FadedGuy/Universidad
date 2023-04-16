@@ -28,6 +28,7 @@
  * @param args arguments given
  * @param name server address name
  * @param port server port
+ * @return 0 on sucess, -1 for errors
 */
 int parseArgInfo(int nbArgs, char** args, char** name, long* port){
     char *end;
@@ -96,6 +97,36 @@ long getMenuChoice(const char* prompt, const long lower, const long upper){
     return choice;
 }
 
+char* getAvailableBeerPayload(){
+    char* str = malloc(strlen(EMPTY_PAYLOAD) + 1);
+    if(str == NULL){
+        return NULL;
+    }
+
+    strcpy(str, EMPTY_PAYLOAD); 
+    return str;
+}
+
+char* getOrderBeerPayload(){
+    char* str = malloc(strlen("biere") + 1);
+    if(str == NULL){
+        return NULL;
+    }
+
+    strcpy(str, "biere"); 
+    return str;
+}
+
+char* getExitBarPayload(){
+    char* str = malloc(strlen("IM out") + 1);
+    if(str == NULL){
+        return NULL;
+    }
+
+    strcpy(str, "IM out"); 
+    return str;
+}
+
 int clientMenu(const int sock){
     int statusCode;
     long choice;
@@ -112,17 +143,22 @@ int clientMenu(const int sock){
         choice = getMenuChoice("Enter your choice: ", CLIENT_LOWER, CLIENT_UPPER);
         switch(choice){
             case C_AVAILABLE_BEER:
-                requestPayload = "0";
+                requestPayload = getAvailableBeerPayload();
                 break;
             case C_ORDER_BEER:
-                requestPayload = "biere";
+                requestPayload = getOrderBeerPayload();
                 break;
             case C_EXIT_BAR:
-                requestPayload = "Didn't pay";
+                requestPayload = getExitBarPayload();
                 break;
             default:
                 printError("Choice \"%ld\" is not known", choice);
                 return -1;
+        }
+
+        if(requestPayload == NULL){
+            printError("Unable to generate payload for request \"%d\"", choice);
+            return -1;
         }
 
         statusCode = sendRequest(choice, sock, requestPayload, &response);
@@ -130,11 +166,13 @@ int clientMenu(const int sock){
             printError("Unable to process request \"%d\"", choice);
             return -1;
         }
-        printf("Got at the very end: %s\n", response.payload);
+        printf("Server said: %s\n", response.payload);
 
         if(choice == 3){
             return 0;
         }
+
+        free(requestPayload);
     }
 
     return 0;

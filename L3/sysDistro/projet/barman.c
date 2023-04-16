@@ -14,6 +14,13 @@
 #define BUFFER 50
 #define MAX_REQUESTS 5
 
+/**
+ * Parses the information given when the program was ran
+ * @param argc number of arguments given
+ * @param argv arguments given
+ * @param port server port to open and listen
+ * @return 0 on sucess, -1 for errors
+*/
 int parseArgInfo(int argc, char** argv, long* port){
     char *end;
 
@@ -29,6 +36,36 @@ int parseArgInfo(int argc, char** argv, long* port){
     }
 
     return 0;
+}
+
+char* getAvailableBeerPayload(){
+    char* str = malloc(strlen("These are the available beers we have here") + 1);
+    if(str == NULL){
+        return NULL;
+    }
+
+    strcpy(str, "These are the available beers we have here"); 
+    return str;
+}
+
+char* getOrderBeerPayload(){
+    char* str = malloc(strlen("Here u go client, one beer") + 1);
+    if(str == NULL){
+        return NULL;
+    }
+
+    strcpy(str, "Here u go client, one beer"); 
+    return str;
+}
+
+char* getExitBarPayload(){
+    char* str = malloc(strlen("Come back afterwards!") + 1);
+    if(str == NULL){
+        return NULL;
+    }
+
+    strcpy(str, "Come back afterwards!"); 
+    return str;
 }
 
 int communications(int sock){
@@ -49,15 +86,15 @@ int communications(int sock){
         // Process request
         switch(request.requestType){
             case C_AVAILABLE_BEER:
-                responsePayload = "These are available";
+                responsePayload = getAvailableBeerPayload();
                 responseType = S_AVAILABLE_BEER;
                 break;
             case C_ORDER_BEER:
-                responsePayload = "Here u go";
+                responsePayload = getOrderBeerPayload();
                 responseType = S_ORDER_BEER;
                 break;
             case C_EXIT_BAR:
-                responsePayload = "Come back later";
+                responsePayload = getExitBarPayload();
                 responseType = S_EXIT_BAR;
                 break;
             default:
@@ -65,6 +102,10 @@ int communications(int sock){
                 return -1;
         }
 
+        if(responsePayload == NULL){
+            printError("Error create response payload for \"%d\" type", responseType);
+            return -1;
+        }
 
         statusCode = sendRequest(responseType, sock, responsePayload, &request);
         if(statusCode == -1){
@@ -77,6 +118,8 @@ int communications(int sock){
             printf("Client #%d exited bar\n", sock);
             return 0;
         }
+
+        free(responsePayload);
     }
 
     return 0;
