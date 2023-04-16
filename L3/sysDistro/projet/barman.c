@@ -10,9 +10,20 @@
 
 #include "util.h"
 #include "request.h"
+#include "tap.h"
 
 #define BUFFER 50
 #define MAX_REQUESTS 5
+
+/*
+    Struct named process for ordennanceur
+    In main create the different processes
+    SHM for two taps one of each, array protected by semaphore
+    Response to client:
+        available beer: comma separated beer types from array of taps (check for quantity)
+        order beer: wait for turn, "serve", substract from given tap & return response if successful serve
+        exit bar: NA
+*/
 
 /**
  * Parses the information given when the program was ran
@@ -71,7 +82,7 @@ char* getExitBarPayload(){
 int communications(int sock){
     int statusCode;
     char* responsePayload;
-    requestPacket request;
+    requestPacket_t request;
     requestType_t responseType;
 
     while(1){

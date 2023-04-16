@@ -6,8 +6,8 @@
 #include "util.h"
 #include "request.h"
 
-requestPacket* createRequestPacket(const requestType_t type, const char* payload, const size_t payloadSize){
-    requestPacket* packet = malloc(sizeof(requestPacket));
+requestPacket_t* createRequestPacket(const requestType_t type, const char* payload, const size_t payloadSize){
+    requestPacket_t* packet = malloc(sizeof(requestPacket_t));
     if(packet == NULL){
         printError("Error allocating memory for packet");
         return NULL;
@@ -25,7 +25,7 @@ requestPacket* createRequestPacket(const requestType_t type, const char* payload
     return packet;
 }
 
-void freeRequestPacket(requestPacket* packet){
+void freeRequestPacket(requestPacket_t* packet){
     if(packet == NULL){
         return;
     }
@@ -34,7 +34,7 @@ void freeRequestPacket(requestPacket* packet){
     free(packet);
 }
 
-int writeRequest(const int sock, const requestPacket* packet){
+int writeRequest(const int sock, const requestPacket_t* packet){
     int totalSize = sizeof(requestType_t) + sizeof(size_t) + packet->payloadLength;
     int nbBytes;
     char* buffer = malloc(totalSize);
@@ -59,7 +59,7 @@ int writeRequest(const int sock, const requestPacket* packet){
     return 0;
 }
 
-int readRequest(const int sock, requestPacket* packet){
+int readRequest(const int sock, requestPacket_t* packet){
     int nbBytes;
 
     nbBytes = recv(sock, &(packet->requestType), sizeof(requestType_t), 0);
@@ -92,8 +92,8 @@ int readRequest(const int sock, requestPacket* packet){
     return 0;
 }
 
-int sendRequest(const requestType_t type, const int sock, const char* payload, requestPacket* response){
-    requestPacket* packet;
+int sendRequest(const requestType_t type, const int sock, const char* payload, requestPacket_t* response){
+    requestPacket_t* packet;
     int statusCode;
 
     switch(type){

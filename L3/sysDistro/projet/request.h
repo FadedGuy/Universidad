@@ -22,7 +22,7 @@ typedef struct{
     requestType_t requestType;
     size_t payloadLength;
     char* payload;
-} requestPacket;
+} requestPacket_t;
 
 /**
  * Returns a packet type containing it's type, payload and payload's size
@@ -31,13 +31,13 @@ typedef struct{
  * @param payloadSize Payload size
  * @return Packet on sucess, NULL otherwise
 */
-requestPacket* createRequestPacket(const requestType_t type, const char* payload, const size_t payloadSize);
+requestPacket_t* createRequestPacket(const requestType_t type, const char* payload, const size_t payloadSize);
 
 /**
  * Frees all memory allocated in packet
  * @param packet Packet to be freed
 */
-void freeRequestPacket(requestPacket* packet);
+void freeRequestPacket(requestPacket_t* packet);
 
 /**
  * Send a packet to the socket
@@ -45,7 +45,7 @@ void freeRequestPacket(requestPacket* packet);
  * @param packet Packet to be sent
  * @return 0 on sucess, -1 for errors
 */
-int writeRequest(const int sock, const requestPacket* packet);
+int writeRequest(const int sock, const requestPacket_t* packet);
 
 /**
  * Reads the incoming packet from socket
@@ -53,7 +53,7 @@ int writeRequest(const int sock, const requestPacket* packet);
  * @param packet Packet where data will be stored
  * @return 0 on sucess, -1 for errors
 */
-int readRequest(const int sock, requestPacket* packet);
+int readRequest(const int sock, requestPacket_t* packet);
 
 /**
  * Sends a packet to the given socket
@@ -61,7 +61,7 @@ int readRequest(const int sock, requestPacket* packet);
  * @param sock Socket to which packet will be sent 
  * @return 0 on sucess, -1 for errors
 */
-int sendRequest(const requestType_t type, const int sock, const char* payload, requestPacket* response);
+int sendRequest(const requestType_t type, const int sock, const char* payload, requestPacket_t* response);
 
 
 #endif

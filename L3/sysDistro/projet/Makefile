@@ -15,7 +15,7 @@ client: client.out
 client.out: client.c util.o request.o
 	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS) $(LDLIBS)
 
-barman.out: barman.c util.o request.o
+barman.out: barman.c util.o request.o tap.o
 	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS) $(LDLIBS)
 
 clean:

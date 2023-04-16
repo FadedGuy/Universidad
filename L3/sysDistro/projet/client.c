@@ -20,6 +20,10 @@
     so it properly cleans up
     Can also send with the request an ID to know which client is the server talking about and 
     it can be identified
+    Response from server:
+        available beer: format response
+        order beer: input safe ask for beer and treat error in case ordered beer is not existent
+        exit bar: NA
 */
 
 /**
@@ -131,7 +135,7 @@ int clientMenu(const int sock){
     int statusCode;
     long choice;
     char* requestPayload;
-    requestPacket response;
+    requestPacket_t response;
 
     while(1){
         printf("-------------------------\n\tMENU\n");
