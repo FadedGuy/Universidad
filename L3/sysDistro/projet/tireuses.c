@@ -35,11 +35,6 @@ int main(){
         exit(EXIT_FAILURE);
     }
 
-    sem_wait(semaphore[0]);
-    printf("Taps = %d %s \n", taps[0].type, taps[0].name);
-    sem_post(semaphore[0]);
-    sleep(2);
-
     while(missingQuantity > 0){
         printf("Sleeping for 2 seconds\n");
         sleep(2);
