@@ -12,7 +12,6 @@
 #include "util.h"
 #include "request.h"
 
-#define CLEAR_TERMINAL printf("\033[2J\033[1;1H");
 #define BUFFER 50
 
 /*

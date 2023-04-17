@@ -6,6 +6,7 @@ RM=rm -fv
 
 .PHONY: barman client tireuses clean
 
+all: barman.out client.out tireuses.out
 barman: barman.out
 client: client.out
 tireuses: tireuses.out

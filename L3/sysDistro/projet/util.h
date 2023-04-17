@@ -1,6 +1,8 @@
 #ifndef UTIL
 #define UTIL
 
+#define CLEAR_TERMINAL printf("\033[2J\033[1;1H");
+
 /**
  * Prints formatted errors
  * @param format String that will be printed with the format

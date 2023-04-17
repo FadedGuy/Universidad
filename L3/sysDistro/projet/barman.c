@@ -187,31 +187,42 @@ int main(int argc, char** argv){
 
     tap_t* taps;
     sem_t* semaphore[N_TAPS];
-    int status, i;
+    int shmid, statusCode;
     float missing;
 
-    if(( status = shmget(SHM_KEY, N_TAPS*sizeof(tap_t), IPC_CREAT|IPC_EXCL|0600)) == -1) {
-        printf("shm1.shmget: %s\n", strerror(errno));
-        exit(1);
-    }
-    printf("status = %d\n", status);
-    
-    if(( taps = (tap_t*) shmat(status, NULL, 0)) == (tap_t*)-1){
-        printf("shm1.shmat: %s\n", strerror(errno));
-        exit(1);
-    }
-    
-    for(i = 0; i < N_TAPS; i++){
-        if((semaphore[i] = sem_open(SEM_KEY, O_CREAT, 0666, 1)) == SEM_FAILED){
-            printf("sem_open: %s\n", strerror(errno));
-            exit(1);
-        }
+    printf("Started\n");
+    shmid = createTapSHM(SHM_KEY, N_TAPS);
+    if(shmid == -1){
+        printError("Error creating SHM");
+        exit(EXIT_FAILURE);
     }
 
+    printf("Created SHM\n");
+
+    taps = attachTapSHM(shmid);
+    if(taps == NULL){
+        printError("Unable to attach to SHM");
+        exit(EXIT_FAILURE);
+    }
+    printf("Attached\n");
+
+    statusCode = openTapSemaphore(semaphore, N_TAPS, SEM_KEY);
+    if(statusCode == -1){
+        printError("Error opening semaphore");
+        exit(EXIT_FAILURE);
+    }
+    printf("Opened sem\n");
+
+    statusCode = initializeTap(semaphore[0], &taps[0], AMBER);
+    if(statusCode == -1){
+        printError("Error initializing tap \"%d\" with type \"%d\"", 0, AMBER);
+        exit(EXIT_FAILURE);
+    }
+    printf("Initialized semaphore\n");
+
     sem_wait(semaphore[0]);
-    taps[0].type = AMBER;
-    taps[0].quantity = KEG_CAPACITY;
     missing = taps[0].quantity;
+    printf("Named %s\n", taps[0].name);
     sem_post(semaphore[0]);
 
     printf("Info saved to shared memory\n");
@@ -231,26 +242,17 @@ int main(int argc, char** argv){
         sleep(0.5);        
     }
     
-
-    
-    if(shmdt(taps) == -1) {
-        printf("shm1.shmdt: %s\n", strerror(errno));
-        exit(1);
-    }
-    
-
-    for(i = 0; i < 2; i++){
-        if(sem_close(semaphore[i]) == -1){
-            printf("sem_close: %s\n", strerror(errno));
-            exit(1);
-        }
+    if(detachTapSHM(taps) == -1){
+        printError("Error detaching tap");
+        exit(EXIT_FAILURE);
     }
 
-    if(shmctl(status, IPC_RMID, NULL) == -1) {
-        printf("shm1.shmctl: %s\n", strerror(errno));
-        exit(1);
+    if(closeTapSemaphore(semaphore, N_TAPS) == -1){
+        printError("Error closing semaphore");
+        exit(EXIT_FAILURE);
     }
     
-    sleep(2);
+    removeTapSHM(shmid);
+
     return EXIT_SUCCESS;
 }
