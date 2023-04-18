@@ -33,6 +33,6 @@ public class Biere implements java.io.Serializable {
         if (couleur == Biere.AMBREE) coul = "ambree";
         if (couleur == Biere.BLONDE) coul = "blonde";
 
-        return nom + ", "+coul+ ", "+ degre +"�";
+        return nom + ", "+couleur+ ", "+ degre +"�";
     }
 }
