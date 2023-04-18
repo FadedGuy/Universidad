@@ -113,6 +113,13 @@ int serveBeer(sem_t* sem, tap_t* tap, const float qty);
 */
 int getQuantity(sem_t* sem, tap_t* tap);
 
+/**
+ * Verifies a given keg
+ * @param sem Semaphore controlling tap
+ * @param tap Tap to check levels
+ * @param id Id of the keg being checked
+ * @return 0 on sucess, -1 for errors
+*/
 int checkKeg(sem_t* sem, tap_t* tap, int id);
 
 /**
