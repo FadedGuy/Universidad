@@ -12,6 +12,7 @@
 #include <semaphore.h>
 #include <fcntl.h>
 #include <sys/wait.h>
+#include <stdarg.h>
 #include <signal.h>
 
 #include "util.h"
@@ -25,6 +26,9 @@
 #define QUANTUM 5
 
 /*
+    When pausing a process it doesn't really stop does it?
+
+    In controlProcess needs to send UDP with request for more beer of a given type
     Response to client:
         available beer: comma separated beer types from array of taps (check for quantity)
         order beer: wait for turn, "serve", substract from given tap & return response if successful serve
@@ -144,7 +148,7 @@ int clientCommunication(const int sock){
     return 0;
 }
 
-int communicationProcess(int argc, char** argv){
+void communicationProcess(va_list arguments){
     static struct sockaddr_in clientAddress;
     unsigned int lgAddress;
     int listeningSocket, serviceSocket;
@@ -152,7 +156,8 @@ int communicationProcess(int argc, char** argv){
     int statusCode;
     pid_t pidClient = getpid();
 
-    printf("%d\n", pidClient);
+    int argc = va_arg(arguments, int);
+    char** argv = va_arg(arguments, char**);
 
     statusCode = parseArgInfo(argc, argv, &localListeningPort);
     if(statusCode == -1){
@@ -201,10 +206,60 @@ int communicationProcess(int argc, char** argv){
     exit(EXIT_SUCCESS);
 }
 
+void controlProcess(){
+    tap_t* taps;
+    sem_t* semaphore[N_TAPS];
+    int shmid, statusCode, i;
+
+    shmid = retrieveTapSHM(SHM_KEY, N_TAPS);
+    if(shmid == -1){
+        printError("Controle: -> Error retrieving SHM");
+        exit(EXIT_FAILURE);
+    }
+
+    taps = attachTapSHM(shmid);
+    if(taps == NULL){
+        printError("Controle: -> Unable to attach to SHM");
+        exit(EXIT_FAILURE);
+    }
+    
+    statusCode = openTapSemaphore(semaphore, N_TAPS, SEM_KEY);
+    if(statusCode == -1){
+        printError("Controle: -> Error opening semaphore");
+        exit(EXIT_FAILURE);
+    }
+
+    while(statusCode == 0){
+        // printf("Controle -> Checking keg's\n");
+
+        for(i = 0; i < N_TAPS; i++){
+            statusCode = checkKeg(semaphore[i], &taps[i], i);
+            if(statusCode == -1){
+                printError("Error checking keg %d", i);
+            }
+        }
+        sleep(2);
+    }
+
+    
+    if(detachTapSHM(taps) == -1){
+        printError("Controle: -> Error detaching from tap");
+        exit(EXIT_FAILURE);
+    }
+
+    if(closeTapSemaphore(semaphore, N_TAPS) == -1){
+        printError("Controle: -> Error closing semaphores");
+        exit(EXIT_FAILURE);
+    }
+
+
+    exit(EXIT_SUCCESS);
+}
+
 int main(int argc, char** argv){
     tap_t* taps;
     sem_t* semaphore[N_TAPS];
-    int shmid, statusCode, i, iter;
+    int shmid, statusCode, i;
     
     pid_t pidProcesses[NUM_PROC];
     int currentPidIndex;
@@ -233,30 +288,13 @@ int main(int argc, char** argv){
     }
     printf("Taps initialized\n");
     
+    // Communication
+    pidProcesses[0] = launchNewProcess("Communication", &communicationProcess, argc, argv);
 
-    pidProcesses[0] = fork();
-    if(pidProcesses[0] == -1){
-        printError("Unable to create communication process");
-        exit(EXIT_FAILURE);
-    } else if(pidProcesses[0] == 0){
-        printf("Initializing communication process\n");
-        communicationProcess(argc, argv);
-    }
-
-    pidProcesses[1] = fork();
-    if (pidProcesses[1] == -1) {
-        perror("fork");
-        exit(EXIT_FAILURE);
-    } else if (pidProcesses[1] == 0) {
-        iter = 0;
-        while (iter < 5) {
-            printf("-----Child process 2 running\n");
-            iter++;
-            sleep(1);
-        }
-        exit(EXIT_SUCCESS);
-    }
-
+    // Controle
+    pidProcesses[1] = launchNewProcess("Controle", &controlProcess);
+    
+    sleep(1);
     currentPidIndex = 0;
     while(1){
         printf("Continuing with pid %d\n", pidProcesses[currentPidIndex]);

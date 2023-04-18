@@ -113,6 +113,8 @@ int serveBeer(sem_t* sem, tap_t* tap, const float qty);
 */
 int getQuantity(sem_t* sem, tap_t* tap);
 
+int checkKeg(sem_t* sem, tap_t* tap, int id);
+
 /**
  * Initializes an SHM and attaches to it
  * @param key SHM key

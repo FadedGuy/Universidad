@@ -23,4 +23,6 @@ void terminateAll(const pid_t pids[], const int nPids);
 */
 int getNextProcessIndex(const int currentPidIndex, const int nPids);
 
+pid_t launchNewProcess(const char* funcName, void (*func)(), ...);
+
 #endif

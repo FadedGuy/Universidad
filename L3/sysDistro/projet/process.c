@@ -5,6 +5,8 @@
 #include <signal.h>
 #include <errno.h>
 #include <string.h>
+#include <stdarg.h>
+#include <stdio.h>
 
 #include "util.h"
 #include "process.h"
@@ -44,4 +46,26 @@ void terminateAll(const pid_t pids[], const int nPids){
 
 int getNextProcessIndex(const int currentPidIndex, const int nPids){
     return (currentPidIndex + 1 < nPids) ? currentPidIndex+1 : 0;
+}
+
+pid_t launchNewProcess(const char* funcName, void (*func)(), ...){
+    pid_t pid;
+    va_list args;
+
+    pid = fork();
+    if(pid == -1){
+        printError("Unable to start process named \"%s\"", funcName);
+        return -1;
+    } else if(pid == 0){
+        
+        printf("Initializing process named \"%s\"\n", funcName);
+        va_start(args, func);
+        func(args);
+        va_end(args);
+        printf("Process initialized");
+        
+    }
+
+
+    return pid;
 }

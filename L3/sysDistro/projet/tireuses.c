@@ -19,7 +19,7 @@ int main(){
 
     shmid = retrieveTapSHM(SHM_KEY, N_TAPS);
     if(shmid == -1){
-        printError("Erro retrieving SHM");
+        printError("Error retrieving SHM");
         exit(EXIT_FAILURE);
     }
 
@@ -39,7 +39,7 @@ int main(){
         printf("Sleeping for 2 seconds\n");
         sleep(2);
    
-        missingQuantity = serveBeer(semaphore[0], &taps[0], PINT_QTY);
+        missingQuantity = serveBeer(semaphore[1], &taps[1], PINT_QTY);
         if(missingQuantity == -1){
             printError("Unable to serve more beer\n");
         }

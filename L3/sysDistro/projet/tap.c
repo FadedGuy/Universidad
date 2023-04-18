@@ -173,6 +173,26 @@ int getQuantity(sem_t* sem, tap_t* tap){
     return remaining;
 }
 
+int checkKeg(sem_t* sem, tap_t* tap, int id){
+    float missing;
+    
+    missing = getQuantity(sem, tap);
+    if(missing == -1){
+        printError("Error retrieving keg levels for tap %d", id);
+        return -1;
+    } else if(missing == 0){
+        printf("Controle -> WE NEED MORE BEEEEEEEEEEEEEEEEEEEEEEEER on tap %d\n", id);
+        // Here goes controle -> commande
+        printf("Controle -> Ordering more beer\n");
+        sem_wait(sem);
+        tap->quantity = tap->capacity;
+        printf("Controle -> Beer has been refilled on tap %d %f\n", id, tap->capacity);
+        sem_post(sem);
+    }
+
+    return 0;
+}
+
 int initSHM(const int key, const int nTaps, tap_t** taps){
     int id;
 
