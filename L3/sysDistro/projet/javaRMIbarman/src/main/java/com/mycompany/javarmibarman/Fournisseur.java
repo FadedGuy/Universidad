@@ -1,8 +1,8 @@
+import java.net.MalformedURLException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.server.UnicastRemoteObject;
 import java.rmi.Naming;
 import java.rmi.RemoteException;
-
 import java.util.Vector;
 
 // partie serveur + rectangleImpl de l'exemple des rectangles TP7
@@ -69,14 +69,12 @@ public class Fournisseur extends UnicastRemoteObject implements IBiere {
 
 
     public static void main(String argv[]) {
-
-	Fournisseur fournisseur = null;
+        
         try {
-            fournisseur = new Fournisseur();
-	        Naming.rebind("DedeLaChope", fournisseur);
-
-        } catch (Exception ex) {
-	        System.err.println("Impossible de lancer le fournisseur");
+            Fournisseur fournisseur = new Fournisseur();
+	    Naming.rebind("DedeLaChope", fournisseur);
+        } catch (MalformedURLException | RemoteException ex) {
+	    System.err.println("Impossible de lancer le fournisseur");
             System.err.println(ex);
 	}
     }
