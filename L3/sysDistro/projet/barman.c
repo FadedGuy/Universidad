@@ -290,9 +290,17 @@ int main(int argc, char** argv){
     
     // Communication
     pidProcesses[0] = launchNewProcess("Communication", &communicationProcess, argc, argv);
+    if(pidProcesses[0] == -1){
+        printError("Error launching communication process");
+        exit(EXIT_FAILURE);
+    }
 
     // Controle
-    pidProcesses[1] = launchNewProcess("Controle", &controlProcess);
+    pidProcesses[1] = launchNewProcess("Control", &controlProcess);
+    if(pidProcesses[1] == -1){
+        printError("Error launching control process");
+        exit(EXIT_FAILURE);
+    }
     
     sleep(1);
     currentPidIndex = 0;

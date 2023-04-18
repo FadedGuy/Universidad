@@ -23,6 +23,13 @@ void terminateAll(const pid_t pids[], const int nPids);
 */
 int getNextProcessIndex(const int currentPidIndex, const int nPids);
 
+/**
+ * Launches func as a new process, the function must use exit as a return
+ * @param funcName Function name to identify
+ * @param func Pointer to a function 
+ * @param ... Arguments for the function, if any
+ * @return Process pid on sucess, -1 for errors
+*/
 pid_t launchNewProcess(const char* funcName, void (*func)(), ...);
 
 #endif
