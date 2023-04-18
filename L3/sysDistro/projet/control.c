@@ -39,13 +39,20 @@ int main(){
         printf("Sleeping for 2 seconds\n");
         sleep(2);
    
-        missingQuantity = serveBeer(semaphore[0], &taps[0], PINT_QTY);
+        missingQuantity = getQuantity(semaphore[0], &taps[0]);
         if(missingQuantity == -1){
-            printError("Unable to serve more beer\n");
+            printError("Error retrieving keg levels\n");
+        } else if(missingQuantity == 0){
+            printf("WE NEED MORE BEEEEEEEEEEEEEEEEEEEEEEEER\n");
+
+            printf("Ordering more beer");
+            sem_wait(semaphore[0]);
+            taps[0].quantity = taps[0].capacity;
+            printf("Beer has been refilled\n");
+            sem_post(semaphore[0]);
         }
 
         printf("\n");
-        sleep(0.5);
     }
 
     

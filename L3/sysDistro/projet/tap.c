@@ -139,7 +139,7 @@ int serveBeer(sem_t* sem, tap_t* tap, const float qty){
 
     printf("Preparing to serve beer...\n");
     if(tap->quantity - qty < 0){
-        printError("Unable to serve beer");
+        printError("Not enough beer left");
         return -1;
     }
 
@@ -153,4 +153,41 @@ int serveBeer(sem_t* sem, tap_t* tap, const float qty){
     }
 
     return remaining;
+}
+
+int getQuantity(sem_t* sem, tap_t* tap){
+    float remaining = 0;
+
+    if(sem_wait(sem) == -1){
+        printError("Error waiting for semaphore access");
+        return -1;
+    }
+
+    remaining = tap->quantity;
+
+    if(sem_post(sem) == -1){
+        printError("Error releasing semaphore");
+        return -1;
+    }
+
+    return remaining;
+}
+
+int initSHM(const int key, const int nTaps, tap_t** taps){
+    int id;
+
+    id = createTapSHM(key, nTaps);
+    if(id == -1){
+        printError("Error creating SHM");
+        return -1;
+    }
+
+    
+    *taps = attachTapSHM(id);
+    if(*taps == NULL){
+        printError("Unable to attach to SHM");
+        return -1;
+    }
+
+    return id;
 }

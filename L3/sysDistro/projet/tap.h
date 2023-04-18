@@ -2,17 +2,19 @@
 #define TAP
 
 /*
-    Pint sizes differ from the US to UK
+    Pint sizes differ from the US, UK and rest
         US: 0.473176 L
         UK: 0.568 L
         Metric world: 0.5 L
+
+    Using 0.5 for simplicity
 */
 
 #define KEG_CAPACITY 5.0
 #define SERVE_HALF_PINT_TIME 2
 #define SERVE_PINT_TIME 4
-#define HALF_PINT_QTY 0.284
-#define PINT_QTY 0.568
+#define HALF_PINT_QTY 0.25
+#define PINT_QTY 0.5
 
 #define SHM_KEY 99
 #define N_TAPS 2
@@ -96,11 +98,28 @@ int initializeTap(sem_t* sem, tap_t* tap, beer_type_t type);
 
 /**
  * Serves qty of beer from tap
- * @param sem Semaphore that control the tap
+ * @param sem Semaphore that controls the tap
  * @param tap Tap that is being used to serve
  * @param qty Quantity of beer to serve
  * @return Remaining beer quantity on sucess, -1 for errors
 */
 int serveBeer(sem_t* sem, tap_t* tap, const float qty);
+
+/**
+ * Gets the quantity of beer remaining in a keg
+ * @param sem Semaphore that controls the tap
+ * @param tap Tap to check
+ * @return Quantity >= 0, -1 for errors
+*/
+int getQuantity(sem_t* sem, tap_t* tap);
+
+/**
+ * Initializes an SHM and attaches to it
+ * @param key SHM key
+ * @param nTaps Number of taps
+ * @param taps Taps associated with shm
+ * @return shmId on sucess, -1 for errors
+*/
+int initSHM(const int key, const int nTaps, tap_t** taps);
 
 #endif

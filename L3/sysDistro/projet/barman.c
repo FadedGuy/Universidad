@@ -11,17 +11,20 @@
 #include <sys/shm.h>
 #include <semaphore.h>
 #include <fcntl.h>
+#include <sys/wait.h>
+#include <signal.h>
 
 #include "util.h"
 #include "request.h"
 #include "tap.h"
+#include "process.h"
 
 #define BUFFER 50
 #define MAX_REQUESTS 5
+#define NUM_PROC 2
+#define QUANTUM 5
 
 /*
-    Struct named process for ordennanceur
-    In main create the different processes
     Response to client:
         available beer: comma separated beer types from array of taps (check for quantity)
         order beer: wait for turn, "serve", substract from given tap & return response if successful serve
@@ -82,20 +85,21 @@ char* getExitBarPayload(){
     return str;
 }
 
-int communications(int sock){
+int clientCommunication(const int sock){
     int statusCode;
     char* responsePayload;
     requestPacket_t request;
     requestType_t responseType;
+    pid_t pid = getpid();
 
     while(1){
         statusCode = readRequest(sock, &request);
         if(statusCode == -1){
-            printError("Error receiving packet from client #%d", sock);
+            printError("Error receiving packet from client #%d", pid);
             return -1;
         }
 
-        printf("Client #%d said: %s\n", sock, request.payload);
+        printf("Client on process #%d said: %s\n", pid, request.payload);
 
         // Process request
         switch(request.requestType){
@@ -112,99 +116,105 @@ int communications(int sock){
                 responseType = S_EXIT_BAR;
                 break;
             default:
-                printError("Request type \"%d\" not recognised", request.requestType);
+                printError("Request type on client #%d: \"%d\" not recognised", pid, request.requestType);
                 return -1;
         }
 
         if(responsePayload == NULL){
-            printError("Error create response payload for \"%d\" type", responseType);
+            printError("Error creating response payload for client# for \"%d\" type response", pid, responseType);
             return -1;
         }
 
         statusCode = sendRequest(responseType, sock, responsePayload, &request);
         if(statusCode == -1){
-            printError("Error sending response to client");
+            printError("Error sending response to client# %d", pid);
             return -1;
         }
-        printf("Reponse sent to client #%d\n", sock);
+        printf("Reponse sent to client #%d\n", pid);
         
+        free(responsePayload);
+
         if(request.requestType == C_EXIT_BAR){
-            printf("Client #%d exited bar\n", sock);
-            return 0;
+            printf("Client #%d exited bar\n", pid);
+            break;
         }
 
-        free(responsePayload);
     }
 
     return 0;
 }
 
-int main(int argc, char** argv){
-    // static struct sockaddr_in clientAddress;
-    // unsigned int lgAddress;
-    // int listeningSocket, serviceSocket;
-    // long localListeningPort;
+int communicationProcess(int argc, char** argv){
+    static struct sockaddr_in clientAddress;
+    unsigned int lgAddress;
+    int listeningSocket, serviceSocket;
+    long localListeningPort;
+    int statusCode;
+    pid_t pidClient = getpid();
 
-    // int statusCode;
+    printf("%d\n", pidClient);
 
-    // statusCode = parseArgInfo(argc, argv, &localListeningPort);
-    // if(statusCode == -1){
-    //     printError("Error while parsing arguments");
-    //     exit(EXIT_FAILURE);
-    // }
+    statusCode = parseArgInfo(argc, argv, &localListeningPort);
+    if(statusCode == -1){
+        printError("Error while parsing arguments");
+        exit(EXIT_FAILURE);
+    }
+    printf("Parsed args for communication process pid \"%d\"\n", pidClient);
 
-    // listeningSocket = createTCPSocket(localListeningPort);
-    // if(listeningSocket == -1){
-    //     printError("Error while creating TCP socket");
-    //     close(listeningSocket);
-    //     exit(EXIT_FAILURE);
-    // }
+    listeningSocket = createTCPSocket(localListeningPort);
+    if(listeningSocket == -1){
+        printError("Error while creating TCP socket");
+        close(listeningSocket);
+        exit(EXIT_FAILURE);
+    }
+    printf("Created TCP Socket - process pid \"%d\"\n", pidClient);
 
-    // statusCode = listen(listeningSocket, MAX_REQUESTS);
-    // if(statusCode == -1){
-    //     printError("Error trying to listen for messages");
-    //     close(listeningSocket);
-    //     exit(EXIT_FAILURE);
-    // }
+    statusCode = listen(listeningSocket, MAX_REQUESTS);
+    if(statusCode == -1){
+        printError("Error trying to listen for messages");
+        close(listeningSocket);
+        exit(EXIT_FAILURE);
+    }
+    printf("Listening for client requests - process pid \"%d\"\n", pidClient);
 
-    // while(1){
-    //     lgAddress = sizeof(struct sockaddr_in);
-    //     serviceSocket = accept(listeningSocket, (struct sockaddr*)&clientAddress, &lgAddress);
-    //     if(serviceSocket == -1){
-    //         printError("Error while accepting incoming connection from: \"%s\"", clientAddress.sin_addr.s_addr);
-    //         exit(EXIT_FAILURE);
-    //     }
-    //     if(fork() == 0){
-    //         close(listeningSocket);
-    //         communications(serviceSocket);
-    //         exit(EXIT_SUCCESS);
-    //     }
+    while(1){
+        lgAddress = sizeof(struct sockaddr_in);
+        serviceSocket = accept(listeningSocket, (struct sockaddr*)&clientAddress, &lgAddress);
+        if(serviceSocket == -1){
+            printError("Error while accepting incoming connection from: \"%s\"", clientAddress.sin_addr.s_addr);
+            exit(EXIT_FAILURE);
+        }
+        if((fork()) == 0){
+            close(listeningSocket);
+            statusCode = clientCommunication(serviceSocket);
+            if(statusCode == -1){
+                printError("Something went wrong with clientCommunication");
+                exit(EXIT_FAILURE);
+            }
+            exit(EXIT_SUCCESS);
+        }
 
-    //     close(serviceSocket);
-    // }
+        close(serviceSocket);
+    }
     
-    // close(listeningSocket);
+    close(listeningSocket);
+    exit(EXIT_SUCCESS);
+}
 
+int main(int argc, char** argv){
     tap_t* taps;
     sem_t* semaphore[N_TAPS];
-    int shmid, statusCode;
-    float missing;
+    int shmid, statusCode, i, iter;
+    
+    pid_t pidProcesses[NUM_PROC];
+    int currentPidIndex;
 
-    printf("Started\n");
-    shmid = createTapSHM(SHM_KEY, N_TAPS);
+    // SHM w semaphore 
+    shmid = initSHM(SHM_KEY, N_TAPS, &taps);
     if(shmid == -1){
-        printError("Error creating SHM");
+        printError("Error initializing SHM");
         exit(EXIT_FAILURE);
     }
-
-    printf("Created SHM\n");
-
-    taps = attachTapSHM(shmid);
-    if(taps == NULL){
-        printError("Unable to attach to SHM");
-        exit(EXIT_FAILURE);
-    }
-    printf("Attached\n");
 
     statusCode = openTapSemaphore(semaphore, N_TAPS, SEM_KEY);
     if(statusCode == -1){
@@ -213,33 +223,57 @@ int main(int argc, char** argv){
     }
     printf("Opened sem\n");
 
-    statusCode = initializeTap(semaphore[0], &taps[0], AMBER);
-    if(statusCode == -1){
-        printError("Error initializing tap \"%d\" with type \"%d\"", 0, AMBER);
-        exit(EXIT_FAILURE);
+    for(i = 0; i < N_TAPS; i++){
+        statusCode = initializeTap(semaphore[i], &taps[i], i+1);
+        if(statusCode == -1){
+            printError("Error initializing tap \"%d\" with type \"%d\"", 0, i+1);
+            exit(EXIT_FAILURE);
+        }
+        printf("Tap %d initialized\n", i);
     }
-    printf("Initialized semaphore\n");
-
-    sem_wait(semaphore[0]);
-    missing = taps[0].quantity;
-    printf("Named %s\n", taps[0].name);
-    sem_post(semaphore[0]);
-
-    printf("Info saved to shared memory\n");
+    printf("Taps initialized\n");
     
-    sleep(5);
 
-    while (missing > 0){
-        printf("Sleeping for 2 seconds\n");
-        sleep(2);
+    pidProcesses[0] = fork();
+    if(pidProcesses[0] == -1){
+        printError("Unable to create communication process");
+        exit(EXIT_FAILURE);
+    } else if(pidProcesses[0] == 0){
+        printf("Initializing communication process\n");
+        communicationProcess(argc, argv);
+    }
 
-        printf("Accesing tap to see current level\n");
-        sem_wait(semaphore[0]);
-        printf("taps = %p, *taps = %d %f \n", (void*)taps, taps[0].type, taps[0].quantity);
-        missing = taps[0].quantity;
-        sem_post(semaphore[0]);
+    pidProcesses[1] = fork();
+    if (pidProcesses[1] == -1) {
+        perror("fork");
+        exit(EXIT_FAILURE);
+    } else if (pidProcesses[1] == 0) {
+        iter = 0;
+        while (iter < 5) {
+            printf("-----Child process 2 running\n");
+            iter++;
+            sleep(1);
+        }
+        exit(EXIT_SUCCESS);
+    }
 
-        sleep(0.5);        
+    currentPidIndex = 0;
+    while(1){
+        printf("Continuing with pid %d\n", pidProcesses[currentPidIndex]);
+        kill(pidProcesses[currentPidIndex], SIGCONT);
+
+        sleep(QUANTUM);
+
+        printf("Stopping pid %d\n", pidProcesses[currentPidIndex]);
+        kill(pidProcesses[currentPidIndex], SIGSTOP);
+
+
+        if(checkProcessStatus(pidProcesses, NUM_PROC) == -1){
+            printError("Checking the health of processes failed");
+            break;
+        } else{
+            currentPidIndex = getNextProcessIndex(currentPidIndex, NUM_PROC);
+        }
     }
     
     if(detachTapSHM(taps) == -1){
