@@ -282,30 +282,27 @@ int main(int argc, char** argv){
         exit(EXIT_FAILURE);
     }
 
-
     // SHM w semaphore 
-    shmid = initSHM(SHM_KEY, N_TAPS, &taps);
+    shmid = retrieveTapSHM(SHM_KEY, N_TAPS);
     if(shmid == -1){
-        printError("Error initializing SHM");
+        printError("Error retrieving SHM");
         exit(EXIT_FAILURE);
     }
+    printf("Retrieve tap SHM\n");
 
+    taps = attachTapSHM(shmid);
+    if(taps == NULL){
+        printError("Unable to attach to SHM");
+        exit(EXIT_FAILURE);
+    }
+    printf("Attach tap SHM\n");
+    
     statusCode = openTapSemaphore(semaphore, N_TAPS, SEM_KEY);
     if(statusCode == -1){
         printError("Error opening semaphore");
         exit(EXIT_FAILURE);
     }
-    printf("Opened sem\n");
-
-    for(i = 0; i < N_TAPS; i++){
-        statusCode = initializeTap(semaphore[i], &taps[i], i+1);
-        if(statusCode == -1){
-            printError("Error initializing tap \"%d\" with type \"%d\"", 0, i+1);
-            exit(EXIT_FAILURE);
-        }
-        printf("Tap %d initialized\n", i);
-    }
-    printf("Taps initialized\n");
+    printf("Opened sem for tap\n");
     
     // Communication
     pidProcesses[0] = launchNewProcess("Communication", &communicationProcess, argc, argv);
@@ -355,7 +352,7 @@ int main(int argc, char** argv){
         exit(EXIT_FAILURE);
     }
     
-    removeTapSHM(shmid);
+    
 
     return EXIT_SUCCESS;
 }
