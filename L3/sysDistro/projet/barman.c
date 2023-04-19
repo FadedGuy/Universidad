@@ -31,8 +31,8 @@
 
 /*
     When pausing a process it doesn't really stop does it?
-    Separate main process from main
-    In controlProcess needs to send UDP with request for more beer of a given type
+    Separate main process from main ?
+    In controlProcess needs to send UDP with request for processus commande
     Response to client:
         available beer: comma separated beer types from array of taps (check for quantity)
         order beer: wait for turn, "serve", substract from given tap & return response if successful serve
