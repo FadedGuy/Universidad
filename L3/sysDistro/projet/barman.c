@@ -1,26 +1,26 @@
+#include <errno.h>
+#include <fcntl.h>
+#include <netdb.h>
+#include <netinet/in.h>
+#include <semaphore.h>
+#include <signal.h>
+#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <netdb.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <errno.h>
 #include <string.h>
 #include <sys/ipc.h>
 #include <sys/shm.h>
-#include <semaphore.h>
-#include <fcntl.h>
-#include <sys/wait.h>
-#include <stdarg.h>
-#include <signal.h>
+#include <sys/socket.h>
 #include <sys/stat.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <unistd.h>
 
-#include "util.h"
-#include "request.h"
-#include "tap.h"
 #include "pipe.h"
 #include "process.h"
+#include "request.h"
+#include "tap.h"
+#include "util.h"
 
 #define BUFFER 50
 #define MAX_REQUESTS 5
@@ -63,23 +63,61 @@ int parseArgInfo(int argc, char** argv, long* port){
     return 0;
 }
 
+// Needs to be modified accordingly for sem and tap
 char* getAvailableBeerPayload(){
-    char* str = malloc(strlen("These are the available beers we have here") + 1);
+    int i;
+
+    char* str = malloc(strlen("These are the available beers: ") + (sizeof(char)*(MAX_LENGTH_NAME*N_TAPS+1)) + 1);
     if(str == NULL){
         return NULL;
     }
 
-    strcpy(str, "These are the available beers we have here"); 
+    strcpy(str, "These are the available beers: "); 
+    for(i = 0; i < N_TAPS; i++){
+        strcat(str, getBeerName(i));
+        
+        if(i+1 < N_TAPS){
+            strcat(str, ",");
+        }
+    }
     return str;
 }
 
-char* getOrderBeerPayload(){
-    char* str = malloc(strlen("Here u go client, one beer") + 1);
-    if(str == NULL){
+// It should be in the same order as beerPayload, check for the number that was given
+char* getOrderBeerPayload(char* requestPayload){
+    long chosenBeer, chosenSize;
+    char* str;
+    const char* p = requestPayload;
+    char* end;
+
+    chosenBeer = strtol(p, &end, 10);
+    if(end == p || *end != ','){
         return NULL;
     }
 
-    strcpy(str, "Here u go client, one beer"); 
+    p = end + 1;
+    chosenSize = strtol(p, &end, 10);
+    if(end == p || *end != '\0'){
+        return NULL;
+    }
+
+    if(chosenBeer < 1 && chosenBeer > N_TAPS){
+        str = malloc(strlen("Invalid beer selection") + 1);
+        if(str == NULL){
+            return NULL;
+        }
+        strcpy(str, "Invalid beer selection");
+    }
+    else{
+        // Order from pipe given beer
+        printf("Ordered from tap %ld a %ld\n", chosenBeer, chosenSize);
+        str = malloc(strlen("Here goes your beer") + 1);
+        if(str == NULL){
+            return NULL;
+        }
+        strcpy(str, "Here goes your beer");
+    }
+
     return str;
 }
 
@@ -100,6 +138,7 @@ int clientCommunication(const int sock){
     requestType_t responseType;
     pid_t pid = getpid();
 
+    printf("A new client #%d has entered the bar!\n", pid);
     while(1){
         statusCode = readRequest(sock, &request);
         if(statusCode == -1){
@@ -116,7 +155,7 @@ int clientCommunication(const int sock){
                 responseType = S_AVAILABLE_BEER;
                 break;
             case C_ORDER_BEER:
-                responsePayload = getOrderBeerPayload();
+                responsePayload = getOrderBeerPayload(request.payload);
                 responseType = S_ORDER_BEER;
                 break;
             case C_EXIT_BAR:
@@ -236,8 +275,8 @@ void controlProcess(){
     }
     printf("Controle: -> Opened Tap semaphore\n");
 
+    printf("Controle -> Keg's are being now monitored\n");
     while(statusCode == 0){
-        printf("Controle -> Checking keg's\n");
 
         for(i = 0; i < N_TAPS; i++){
             statusCode = checkKeg(semaphore[i], &taps[i], i);
@@ -247,6 +286,7 @@ void controlProcess(){
         }
         sleep(2);
     }
+    printf("Controle -> Keg's are no longer being monitored\n");
 
     
     if(detachTapSHM(taps) == -1){
@@ -266,7 +306,7 @@ void controlProcess(){
 int main(int argc, char** argv){
     tap_t* taps;
     sem_t* semaphore[N_TAPS];
-    int shmid, statusCode, i; 
+    int shmid, statusCode; 
     
     pid_t pidProcesses[NUM_PROC];
     int currentPidIndex;
@@ -336,7 +376,6 @@ int main(int argc, char** argv){
             break;
         } else{
             currentPidIndex = getNextProcessIndex(currentPidIndex, NUM_PROC);
-            printf("%d-<<<<\n", currentPidIndex);
         }
     }
 

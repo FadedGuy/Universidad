@@ -14,9 +14,9 @@
     Auto sem_wait-sem_post with function as param
 */
 
-static const char* beer_type_string[] = {
-    "Amber",
-    "Lager",
+static char* beer_type_string[] = {
+    "Fat Tire",
+    "Heineken",
 };
 
 int createTapSHM(int key, int nTaps){
@@ -210,4 +210,9 @@ int initSHM(const int key, const int nTaps, tap_t** taps){
     }
 
     return id;
+}
+
+char* getBeerName(const int i){
+    char* beer = beer_type_string[i];
+    return beer;
 }

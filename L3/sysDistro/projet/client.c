@@ -1,16 +1,16 @@
+#include <errno.h>
+#include <netdb.h>
+#include <netinet/in.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <netdb.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <errno.h>
 #include <string.h>
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <limits.h>
 
-
-#include "util.h"
 #include "request.h"
+#include "util.h"
 
 #define BUFFER 50
 
@@ -111,22 +111,36 @@ char* getAvailableBeerPayload(){
 }
 
 char* getOrderBeerPayload(){
-    char* str = malloc(strlen("biere") + 1);
+    long choiceBeer, choicePint;
+    char choiceBeerStr[BUFFER], choicePintStr[BUFFER];
+    char* str;
+
+    choiceBeer = getMenuChoice("What beer do you want to order? Enter a positive number: ", 1, LONG_MAX);
+    snprintf(choiceBeerStr, BUFFER, "%ld", choiceBeer);
+    
+    // Change from pint or half-pint? There are more options?
+    choicePint = getMenuChoice("Pint(1) or Half-Pint(2)", 1, 2);
+    snprintf(choicePintStr, BUFFER, "%ld", choicePint);
+
+    str = malloc(strlen(choiceBeerStr) + strlen(choicePintStr) + 2);
     if(str == NULL){
         return NULL;
     }
 
-    strcpy(str, "biere"); 
+    strcpy(str, choiceBeerStr); 
+    strcat(str, ","); 
+    strcat(str, choicePintStr);
+
     return str;
 }
 
 char* getExitBarPayload(){
-    char* str = malloc(strlen("IM out") + 1);
+    char* str = malloc(strlen("Goodbye") + 1);
     if(str == NULL){
         return NULL;
     }
 
-    strcpy(str, "IM out"); 
+    strcpy(str, "Goodbye"); 
     return str;
 }
 
@@ -164,6 +178,7 @@ int clientMenu(const int sock){
             return -1;
         }
 
+        printf("Sending ->>>>>>>>%s\n", requestPayload);
         statusCode = sendRequest(choice, sock, requestPayload, &response);
         if(statusCode == -1){
             printError("Unable to process request \"%d\"", choice);

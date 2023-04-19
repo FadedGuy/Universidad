@@ -15,7 +15,7 @@ int main(){
     tap_t* taps;
     sem_t* semaphore[N_TAPS];
     int shmid, statusCode, i;
-    float missingQuantity;
+    // float missingQuantity;
 
     shmid = initSHM(SHM_KEY, N_TAPS, &taps);
     if(shmid == -1){
@@ -54,7 +54,8 @@ int main(){
     //     sleep(0.5);
     // }
 
-    
+    sleep(15);
+        
     if(detachTapSHM(taps) == -1){
         printError("Error detaching from tap");
         exit(EXIT_FAILURE);

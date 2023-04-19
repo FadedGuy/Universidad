@@ -3,6 +3,10 @@
 
 #define CLEAR_TERMINAL printf("\033[2J\033[1;1H");
 
+/*
+    Expand print error to print normal per process?
+*/
+
 /**
  * Prints formatted errors
  * @param format String that will be printed with the format
