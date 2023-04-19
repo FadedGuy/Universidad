@@ -14,20 +14,24 @@
 #include <sys/wait.h>
 #include <stdarg.h>
 #include <signal.h>
+#include <sys/stat.h>
 
 #include "util.h"
 #include "request.h"
 #include "tap.h"
+#include "pipe.h"
 #include "process.h"
 
 #define BUFFER 50
 #define MAX_REQUESTS 5
 #define NUM_PROC 2
 #define QUANTUM 5
+#define PIPE_MAIN_CLIENT "pipeMainClient"
+#define PIPE_CLIENT_MAIN "pipeClientMain"
 
 /*
     When pausing a process it doesn't really stop does it?
-
+    Separate main process from main
     In controlProcess needs to send UDP with request for more beer of a given type
     Response to client:
         available beer: comma separated beer types from array of taps (check for quantity)
@@ -216,21 +220,24 @@ void controlProcess(){
         printError("Controle: -> Error retrieving SHM");
         exit(EXIT_FAILURE);
     }
+    printf("Controle: -> Retrieves Tap SHM\n");
 
     taps = attachTapSHM(shmid);
     if(taps == NULL){
         printError("Controle: -> Unable to attach to SHM");
         exit(EXIT_FAILURE);
     }
+    printf("Controle: -> Attach Tap SHM\n");
     
     statusCode = openTapSemaphore(semaphore, N_TAPS, SEM_KEY);
     if(statusCode == -1){
         printError("Controle: -> Error opening semaphore");
         exit(EXIT_FAILURE);
     }
+    printf("Controle: -> Opened Tap semaphore\n");
 
     while(statusCode == 0){
-        // printf("Controle -> Checking keg's\n");
+        printf("Controle -> Checking keg's\n");
 
         for(i = 0; i < N_TAPS; i++){
             statusCode = checkKeg(semaphore[i], &taps[i], i);
@@ -259,10 +266,22 @@ void controlProcess(){
 int main(int argc, char** argv){
     tap_t* taps;
     sem_t* semaphore[N_TAPS];
-    int shmid, statusCode, i;
+    int shmid, statusCode, i; 
     
     pid_t pidProcesses[NUM_PROC];
     int currentPidIndex;
+
+
+    if(createPipe(PIPE_MAIN_CLIENT) == -1){
+        printError("Unable to create pipe named %s", PIPE_MAIN_CLIENT);
+        exit(EXIT_FAILURE);
+    }
+
+    if(createPipe(PIPE_CLIENT_MAIN) == -1){
+        printError("Unable to create pipe named %s", PIPE_CLIENT_MAIN);
+        exit(EXIT_FAILURE);
+    }
+
 
     // SHM w semaphore 
     shmid = initSHM(SHM_KEY, N_TAPS, &taps);
@@ -301,8 +320,8 @@ int main(int argc, char** argv){
         printError("Error launching control process");
         exit(EXIT_FAILURE);
     }
-    
-    sleep(1);
+
+    sleep(2);
     currentPidIndex = 0;
     while(1){
         printf("Continuing with pid %d\n", pidProcesses[currentPidIndex]);
@@ -316,11 +335,15 @@ int main(int argc, char** argv){
 
         if(checkProcessStatus(pidProcesses, NUM_PROC) == -1){
             printError("Checking the health of processes failed");
+            terminateAll(pidProcesses, NUM_PROC);
             break;
         } else{
             currentPidIndex = getNextProcessIndex(currentPidIndex, NUM_PROC);
+            printf("%d-<<<<\n", currentPidIndex);
         }
     }
+
+    terminateAll(pidProcesses, NUM_PROC);
     
     if(detachTapSHM(taps) == -1){
         printError("Error detaching tap");

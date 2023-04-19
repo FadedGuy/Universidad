@@ -41,6 +41,7 @@ void terminateAll(const pid_t pids[], const int nPids){
                 printError("Error sending signal to process #%d with pid %d: %s", i, pids[i], strerror(errno));
             }
         }
+        printf("Terminated %d\n", nPids);
     }
 }
 

@@ -17,7 +17,7 @@ tireuses: tireuses.out
 client.out: client.c util.o request.o
 	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS) $(LDLIBS)
 
-barman.out: barman.c util.o request.o tap.o process.o
+barman.out: barman.c util.o request.o tap.o process.o pipe.o
 	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS) $(LDLIBS)
 
 tireuses.out: tireuses.c util.o tap.o
