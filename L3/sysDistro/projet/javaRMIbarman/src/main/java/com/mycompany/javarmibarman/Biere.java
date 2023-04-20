@@ -30,9 +30,9 @@ public class Biere implements java.io.Serializable {
 
     public String toString() {
         String coul = "couleur inconnue";
-        if (couleur == Biere.AMBREE) coul = "ambree";
-        if (couleur == Biere.BLONDE) coul = "blonde";
+        if (this.couleur == Biere.AMBREE) coul = "ambree";
+        if (this.couleur == Biere.BLONDE) coul = "blonde";
 
-        return nom + ", "+couleur+ ", "+ degre +"�";
+        return nom + " (" + coul + ") : " + degre + " degres ";
     }
 }
