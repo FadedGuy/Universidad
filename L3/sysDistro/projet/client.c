@@ -215,7 +215,7 @@ int main(int argc, char** argv){
         exit(EXIT_FAILURE);
     }
 
-    statusCode = connectToSocket(sock, serverName, serverPort);
+    statusCode = connectToTCPSocket(sock, serverName, serverPort);
     if(statusCode == -1){
         printError("Error while connecting to socket");
         close(sock);

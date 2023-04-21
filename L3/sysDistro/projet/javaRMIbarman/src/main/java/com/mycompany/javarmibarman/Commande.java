@@ -46,13 +46,14 @@ public class Commande {
     }
 
     public static void main(String argv[]) {
-        /* DatagramPacket packet;
+        DatagramPacket packet;
         DatagramSocket socket;
 
         try {
             socket = new DatagramSocket(7777); // define port later
             byte[] data = new byte[25];
             packet = new DatagramPacket(data, data.length);
+            System.out.println("Waiting");
             socket.receive(packet);
             String receivedData = new String(packet.getData(), 0, packet.getLength());
             System.out.println("received " + receivedData);
@@ -62,7 +63,7 @@ public class Commande {
             System.err.println(e);
         } catch (IOException ex) {
             System.err.println(ex);
-        }*/
+        }
         try {
             // création de fournisseurs pour l'appel des services
             Fournisseur f1;

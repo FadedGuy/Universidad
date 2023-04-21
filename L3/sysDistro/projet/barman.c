@@ -252,7 +252,22 @@ void communicationProcess(va_list arguments){
 void controlProcess(){
     tap_t* taps;
     sem_t* semaphore[N_TAPS];
-    int shmid, statusCode, i;
+    int shmid, statusCode, i, sock;
+    char* response;
+
+    sock = createUDPSocket(0);
+    if(sock == -1){
+        printError("Controle -> Unable to create UDP socket");
+        exit(EXIT_FAILURE);
+    }
+
+    statusCode = exchangeUDPSocket(sock, "localhost", 7777, "bonjour from C", &response, BUFFER);
+    if(statusCode == -1){
+        printError("Controle -> Unable to send message via UDP socket");
+        exit(EXIT_FAILURE);
+    }
+    printf("Got from server \"%s\"\n", response);
+
 
     shmid = retrieveTapSHM(SHM_KEY, N_TAPS);
     if(shmid == -1){
