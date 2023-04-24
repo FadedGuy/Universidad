@@ -326,7 +326,6 @@ int main(int argc, char** argv){
     pid_t pidProcesses[NUM_PROC];
     int currentPidIndex;
 
-
     if(createPipe(PIPE_MAIN_CLIENT) == -1){
         printError("Unable to create pipe named %s", PIPE_MAIN_CLIENT);
         exit(EXIT_FAILURE);

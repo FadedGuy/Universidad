@@ -37,3 +37,5 @@ Client connectes via TCP
 
 ipcrm
 ipcs
+
+-lpthread for semaphore.h in school computers

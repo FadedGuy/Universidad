@@ -15,8 +15,8 @@
 */
 
 static char* beer_type_string[] = {
-    "Fat Tire",
-    "Heineken",
+    "Paix Dieu",
+    "Kwak",
 };
 
 int createTapSHM(int key, int nTaps){
