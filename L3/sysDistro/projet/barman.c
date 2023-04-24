@@ -24,19 +24,14 @@
 
 #define BUFFER 50
 #define MAX_REQUESTS 5
-#define NUM_PROC 2
-#define QUANTUM 5
+#define NUM_PROC 1
+#define QUANTUM 10
 #define PIPE_MAIN_CLIENT "pipeMainClient"
 #define PIPE_CLIENT_MAIN "pipeClientMain"
 
 /*
-    When pausing a process it doesn't really stop does it?
-    Separate main process from main ?
     In controlProcess needs to send UDP with request for processus commande
-    Response to client:
-        available beer: comma separated beer types from array of taps (check for quantity)
-        order beer: wait for turn, "serve", substract from given tap & return response if successful serve
-        exit bar: NA
+    Reformat printError for general
 */
 
 /**
@@ -63,62 +58,54 @@ int parseArgInfo(int argc, char** argv, long* port){
     return 0;
 }
 
-// Needs to be modified accordingly for sem and tap
-char* getAvailableBeerPayload(){
-    int i;
-
-    char* str = malloc(strlen("These are the available beers: ") + (sizeof(char)*(MAX_LENGTH_NAME*N_TAPS+1)) + 1);
-    if(str == NULL){
+char* getAvailableBeerPayload(requestPacket_t request){
+    int type = (int)request.requestType;
+    char* buffer = malloc(sizeof(char)*BUFFER);
+    
+    if(buffer == NULL){
+        printError("Unable to allocate memory for buffer");
         return NULL;
     }
 
-    strcpy(str, "These are the available beers: "); 
-    for(i = 0; i < N_TAPS; i++){
-        strcat(str, getBeerName(i));
-        
-        if(i+1 < N_TAPS){
-            strcat(str, ",");
-        }
+    sprintf(buffer, "%d", type);
+    if(sendPipe(PIPE_CLIENT_MAIN, buffer, sizeof(char)*strlen(buffer) + 1) == -1){
+        printError("Error sending message to pipe %s", PIPE_CLIENT_MAIN);
+        return NULL;
     }
-    return str;
+
+    if(receivePipe(PIPE_MAIN_CLIENT, buffer, BUFFER) == -1){
+        printError("Error receiving message from pipe %s", PIPE_MAIN_CLIENT);
+        return NULL;
+    }
+
+    return buffer;
 }
 
 // It should be in the same order as beerPayload, check for the number that was given
-char* getOrderBeerPayload(char* requestPayload){
-    long chosenBeer, chosenSize;
-    char* str;
-    const char* p = requestPayload;
-    char* end;
+// Send number of beer in tap and size
+char* getOrderBeerPayload(requestPacket_t request){
+    int type = (int)request.requestType;
+    char* buffer = malloc(sizeof(char)*BUFFER);
 
-    chosenBeer = strtol(p, &end, 10);
-    if(end == p || *end != ','){
+    if(buffer == NULL){
+        printError("Unable to allocate memory for buffer");
         return NULL;
     }
 
-    p = end + 1;
-    chosenSize = strtol(p, &end, 10);
-    if(end == p || *end != '\0'){
+    sprintf(buffer, "%d", type);
+    strcat(buffer, " ");
+    strcat(buffer, request.payload);
+    if(sendPipe(PIPE_CLIENT_MAIN, buffer, sizeof(char)*strlen(buffer) + 1) == -1){
+        printError("Error sending message to pipe %s", PIPE_CLIENT_MAIN);
         return NULL;
     }
 
-    if(chosenBeer < 1 && chosenBeer > N_TAPS){
-        str = malloc(strlen("Invalid beer selection") + 1);
-        if(str == NULL){
-            return NULL;
-        }
-        strcpy(str, "Invalid beer selection");
-    }
-    else{
-        // Order from pipe given beer
-        printf("Ordered from tap %ld a %ld\n", chosenBeer, chosenSize);
-        str = malloc(strlen("Here goes your beer") + 1);
-        if(str == NULL){
-            return NULL;
-        }
-        strcpy(str, "Here goes your beer");
+    if(receivePipe(PIPE_MAIN_CLIENT, buffer, BUFFER) == -1){
+        printError("Error receiving message from pipe %s", PIPE_MAIN_CLIENT);
+        return NULL;
     }
 
-    return str;
+    return buffer;
 }
 
 char* getExitBarPayload(){
@@ -138,24 +125,24 @@ int clientCommunication(const int sock){
     requestType_t responseType;
     pid_t pid = getpid();
 
-    printf("A new client #%d has entered the bar!\n", pid);
+    printf("CLIENT -> A new client #%d has entered the bar!\n", pid);
     while(1){
         statusCode = readRequest(sock, &request);
         if(statusCode == -1){
-            printError("Error receiving packet from client #%d", pid);
+            printError("CLIENT -> Error receiving packet from client #%d", pid);
             return -1;
         }
 
-        printf("Client on process #%d said: %s\n", pid, request.payload);
+        printf("CLIENT -> Client on process #%d said: %s\n", pid, request.payload);
 
         // Process request
         switch(request.requestType){
             case C_AVAILABLE_BEER:
-                responsePayload = getAvailableBeerPayload();
+                responsePayload = getAvailableBeerPayload(request);
                 responseType = S_AVAILABLE_BEER;
                 break;
             case C_ORDER_BEER:
-                responsePayload = getOrderBeerPayload(request.payload);
+                responsePayload = getOrderBeerPayload(request);
                 responseType = S_ORDER_BEER;
                 break;
             case C_EXIT_BAR:
@@ -163,26 +150,26 @@ int clientCommunication(const int sock){
                 responseType = S_EXIT_BAR;
                 break;
             default:
-                printError("Request type on client #%d: \"%d\" not recognised", pid, request.requestType);
+                printError("CLIENT -> Request type on client #%d: \"%d\" not recognised", pid, request.requestType);
                 return -1;
         }
 
         if(responsePayload == NULL){
-            printError("Error creating response payload for client# for \"%d\" type response", pid, responseType);
+            printError("CLIENT -> Error creating response payload for client# for \"%d\" type response", pid, responseType);
             return -1;
         }
 
         statusCode = sendRequest(responseType, sock, responsePayload, &request);
         if(statusCode == -1){
-            printError("Error sending response to client# %d", pid);
+            printError("CLIENT -> Error sending response to client# %d", pid);
             return -1;
         }
-        printf("Reponse sent to client #%d\n", pid);
+        printf("CLIENT -> Reponse sent to client #%d\n", pid);
         
         free(responsePayload);
 
         if(request.requestType == C_EXIT_BAR){
-            printf("Client #%d exited bar\n", pid);
+            printf("CLIENT -> Client #%d exited bar\n", pid);
             break;
         }
 
@@ -204,39 +191,39 @@ void communicationProcess(va_list arguments){
 
     statusCode = parseArgInfo(argc, argv, &localListeningPort);
     if(statusCode == -1){
-        printError("Error while parsing arguments");
+        printError("COMMS -> Error while parsing arguments");
         exit(EXIT_FAILURE);
     }
-    printf("Parsed args for communication process pid \"%d\"\n", pidClient);
+    printf("COMMS -> Parsed args for communication process pid \"%d\"\n", pidClient);
 
     listeningSocket = createTCPSocket(localListeningPort);
     if(listeningSocket == -1){
-        printError("Error while creating TCP socket");
+        printError("COMMS -> Error while creating TCP socket");
         close(listeningSocket);
         exit(EXIT_FAILURE);
     }
-    printf("Created TCP Socket - process pid \"%d\"\n", pidClient);
+    printf("COMMS -> Created TCP Socket - process pid \"%d\"\n", pidClient);
 
     statusCode = listen(listeningSocket, MAX_REQUESTS);
     if(statusCode == -1){
-        printError("Error trying to listen for messages");
+        printError("COMMS -> Error trying to listen for messages");
         close(listeningSocket);
         exit(EXIT_FAILURE);
     }
-    printf("Listening for client requests - process pid \"%d\"\n", pidClient);
+    printf("COMMS -> Listening for client requests - process pid \"%d\"\n", pidClient);
 
     while(1){
         lgAddress = sizeof(struct sockaddr_in);
         serviceSocket = accept(listeningSocket, (struct sockaddr*)&clientAddress, &lgAddress);
         if(serviceSocket == -1){
-            printError("Error while accepting incoming connection from: \"%s\"", clientAddress.sin_addr.s_addr);
+            printError("COMMS -> Error while accepting incoming connection from: \"%s\"", clientAddress.sin_addr.s_addr);
             exit(EXIT_FAILURE);
         }
         if((fork()) == 0){
             close(listeningSocket);
             statusCode = clientCommunication(serviceSocket);
             if(statusCode == -1){
-                printError("Something went wrong with clientCommunication");
+                printError("COMMS -> Something went wrong with clientCommunication");
                 exit(EXIT_FAILURE);
             }
             exit(EXIT_SUCCESS);
@@ -255,37 +242,38 @@ void controlProcess(){
     int shmid, statusCode, i, sock;
     char* response;
 
+    //init test with java
     sock = createUDPSocket(0);
     if(sock == -1){
-        printError("Controle -> Unable to create UDP socket");
+        printError("CONTROLE -> Unable to create UDP socket");
         exit(EXIT_FAILURE);
     }
 
     statusCode = exchangeUDPSocket(sock, "localhost", 7777, "bonjour from C", &response, BUFFER);
     if(statusCode == -1){
-        printError("Controle -> Unable to send message via UDP socket");
+        printError("CONTROLE -> Unable to send message via UDP socket");
         exit(EXIT_FAILURE);
     }
-    printf("Got from server \"%s\"\n", response);
-
+    printf("Controle: Got from server \"%s\"\n", response);
+    //fin test with java
 
     shmid = retrieveTapSHM(SHM_KEY, N_TAPS);
     if(shmid == -1){
-        printError("Controle: -> Error retrieving SHM");
+        printError("CONTROLE: -> Error retrieving SHM");
         exit(EXIT_FAILURE);
     }
     printf("Controle: -> Retrieves Tap SHM\n");
 
     taps = attachTapSHM(shmid);
     if(taps == NULL){
-        printError("Controle: -> Unable to attach to SHM");
+        printError("CONTROLE: -> Unable to attach to SHM");
         exit(EXIT_FAILURE);
     }
     printf("Controle: -> Attach Tap SHM\n");
     
     statusCode = openTapSemaphore(semaphore, N_TAPS, SEM_KEY);
     if(statusCode == -1){
-        printError("Controle: -> Error opening semaphore");
+        printError("CONTROLE: -> Error opening semaphore");
         exit(EXIT_FAILURE);
     }
     printf("Controle: -> Opened Tap semaphore\n");
@@ -296,7 +284,7 @@ void controlProcess(){
         for(i = 0; i < N_TAPS; i++){
             statusCode = checkKeg(semaphore[i], &taps[i], i);
             if(statusCode == -1){
-                printError("Error checking keg %d", i);
+                printError("CONTROLE error checking keg %d", i);
             }
         }
         sleep(2);
@@ -305,12 +293,12 @@ void controlProcess(){
 
     
     if(detachTapSHM(taps) == -1){
-        printError("Controle: -> Error detaching from tap");
+        printError("CONTROLE: -> Error detaching from tap");
         exit(EXIT_FAILURE);
     }
 
     if(closeTapSemaphore(semaphore, N_TAPS) == -1){
-        printError("Controle: -> Error closing semaphores");
+        printError("CONTROLE: -> Error closing semaphores");
         exit(EXIT_FAILURE);
     }
 
@@ -318,14 +306,129 @@ void controlProcess(){
     exit(EXIT_SUCCESS);
 }
 
-int main(int argc, char** argv){
+void mainProcess(){
     tap_t* taps;
     sem_t* semaphore[N_TAPS];
     int shmid, statusCode; 
+    char buffer[BUFFER];
+    char* beerName;
+    char* end;
+    char* p;
+    long reqType, chosenBeer, chosenSize;
+    int i;
+
+    // SHM w semaphore 
+    shmid = retrieveTapSHM(SHM_KEY, N_TAPS);
+    if(shmid == -1){
+        printError("MAIN -> Error retrieving SHM");
+        exit(EXIT_FAILURE);
+    }
+    printf("MAIN -> Retrieve tap SHM\n");
+
+    taps = attachTapSHM(shmid);
+    if(taps == NULL){
+        printError("MAIN -> Unable to attach to SHM");
+        exit(EXIT_FAILURE);
+    }
+    printf("MAIN -> Attach tap SHM\n");
     
+    statusCode = openTapSemaphore(semaphore, N_TAPS, SEM_KEY);
+    if(statusCode == -1){
+        printError("MAIN -> Error opening semaphore");
+        exit(EXIT_FAILURE);
+    }
+    printf("MAIN -> Opened sem for tap\n");
+
+    while(statusCode >= 0){
+        if(receivePipe(PIPE_CLIENT_MAIN, buffer, BUFFER) == -1){
+            printError("MAIN -> Error receiving from %s", PIPE_CLIENT_MAIN);
+            exit(EXIT_FAILURE);
+        }
+
+        reqType = strtol(buffer, &end, 10);
+        if(end == buffer || errno == ERANGE){
+            printError("MAIN -> Error converting requestType %s", buffer);
+            exit(EXIT_FAILURE);
+        }
+        
+        switch(reqType){
+            case C_AVAILABLE_BEER:
+                strcpy(buffer, "");
+                for(i = 0; i < N_TAPS; i++){
+                    beerName = getBeerName(semaphore[i], &taps[i]);
+                    if(beerName == NULL){
+                        printError("MAIN -> Unable to get beer name for #%d", i);
+                        exit(EXIT_FAILURE);
+                    }
+
+                    strcat(buffer, beerName);
+                    free(beerName);
+                    if(i+1 < N_TAPS){
+                        strcat(buffer, ",");
+                    }
+                }
+                break;
+            case C_ORDER_BEER:
+                p = end;
+                chosenBeer = strtol(p, &end, 10);
+                if(end == p || *end != ','){
+                    printError("MAIN -> Unable to convert chosen beer");
+                    exit(EXIT_FAILURE);
+                }
+
+                p = end + 1;
+                chosenSize = strtol(p, &end, 10);
+                if(end == p || *end != '\0'){
+                    printError("MAIN -> Unable to convert chosen size");
+                    exit(EXIT_FAILURE);
+                }
+                
+                strcpy(buffer, "");
+                if(chosenBeer < 1 || chosenBeer > N_TAPS){
+                    strcat(buffer, "Beer number not recognised");
+                    break;
+                } else if(!(chosenSize == 1 || chosenSize == 2)){
+                    strcat(buffer, "Beer size not recognised");
+                    break;
+                }
+
+                if(serveBeer(semaphore[chosenBeer-1], &taps[chosenBeer-1], (chosenSize == 1) ? PINT_QTY : HALF_PINT_QTY) == -1){
+                    printError("MAIN -> Unable to serve given beer");
+                    exit(EXIT_FAILURE);
+                }
+
+                strcat(buffer, "Beer served!");
+                break;
+            default:
+                printError("MAIN -> Request not recognised");
+                exit(EXIT_FAILURE);
+        }
+
+        if(sendPipe(PIPE_MAIN_CLIENT, buffer, sizeof(char)*(strlen(buffer) + 1)) == -1){
+            printError("MAIN -> Error sending from %s", PIPE_MAIN_CLIENT);
+            statusCode = -1;
+            exit(EXIT_FAILURE);
+        }
+
+    }
+
+    if(detachTapSHM(taps) == -1){
+        printError("MAIN -> Error detaching tap");
+        exit(EXIT_FAILURE);
+    }
+
+    if(closeTapSemaphore(semaphore, N_TAPS) == -1){
+        printError("MAIN -> Error closing semaphore");
+        exit(EXIT_FAILURE);
+    }
+
+    exit(EXIT_SUCCESS);
+}
+
+int main(int argc, char** argv){
     pid_t pidProcesses[NUM_PROC];
     int currentPidIndex;
-
+    
     if(createPipe(PIPE_MAIN_CLIENT) == -1){
         printError("Unable to create pipe named %s", PIPE_MAIN_CLIENT);
         exit(EXIT_FAILURE);
@@ -335,42 +438,27 @@ int main(int argc, char** argv){
         printError("Unable to create pipe named %s", PIPE_CLIENT_MAIN);
         exit(EXIT_FAILURE);
     }
-
-    // SHM w semaphore 
-    shmid = retrieveTapSHM(SHM_KEY, N_TAPS);
-    if(shmid == -1){
-        printError("Error retrieving SHM");
-        exit(EXIT_FAILURE);
-    }
-    printf("Retrieve tap SHM\n");
-
-    taps = attachTapSHM(shmid);
-    if(taps == NULL){
-        printError("Unable to attach to SHM");
-        exit(EXIT_FAILURE);
-    }
-    printf("Attach tap SHM\n");
     
-    statusCode = openTapSemaphore(semaphore, N_TAPS, SEM_KEY);
-    if(statusCode == -1){
-        printError("Error opening semaphore");
-        exit(EXIT_FAILURE);
-    }
-    printf("Opened sem for tap\n");
-    
-    // Communication
-    pidProcesses[0] = launchNewProcess("Communication", &communicationProcess, argc, argv);
+    pidProcesses[0] = launchNewProcess("Main", &mainProcess);
     if(pidProcesses[0] == -1){
+        printError("Error launching main process");
+        exit(EXIT_FAILURE);
+    }
+
+    // Communication
+    pidProcesses[1] = launchNewProcess("Communication", &communicationProcess, argc, argv);
+    if(pidProcesses[1] == -1){
         printError("Error launching communication process");
         exit(EXIT_FAILURE);
     }
 
     // Controle
-    pidProcesses[1] = launchNewProcess("Control", &controlProcess);
-    if(pidProcesses[1] == -1){
+    pidProcesses[2] = launchNewProcess("Control", &controlProcess);
+    if(pidProcesses[2] == -1){
         printError("Error launching control process");
         exit(EXIT_FAILURE);
     }
+
 
     sleep(2);
     currentPidIndex = 0;
@@ -383,7 +471,6 @@ int main(int argc, char** argv){
         printf("Stopping pid %d\n", pidProcesses[currentPidIndex]);
         kill(pidProcesses[currentPidIndex], SIGSTOP);
 
-
         if(checkProcessStatus(pidProcesses, NUM_PROC) == -1){
             printError("Checking the health of processes failed");
             terminateAll(pidProcesses, NUM_PROC);
@@ -394,18 +481,6 @@ int main(int argc, char** argv){
     }
 
     terminateAll(pidProcesses, NUM_PROC);
-    
-    if(detachTapSHM(taps) == -1){
-        printError("Error detaching tap");
-        exit(EXIT_FAILURE);
-    }
-
-    if(closeTapSemaphore(semaphore, N_TAPS) == -1){
-        printError("Error closing semaphore");
-        exit(EXIT_FAILURE);
-    }
-    
-    
 
     return EXIT_SUCCESS;
 }

@@ -6,6 +6,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <unistd.h>
 
 #include "util.h"
 #include "tap.h"
@@ -131,6 +132,7 @@ int initializeTap(sem_t* sem, tap_t* tap, beer_type_t type){
 
 int serveBeer(sem_t* sem, tap_t* tap, const float qty){
     float remaining = 0;
+    int sleepTime = 0;
 
     if(sem_wait(sem) == -1){
         printError("Error waiting for semaphore access");
@@ -145,6 +147,15 @@ int serveBeer(sem_t* sem, tap_t* tap, const float qty){
 
     tap->quantity -= qty;
     remaining = tap->quantity;
+    
+    if(qty == PINT_QTY){
+        sleepTime = SERVE_PINT_TIME;
+    }
+    else if(qty == HALF_PINT_QTY){
+        sleepTime = SERVE_HALF_PINT_TIME;
+    }
+
+    sleep(sleepTime);
     printf("Served \"%f\". Remaining in %d type keg: \"%f\"\n", qty, tap->type, remaining);
 
     if(sem_post(sem) == -1){
@@ -212,7 +223,24 @@ int initSHM(const int key, const int nTaps, tap_t** taps){
     return id;
 }
 
-char* getBeerName(const int i){
-    char* beer = beer_type_string[i];
-    return beer;
+char* getBeerName(sem_t* sem, tap_t* tap){
+    char* name = malloc(sizeof(char)*MAX_LENGTH_NAME);
+    if(name == NULL){
+        printError("Unable to allocate memory for name");
+        return NULL;
+    }
+
+    if(sem_wait(sem) == -1){
+        printError("Error waiting for semaphore access");
+        return NULL;
+    }
+
+    strcpy(name, tap->name);
+
+    if(sem_post(sem) == -1){
+        printError("Error releasing semaphore");
+        return NULL;
+    }
+
+    return name;
 }

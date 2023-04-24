@@ -17,12 +17,6 @@
 /*
     We could add support for SIGINT or any other for when the program closes
     so it properly cleans up
-    Can also send with the request an ID to know which client is the server talking about and 
-    it can be identified
-    Response from server:
-        available beer: format response
-        order beer: input safe ask for beer and treat error in case ordered beer is not existent
-        exit bar: NA
 */
 
 /**
@@ -119,7 +113,7 @@ char* getOrderBeerPayload(){
     snprintf(choiceBeerStr, BUFFER, "%ld", choiceBeer);
     
     // Change from pint or half-pint? There are more options?
-    choicePint = getMenuChoice("Pint(1) or Half-Pint(2)", 1, 2);
+    choicePint = getMenuChoice("Pint(1) or Half-Pint(2): ", 1, 2);
     snprintf(choicePintStr, BUFFER, "%ld", choicePint);
 
     str = malloc(strlen(choiceBeerStr) + strlen(choicePintStr) + 2);
@@ -178,7 +172,6 @@ int clientMenu(const int sock){
             return -1;
         }
 
-        printf("Sending ->>>>>>>>%s\n", requestPayload);
         statusCode = sendRequest(choice, sock, requestPayload, &response);
         if(statusCode == -1){
             printError("Unable to process request \"%d\"", choice);

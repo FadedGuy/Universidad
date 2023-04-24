@@ -13,6 +13,7 @@ int createPipe(const char* name);
  * @param name Name of the pipe
  * @param message Message to send
  * @param messageSize Size of the message
+ * @return 0 on sucess, -1 for errors
 */
 int sendPipe(const char* name, const char* message, const int messageSize);
 

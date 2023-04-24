@@ -15,7 +15,7 @@ int createPipe(const char* name){
         }
     }
 
-    if(mkfifo(name, 0666)){
+    if(mkfifo(name, 0666) == -1){
         printError("Error creating FIFO named %s", name);
         return -1;
     }

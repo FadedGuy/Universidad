@@ -131,6 +131,12 @@ int checkKeg(sem_t* sem, tap_t* tap, int id);
 */
 int initSHM(const int key, const int nTaps, tap_t** taps);
 
-char* getBeerName(const int i);
+/**
+ * Getter for the beer name of a tap
+ * @param sem Semaphore controlling tap
+ * @param tap Tap to use
+ * @return Pointer to name on sucess, null otherwise
+*/
+char* getBeerName(sem_t* sem, tap_t* tap);
 
 #endif

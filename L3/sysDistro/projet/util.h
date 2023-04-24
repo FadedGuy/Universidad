@@ -4,7 +4,7 @@
 #define CLEAR_TERMINAL printf("\033[2J\033[1;1H");
 
 /*
-    Expand print error to print normal per process?
+    Expand print error to print normal per process
 */
 
 /**
