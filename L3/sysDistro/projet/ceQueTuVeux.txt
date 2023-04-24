@@ -1,0 +1,28 @@
+Waiting
+
+You want to buy goudale blonde
+
+Do you want to buy goudale or buy a new beer ?
+
+        same
+        envoyer a controle : success nom type
+
+        SI 
+        beer no longer exists OU buy a new beer
+        afficher menu 
+
+What operation would you like to do? (liste blondes/liste ambrees/acheter/cancel)
+
+liste blondes
+afficher liste blondes
+
+liste ambrees
+afficher liste ambrees
+
+acheter
+which beer do u wanna buy?
+beerPurchaseTreatment(kwak)
+revenir ligne 7
+
+cancel
+envoyer a controle : erreur
