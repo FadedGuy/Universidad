@@ -1,7 +1,7 @@
 CC=gcc
-CFLAGS=-std=c99 -pedantic -Wall -Werror -posix
+CFLAGS=-std=c99 -pedantic -Wall -Werror -posix 
 LDFLAGS=
-LDLIBS=
+LDLIBS=-lpthread
 RM=rm -fv
 
 .PHONY: barman client tireuses clean
