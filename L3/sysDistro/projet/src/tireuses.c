@@ -8,8 +8,8 @@
 #include <semaphore.h>
 #include <fcntl.h>
 
-#include "tap.h"
-#include "logger.h"
+#include "utils/tap.h"
+#include "utils/logger.h"
 
 int main(){
     tap_t* taps;

@@ -9,9 +9,9 @@
 #include <unistd.h>
 #include <limits.h>
 
-#include "request.h"
-#include "util.h"
-#include "logger.h"
+#include "utils/request.h"
+#include "utils/util.h"
+#include "utils/logger.h"
 
 #define BUFFER 50
 

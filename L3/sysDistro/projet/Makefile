@@ -2,26 +2,51 @@ CC=gcc
 CFLAGS=-std=c99 -pedantic -Wall -Werror -posix 
 LDFLAGS=
 LDLIBS=-lpthread
-RM=rm -fv
+RM=rm -rfv
 
-.PHONY: barman client tireuses clean
+OBJ=obj
+BIN=bin
+SRC=src
+OBJ_UTIL=$(OBJ)/utils
+SRC_UTIL=$(SRC)/utils
 
-all: barman.out client.out tireuses.out
-barman: barman.out
-client: client.out
-tireuses: tireuses.out
+CLIENT_OBJS=$(OBJ_UTIL)/util.o $(OBJ_UTIL)/request.o $(OBJ_UTIL)/logger.o
+BARMAN_OBJS=$(OBJ_UTIL)/util.o $(OBJ_UTIL)/request.o $(OBJ_UTIL)/tap.o $(OBJ_UTIL)/process.o $(OBJ_UTIL)/pipe.o $(OBJ_UTIL)/logger.o
+TIREUSES_OBJS=$(OBJ_UTIL)/util.o $(OBJ_UTIL)/tap.o $(OBJ_UTIL)/logger.o
 
-%.o: %.c %.h
+.PHONY: all clean
+
+all: $(BIN)/barman.out $(BIN)/client.out $(BIN)/tireuses.out
+barman: $(BIN)/barman.out
+client: $(BIN)/client.out
+tireuses: $(BIN)/tireuses.out
+
+
+$(OBJ)/utils/%.o: $(SRC_UTIL)/%.c $(SRC_UTIL)/%.h | $(OBJ_UTIL)
 	$(CC) $(CFLAGS) -c -o $@ $<
 
-client.out: client.c util.o request.o logger.o
+$(OBJ)/%.o: $(SRC)/%.c | $(OBJ)
+	$(CC) $(CFLAGS) -c -o $@ $<
+
+
+$(BIN)/client.out: $(OBJ)/client.o $(CLIENT_OBJS) | $(BIN)
 	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS) $(LDLIBS)
 
-barman.out: barman.c util.o request.o tap.o process.o pipe.o logger.o
+$(BIN)/barman.out: $(OBJ)/barman.o $(BARMAN_OBJS) | $(BIN)
 	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS) $(LDLIBS)
 
-tireuses.out: tireuses.c util.o tap.o logger.o
+$(BIN)/tireuses.out: $(OBJ)/tireuses.o $(TIREUSES_OBJS) | $(BIN)
 	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS) $(LDLIBS)
+
+
+$(OBJ):
+	mkdir -p $@
+
+$(OBJ_UTIL):
+	mkdir -p $@
+
+$(BIN):
+	mkdir -p $@
 
 clean:
-	$(RM) *.o *.out
+	$(RM) $(OBJ) $(BIN)

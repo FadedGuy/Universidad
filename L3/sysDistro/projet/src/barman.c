@@ -16,12 +16,12 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
-#include "pipe.h"
-#include "process.h"
-#include "request.h"
-#include "tap.h"
-#include "util.h"
-#include "logger.h"
+#include "utils/pipe.h"
+#include "utils/process.h"
+#include "utils/request.h"
+#include "utils/tap.h"
+#include "utils/util.h"
+#include "utils/logger.h"
 
 #define BUFFER 50
 #define MAX_REQUESTS 5
