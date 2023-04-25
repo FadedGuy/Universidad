@@ -14,13 +14,13 @@ tireuses: tireuses.out
 %.o: %.c %.h
 	$(CC) $(CFLAGS) -c -o $@ $<
 
-client.out: client.c util.o request.o
+client.out: client.c util.o request.o logger.o
 	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS) $(LDLIBS)
 
-barman.out: barman.c util.o request.o tap.o process.o pipe.o
+barman.out: barman.c util.o request.o tap.o process.o pipe.o logger.o
 	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS) $(LDLIBS)
 
-tireuses.out: tireuses.c util.o tap.o
+tireuses.out: tireuses.c util.o tap.o logger.o
 	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS) $(LDLIBS)
 
 clean:

@@ -8,12 +8,8 @@
 #include <stdio.h>
 #include <unistd.h>
 
-#include "util.h"
+#include "logger.h"
 #include "tap.h"
-
-/* 
-    Auto sem_wait-sem_post with function as param
-*/
 
 static char* beer_type_string[] = {
     "Paix Dieu",
@@ -28,10 +24,10 @@ int createTapSHM(int key, int nTaps){
         if(errno == EEXIST){
             shmid = retrieveTapSHM(key, nTaps);
             removeTapSHM(shmid);
-            printError("Removed shm because it existed, creating a new one");
+            logError(stderr, "createTapSHM", "Removed shm because it existed, creating a new one");
             return createTapSHM(key, nTaps);
         } else{
-            printError("Error while creating SHM with key \"%d\": %s", key, strerror(errno));
+            logError(stderr, "createTapSHM", "Error while creating SHM with key \"%d\": %s", key, strerror(errno));
             return -1;
         }
     }
@@ -43,7 +39,7 @@ int retrieveTapSHM(int key, int nTaps){
 
     id = shmget(key, nTaps*sizeof(tap_t), 0);
     if(id == -1){
-        printError("Error while retrieving SHM with key \"%d\": %s", key, strerror(errno));
+        logError(stderr, "retrieveTapSHM", "Error while retrieving SHM with key \"%d\": %s", key, strerror(errno));
         return -1;
     }
 
@@ -55,7 +51,7 @@ tap_t* attachTapSHM(const int shmid){
 
     value = shmat(shmid, NULL, 0);
     if(value == (tap_t*) -1){
-        printError("Unable to attach to SHM with id: \"%d\". Code: %s", shmid, strerror(errno));
+        logError(stderr, "attachTapSHM", "Unable to attach to SHM with id: \"%d\". Code: %s", shmid, strerror(errno));
         return NULL;
     }
 
@@ -64,7 +60,7 @@ tap_t* attachTapSHM(const int shmid){
 
 int detachTapSHM(tap_t* taps){
     if(shmdt(taps) == -1){
-        printError("Error detaching from SHM: %s", strerror(errno));
+        logError(stderr, "detachTapSHM", "Error detaching from SHM: %s", strerror(errno));
         return -1;
     }
 
@@ -73,7 +69,7 @@ int detachTapSHM(tap_t* taps){
 
 int removeTapSHM(const int shmid){
     if(shmctl(shmid, IPC_RMID, NULL) == -1){
-        printError("Unable to remove SHM: %s", strerror(errno));
+        logError(stderr, "removeTapSHM", "Unable to remove SHM: %s", strerror(errno));
         return -1;
     }
 
@@ -86,7 +82,7 @@ int openTapSemaphore(sem_t* semaphore[], const int semSize, const char* key){
     for(i = 0; i < semSize; i++){
         semaphore[i] = sem_open(key, O_CREAT, 0666, 1);
         if(semaphore[i] == SEM_FAILED){
-            printError("Error opening semaphore \"%s\" in index \"%d\"", key, i); 
+            logError(stderr, "openTapSemaphore", "Error opening semaphore \"%s\" in index \"%d\"", key, i);
             return -1;
         }
     }
@@ -99,7 +95,7 @@ int closeTapSemaphore(sem_t* semaphore[], const int semSize){
 
     for(i = 0; i < semSize; i++){
         if(sem_close(semaphore[i]) == -1){
-            printError("Error closing semaphore index \"%d\": %s", i, strerror(errno));
+            logError(stderr, "closeTapSemaphore", "Error closing semaphore index \"%d\": %s", i, strerror(errno));
             return -1;
         }
     }
@@ -109,12 +105,12 @@ int closeTapSemaphore(sem_t* semaphore[], const int semSize){
 
 int initializeTap(sem_t* sem, tap_t* tap, beer_type_t type){
     if(sem_wait(sem) == -1){
-        printError("Error waiting for semaphore access");
+        logError(stderr, "initializeTap", "Error waiting for semaphore access");
         return -1;
     }
 
     if(strlen(beer_type_string[type-1]) >= MAX_LENGTH_NAME){
-        printError("Unable to assign tap name size %d because max size is %d", strlen(beer_type_string[type-1]), MAX_LENGTH_NAME);
+        logError(stderr, "initializeTap", "Unable to assign tap name size %d because max size is %d", strlen(beer_type_string[type-1]), MAX_LENGTH_NAME);
         return -1;
     }
     strcpy(tap->name, beer_type_string[type-1]);
@@ -123,7 +119,7 @@ int initializeTap(sem_t* sem, tap_t* tap, beer_type_t type){
     tap->capacity = KEG_CAPACITY;
 
     if(sem_post(sem) == -1){
-        printError("Error releasing semaphore");
+        logError(stderr, "initializeTap", "Error releasing semaphore");
         return -1;
     }
 
@@ -135,13 +131,13 @@ int serveBeer(sem_t* sem, tap_t* tap, const float qty){
     int sleepTime = 0;
 
     if(sem_wait(sem) == -1){
-        printError("Error waiting for semaphore access");
+        logError(stderr, "serveBeer", "Error waiting for semaphore access");
         return -1;
     }
 
-    printf("Preparing to serve beer...\n");
+    logInfo(stdout, "serveBeer", "Preparing to serve beer...");
     if(tap->quantity - qty < 0){
-        printError("Not enough beer left");
+        logError(stderr, "serveBeer", "Not enough beer left");
         return -1;
     }
 
@@ -156,10 +152,10 @@ int serveBeer(sem_t* sem, tap_t* tap, const float qty){
     }
 
     sleep(sleepTime);
-    printf("Served \"%f\". Remaining in %d type keg: \"%f\"\n", qty, tap->type, remaining);
+    logInfo(stdout, "serveBeer", "Served \"%f\". Remaining in %d type keg: \"%f\"\n", qty, tap->type, remaining);
 
     if(sem_post(sem) == -1){
-        printError("Error releasing semaphore");
+        logError(stderr, "serveBeer", "Error releasing semaphore");
         return -1;
     }
 
@@ -170,14 +166,14 @@ int getQuantity(sem_t* sem, tap_t* tap){
     float remaining = 0;
 
     if(sem_wait(sem) == -1){
-        printError("Error waiting for semaphore access");
+        logError(stderr, "getQuantity", "Error waiting for semaphore access");
         return -1;
     }
 
     remaining = tap->quantity;
 
     if(sem_post(sem) == -1){
-        printError("Error releasing semaphore");
+        logError(stderr, "getQuantity", "Error releasing semaphore");
         return -1;
     }
 
@@ -189,7 +185,7 @@ int checkKeg(sem_t* sem, tap_t* tap, int id){
     
     missing = getQuantity(sem, tap);
     if(missing == -1){
-        printError("Error retrieving keg levels for tap %d", id);
+        logError(stderr, "checkKeg", "Error retrieving keg levels for tap %d", id);
         return -1;
     } else if(missing == 0){
         printf("Controle -> WE NEED MORE BEEEEEEEEEEEEEEEEEEEEEEEER on tap %d\n", id);
@@ -209,14 +205,14 @@ int initSHM(const int key, const int nTaps, tap_t** taps){
 
     id = createTapSHM(key, nTaps);
     if(id == -1){
-        printError("Error creating SHM");
+        logError(stderr, "initSHM", "Error creating SHM");
         return -1;
     }
 
     
     *taps = attachTapSHM(id);
     if(*taps == NULL){
-        printError("Unable to attach to SHM");
+        logError(stderr, "initSHM", "Unable to attach to SHM");
         return -1;
     }
 
@@ -226,19 +222,19 @@ int initSHM(const int key, const int nTaps, tap_t** taps){
 char* getBeerName(sem_t* sem, tap_t* tap){
     char* name = malloc(sizeof(char)*MAX_LENGTH_NAME);
     if(name == NULL){
-        printError("Unable to allocate memory for name");
+        logError(stderr, "getBeerName", "Unable to allocate memory for name");
         return NULL;
     }
 
     if(sem_wait(sem) == -1){
-        printError("Error waiting for semaphore access");
+        logError(stderr, "getBeerName", "Error waiting for semaphore access");
         return NULL;
     }
 
     strcpy(name, tap->name);
 
     if(sem_post(sem) == -1){
-        printError("Error releasing semaphore");
+        logError(stderr, "getBeerName", "Error releasing semaphore");
         return NULL;
     }
 

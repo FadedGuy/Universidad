@@ -3,20 +3,20 @@
 #include <string.h>
 #include <sys/socket.h>
 
-#include "util.h"
+#include "logger.h"
 #include "request.h"
 
 requestPacket_t* createRequestPacket(const requestType_t type, const char* payload, const size_t payloadSize){
     requestPacket_t* packet = malloc(sizeof(requestPacket_t));
     if(packet == NULL){
-        printError("Error allocating memory for packet");
+        logError(stderr, "createRequestPacket", "Error allocating memory for packet");
         return NULL;
     }
 
     packet->requestType = type;
     packet->payload = malloc(payloadSize);
     if(packet->payload == NULL){
-        printError("Error allocating memory for payload in packet");
+        logError(stderr, "createRequestPacket", "Error allocating memory for payload in packet");
         return NULL;
     }
     packet->payloadLength = payloadSize;
@@ -40,7 +40,7 @@ int writeRequest(const int sock, const requestPacket_t* packet){
     char* buffer = malloc(totalSize);
     
     if(buffer == NULL){
-        printError("Unable to allocate \"%d\" bytes for request packet", totalSize);
+        logError(stderr, "writeRequest", "Unable to allocate \"%d\" bytes for request packet", totalSize);
         return -1;
     }
 
@@ -50,7 +50,7 @@ int writeRequest(const int sock, const requestPacket_t* packet){
 
     nbBytes = send(sock, buffer, totalSize, 0);
     if(nbBytes == -1 || nbBytes != totalSize){
-        printError("Error sending message to server: only %d/%d bytes were sent", nbBytes, totalSize);
+        logError(stderr, "writeRequest", "Error sending message to server: only %d/%d bytes were sent", nbBytes, totalSize);
         free(buffer);
         return -1;
     }
@@ -64,25 +64,25 @@ int readRequest(const int sock, requestPacket_t* packet){
 
     nbBytes = recv(sock, &(packet->requestType), sizeof(requestType_t), 0);
     if(nbBytes != sizeof(requestType_t)){
-        printError("requestType error");
+        logError(stderr, "readRequest", "requestType error");
         return -1;
     }
 
     nbBytes = recv(sock, &(packet->payloadLength), sizeof(size_t), 0);
     if(nbBytes != sizeof(size_t)){
-        printError("payloadLength error");
+        logError(stderr, "readRequest", "payloadLength error");
         return -1;
     }
 
     packet->payload = malloc(packet->payloadLength + 1);
     if(packet->payload == NULL){
-        printError("Unable to allocate for payload");
+        logError(stderr, "readRequest", "Unable to allocate for payload");
         return -1;
     }
 
     nbBytes = recv(sock, packet->payload, packet->payloadLength, 0);
     if(nbBytes != packet->payloadLength){
-        printError("payload error");
+        logError(stderr, "readRequest", "payload error");
         free(packet->payload);
         return -1;
     }
@@ -106,19 +106,19 @@ int sendRequest(const requestType_t type, const int sock, const char* payload, r
             packet = createRequestPacket(type, payload, strlen(payload));
             break;
         default:
-            printError("Request type given not recognised: \"%d\"", type);
+            logError(stderr, "sendRequest", "Request type given not recognised: \"%d\"", type);
             statusCode = -1;
             break;
     };
     
     if(packet == NULL){
-        printError("Error creating request");
+        logError(stderr, "sendRequest", "Error creating request");
         return -1;
     }
 
     statusCode = writeRequest(sock, packet);
     if(statusCode == -1){
-        printError("Error sending packet");
+        logError(stderr, "sendRequest", "Error sending packet");
         freeRequestPacket(packet);
         return -1;
     }
@@ -127,7 +127,7 @@ int sendRequest(const requestType_t type, const int sock, const char* payload, r
         // Client request type
         statusCode = readRequest(sock, response);
         if(statusCode == -1){
-            printError("Error reading packets from server");
+            logError(stderr, "sendRequest", "Error reading packets from server");
             freeRequestPacket(packet);
             return -1;
         }

@@ -9,7 +9,7 @@
 #include <fcntl.h>
 
 #include "tap.h"
-#include "util.h"
+#include "logger.h"
 
 int main(){
     tap_t* taps;
@@ -18,36 +18,37 @@ int main(){
 
     shmid = initSHM(SHM_KEY, N_TAPS, &taps);
     if(shmid == -1){
-        printError("Error initializing SHM");
+        logError(stderr, "main", "Error initializing SHM");
         exit(EXIT_FAILURE);
     }
+    logInfo(stdout, "main", "Created sem");
 
     statusCode = openTapSemaphore(semaphore, N_TAPS, SEM_KEY);
     if(statusCode == -1){
-        printError("Error opening semaphore");
+        logError(stderr, "main", "Error opening semaphore");
         exit(EXIT_FAILURE);
     }
-    printf("Opened sem\n");
+    logInfo(stdout, "main", "Opened sem");
 
     for(i = 0; i < N_TAPS; i++){
         statusCode = initializeTap(semaphore[i], &taps[i], i+1);
         if(statusCode == -1){
-            printError("Error initializing tap \"%d\" with type \"%d\"", 0, i+1);
+            logError(stderr, "main", "Error initializing tap \"%d\" with type \"%d\"", 0, i+1);
             exit(EXIT_FAILURE);
         }
-        printf("Tap %d initialized\n", i);
+        logInfo(stdout, "main", "Tap %d initialized", i);
     }
-    printf("Taps initialized\n");
+    logInfo(stdout, "main", "Taps initialized");
 
     sleep(15);
         
     if(detachTapSHM(taps) == -1){
-        printError("Error detaching from tap");
+        logError(stderr, "main", "Error detaching from tap");
         exit(EXIT_FAILURE);
     }
 
     if(closeTapSemaphore(semaphore, N_TAPS) == -1){
-        printError("Error closing semaphores");
+        logError(stderr, "main", "Error closing semaphores");
         exit(EXIT_FAILURE);
     }
 

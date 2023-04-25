@@ -11,6 +11,7 @@
 
 #include "request.h"
 #include "util.h"
+#include "logger.h"
 
 #define BUFFER 50
 
@@ -31,19 +32,19 @@ int parseArgInfo(int nbArgs, char** args, char** name, long* port){
     char *end;
     
     if(nbArgs != 3){
-        printError("Incorrect usage. Use ./client server_adress server_port");
+        logError(stderr, "parseArgInfo", "Incorrect usage. Use ./client server_adress server_port");
         return -1;
     }
 
     *name = args[1];
     if(*name == NULL){
-        printError("Unable to parse server name: \"%s\"", args[1]);
+        logError(stderr, "parseArgInfo", "Unable to parse server name: \"%s\"", args[1]);
         return -1;
     }
 
     *port = strtol(args[2], &end, 10);
     if(args[2] == end || errno == ERANGE){
-        printError("Unable to parse server port: \"%s\"", args[2]);
+        logError(stderr, "parseArgInfo", "Unable to parse server port: \"%s\"", args[2]);
         return -1;
     }
 
@@ -66,7 +67,7 @@ long getMenuChoice(const char* prompt, const long lower, const long upper){
     do{
         printf("%s", prompt);
         if(!fgets(input, 1024, stdin)){
-            printError("Reading input failed");
+            logError(stderr, "getMenuChoice", "Reading input failed");
             return -1;
         }
 
@@ -74,16 +75,16 @@ long getMenuChoice(const char* prompt, const long lower, const long upper){
         errno = 0;
         choice = strtol(input, &endptr, 10);
         if(errno == ERANGE){
-            printError("Number is outside of long range");
+            logError(stderr, "getMenuChoice", "Number is outside of long range");
             continue;
         } else if(endptr == input){
-            printError("No characters were read");
+            logError(stderr, "getMenuChoice", "No characters were read");
             sucess = 0;
         } else if(*endptr && *endptr != '\n'){
-            printError("Unable to convert all input");
+            logError(stderr, "getMenuChoice", "Unable to convert all input");
             sucess = 0;
         } else if(choice < lower || choice > upper){
-            printError("Choice is not within menu range of %d-%d", lower, upper);
+            logError(stderr, "getMenuChoice", "Choice is not within menu range of %d-%d", lower, upper);
             sucess = 0;
         } else{
             sucess = 1;
@@ -97,6 +98,7 @@ long getMenuChoice(const char* prompt, const long lower, const long upper){
 char* getAvailableBeerPayload(){
     char* str = malloc(strlen(EMPTY_PAYLOAD) + 1);
     if(str == NULL){
+        logError(stderr, "getAvailableBeerPayload", "Unable to allocate memory");
         return NULL;
     }
 
@@ -118,6 +120,7 @@ char* getOrderBeerPayload(){
 
     str = malloc(strlen(choiceBeerStr) + strlen(choicePintStr) + 2);
     if(str == NULL){
+        logError(stderr, "getOrderBeerPayload", "Unable to allocate memory");
         return NULL;
     }
 
@@ -131,6 +134,7 @@ char* getOrderBeerPayload(){
 char* getExitBarPayload(){
     char* str = malloc(strlen("Goodbye") + 1);
     if(str == NULL){
+        logError(stderr, "getExitBarPayload", "Unable to allocate memory");
         return NULL;
     }
 
@@ -163,21 +167,21 @@ int clientMenu(const int sock){
                 requestPayload = getExitBarPayload();
                 break;
             default:
-                printError("Choice \"%ld\" is not known", choice);
+                logError(stderr, "clientMenu", "Choice \"%ld\" is not known", choice);
                 return -1;
         }
 
         if(requestPayload == NULL){
-            printError("Unable to generate payload for request \"%d\"", choice);
+            logError(stderr, "clientMenu", "Unable to generate payload for request \"%d\"", choice);
             return -1;
         }
 
         statusCode = sendRequest(choice, sock, requestPayload, &response);
         if(statusCode == -1){
-            printError("Unable to process request \"%d\"", choice);
+            logError(stderr, "clientMenu", "Unable to process request \"%d\"", choice);
             return -1;
         }
-        printf("Server said: %s\n", response.payload);
+        logInfo(stdout, "clientMenu", "Server said: %s\n", response.payload);
 
         if(choice == 3){
             return 0;
@@ -197,20 +201,20 @@ int main(int argc, char** argv){
 
     statusCode = parseArgInfo(argc, argv, &serverName, &serverPort);
     if(statusCode == -1){
-        printError("Error while parsing arguments");
+        logError(stderr, "main", "Error while parsing arguments");
         exit(EXIT_FAILURE);
     }
 
     sock = createTCPSocket(0);
     if(sock == -1){
-        printError("Error while creating TCP Socket");
+        logError(stderr, "main", "Error while creating TCP Socket");
         close(sock);
         exit(EXIT_FAILURE);
     }
 
     statusCode = connectToTCPSocket(sock, serverName, serverPort);
     if(statusCode == -1){
-        printError("Error while connecting to socket");
+        logError(stderr, "main", "Error while connecting to socket");
         close(sock);
         exit(EXIT_FAILURE);
     }
@@ -218,11 +222,11 @@ int main(int argc, char** argv){
 
     statusCode = clientMenu(sock);
     if(statusCode == -1){
-        printError("Error while client was at the bar");
+        logError(stderr, "main", "Error while client was at the bar");
         close(sock);
         exit(EXIT_FAILURE);
     }
-    printf("Client exited successfully!\n");
+    logInfo(stdout, "menu", "Client exited successfully!");
     
 
     close(sock);
