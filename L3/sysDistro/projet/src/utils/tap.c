@@ -193,6 +193,20 @@ int checkKeg(sem_t* sem, tap_t* tap, int id){
         printf("Controle -> Ordering more beer\n");
         sem_wait(sem);
         tap->quantity = tap->capacity;
+        //init test with java
+        // sock = createUDPSocket(0);
+        // if(sock == -1){
+        //     logError(stderr, "controlProcess", "Unable to create UDP socket");
+        //     exit(EXIT_FAILURE);
+        // }
+
+        // statusCode = exchangeUDPSocket(sock, "localhost", 7777, "bonjour from C", &response, BUFFER);
+        // if(statusCode == -1){
+        //     logError(stderr, "controlProcess", "Unable to send message via UDP socket");
+        //     exit(EXIT_FAILURE);
+        // }
+        // logInfo(stdout, "controlProcess", "Got from server \"%s\"", response);
+        //fin test with java
         printf("Controle -> Beer has been refilled on tap %d %f\n", id, tap->capacity);
         sem_post(sem);
     }

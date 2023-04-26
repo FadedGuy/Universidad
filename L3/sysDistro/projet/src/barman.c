@@ -166,7 +166,9 @@ int clientCommunication(const int sock){
         }
         logInfo(stdout, "clientCommunication", "Reponse sent to client #%d\n", pid);
         
+        free(request.payload);
         free(responsePayload);
+
         if(request.requestType == C_EXIT_BAR){
             logInfo(stdout, "clientCommunication", "Client #%d exited bar\n", pid);
             break;
@@ -238,23 +240,7 @@ void communicationProcess(va_list arguments){
 void controlProcess(){
     tap_t* taps;
     sem_t* semaphore[N_TAPS];
-    int shmid, statusCode, i, sock;
-    char* response;
-
-    //init test with java
-    sock = createUDPSocket(0);
-    if(sock == -1){
-        logError(stderr, "controlProcess", "Unable to create UDP socket");
-        exit(EXIT_FAILURE);
-    }
-
-    statusCode = exchangeUDPSocket(sock, "localhost", 7777, "bonjour from C", &response, BUFFER);
-    if(statusCode == -1){
-        logError(stderr, "controlProcess", "Unable to send message via UDP socket");
-        exit(EXIT_FAILURE);
-    }
-    logInfo(stdout, "controlProcess", "Got from server \"%s\"", response);
-    //fin test with java
+    int shmid, statusCode, i;
 
     shmid = retrieveTapSHM(SHM_KEY, N_TAPS);
     if(shmid == -1){
@@ -444,8 +430,8 @@ int main(int argc, char** argv){
     }
 
     // Communication
-    pidProcesses[1] = launchNewProcess("Communication", &communicationProcess, argc, argv);
-    if(pidProcesses[1] == -1){
+    pidProcesses[0] = launchNewProcess("Communication", &communicationProcess, argc, argv);
+    if(pidProcesses[0] == -1){
         logError(stderr, "main", "Error launching communication process");
         exit(EXIT_FAILURE);
     }
