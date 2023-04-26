@@ -83,12 +83,10 @@ int readRequest(const int sock, requestPacket_t* packet){
     nbBytes = recv(sock, packet->payload, packet->payloadLength, 0);
     if(nbBytes != packet->payloadLength){
         logError(stderr, "readRequest", "payload error");
-        free(packet->payload);
         return -1;
     }
 
     packet->payload[packet->payloadLength] = '\0';
-
     return 0;
 }
 

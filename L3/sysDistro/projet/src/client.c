@@ -146,7 +146,8 @@ int clientMenu(const int sock){
     int statusCode;
     long choice;
     char* requestPayload;
-    requestPacket_t response;
+    requestPacket_t* response;
+
 
     while(1){
         printf("-------------------------\n\tMENU\n");
@@ -176,18 +177,25 @@ int clientMenu(const int sock){
             return -1;
         }
 
-        statusCode = sendRequest(choice, sock, requestPayload, &response);
-        if(statusCode == -1){
-            logError(stderr, "clientMenu", "Unable to process request \"%d\"", choice);
+        response = malloc(sizeof *response);
+        if(response == NULL){
+            logError(stderr, "clientMenu", "Unable to allocate memory for response");
             return -1;
         }
-        logInfo(stdout, "clientMenu", "Server said: %s\n", response.payload);
 
+        statusCode = sendRequest(choice, sock, requestPayload, response);
+        if(statusCode == -1){
+            logError(stderr, "clientMenu", "Unable to process request \"%d\"", choice);
+            freeRequestPacket(response);
+            return -1;
+        }
+        logInfo(stdout, "clientMenu", "Server said: %s\n", response->payload);
+
+        freeRequestPacket(response);
+        free(requestPayload);        
         if(choice == 3){
             return 0;
         }
-
-        free(requestPayload);
     }
 
     return 0;
