@@ -1,4 +1,5 @@
 #include <errno.h>
+#include <limits.h>
 #include <netdb.h>
 #include <netinet/in.h>
 #include <stdio.h>
@@ -7,11 +8,10 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <unistd.h>
-#include <limits.h>
 
+#include "utils/logger.h"
 #include "utils/request.h"
 #include "utils/util.h"
-#include "utils/logger.h"
 
 #define BUFFER 50
 

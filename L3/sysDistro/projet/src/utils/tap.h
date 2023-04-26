@@ -28,9 +28,9 @@ typedef enum {
 
 typedef struct{
     beer_type_t type;
-    char name[MAX_LENGTH_NAME];
-    float quantity;
-    float capacity;
+    char        name[MAX_LENGTH_NAME];
+    float       quantity;
+    float       capacity;
 } tap_t;
 
 /**

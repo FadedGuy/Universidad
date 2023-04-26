@@ -1,12 +1,13 @@
-#include <unistd.h>
+#include <errno.h>
+#include <fcntl.h>
+#include <semaphore.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <sys/ipc.h>
 #include <sys/shm.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <errno.h>
-#include <semaphore.h>
-#include <fcntl.h>
+#include <unistd.h>
+
 
 #include "utils/tap.h"
 #include "utils/logger.h"

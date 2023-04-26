@@ -20,8 +20,8 @@ typedef enum {
 
 typedef struct{
     requestType_t requestType;
-    size_t payloadLength;
-    char* payload;
+    size_t        payloadLength;
+    char*         payload;
 } requestPacket_t;
 
 /**

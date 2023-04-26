@@ -25,14 +25,10 @@
 
 #define BUFFER 50
 #define MAX_REQUESTS 5
-#define NUM_PROC 1
+#define NUM_PROC 3
 #define QUANTUM 10
 #define PIPE_MAIN_CLIENT "pipeMainClient"
 #define PIPE_CLIENT_MAIN "pipeClientMain"
-
-/*
-    In controlProcess needs to send UDP with request for processus commande
-*/
 
 /**
  * Parses the information given when the program was ran
@@ -81,8 +77,6 @@ char* getAvailableBeerPayload(requestPacket_t request){
     return buffer;
 }
 
-// It should be in the same order as beerPayload, check for the number that was given
-// Send number of beer in tap and size
 char* getOrderBeerPayload(requestPacket_t request){
     int type = (int)request.requestType;
     char* buffer = malloc(sizeof(char)*BUFFER);
