@@ -53,12 +53,10 @@ public class Commande {
                         printBeerList(amberList);
                         break;
                     case "acheter":
-                        boolean purchaseWentWell = buyABeer(f1, scOperations);
-                        if(purchaseWentWell) {
-                            sendASocket(socket, "0 ", machineName);
-                        }
+                        buyABeer(f1, scOperations, socket, machineName);
                         break;
                     case "cancel":
+                        sendASocket(socket, "1", machineName);
                         break;
                     default:
                         System.out.println("This operation doesnt exist.");
@@ -67,7 +65,7 @@ public class Commande {
 
     }
     
-    private static boolean buyABeer(Fournisseur f1, Scanner sc) throws RemoteException {
+    private static boolean buyABeer(Fournisseur f1, Scanner sc, DatagramSocket socket, String machineName) throws RemoteException, IOException {
         boolean purchaseWentWell = false;
         String beerPick;
         do {
@@ -78,16 +76,21 @@ public class Commande {
             if("none".equals(beerPick)) {
                 break;
             }
-            purchaseWentWell = treatBeerPurchase(beerPick, f1, sc);
+            purchaseWentWell = treatBeerPurchase(beerPick, f1, sc, socket, machineName);
         } while(!purchaseWentWell);
         return purchaseWentWell;
     }
 
-    private static boolean treatBeerPurchase(String beerPick, Fournisseur f1, Scanner sc) throws RemoteException {
-        String anotherBeerPick = "";
-        
+    private static boolean treatBeerPurchase(String beerPick, Fournisseur f1, Scanner sc, DatagramSocket socket, String machineName) throws RemoteException, IOException {        
+        String beerType = "TYPE_NOT_INITIALIZED";
         if(f1.acheterBiere(toTitleCase(beerPick)) != null) {
             System.out.println("Beer " + beerPick + " bought!");
+            if(f1.ambrees.contains(f1.acheterBiere(toTitleCase(beerPick)))) {
+                beerType = "ambree";
+            } else {
+                beerType = "blonde";
+            }
+            sendASocket(socket, (new String("0 " + beerPick + " " + beerType)), machineName);        
             return true;
         } else {
             System.err.println("The beer doesnt or no longer exists.");
@@ -116,7 +119,7 @@ public class Commande {
     public static void main(String argv[]) throws java.net.SocketException, IOException, InterruptedException {
         Scanner scOperations = new Scanner(System.in);
         DatagramPacket receivedPacket;
-        DatagramSocket socket_receive, socket_send;
+        DatagramSocket socket_receive;
         DatagramPacket packetToSend;
         InetAddress adr;
         String receivedData;
@@ -125,7 +128,6 @@ public class Commande {
         String beerWanted;
 
         socket_receive = new DatagramSocket(PORT_RECEIVE);
-        socket_send = new DatagramSocket(PORT_SEND);
         byte[] data = new byte[25];
         receivedPacket = new DatagramPacket(data, data.length);
         
@@ -165,18 +167,18 @@ public class Commande {
 
                     switch(buySameOrNewBeerChoice) {
                         case "same":
-                            boolean purchaseWentWell = treatBeerPurchase(beerWanted, f1, scOperations);
-                            if(purchaseWentWell) {
+                            boolean purchaseWentWell = treatBeerPurchase(beerWanted, f1, scOperations, socket_receive, argv[0]);
+                            /*if(purchaseWentWell) {
                                 String beerInformations = new String("0 " + beerWanted + " " + beerType);    
-                                sendASocket(socket_send, beerInformations, argv[0]);
-                            }
-                            operationMenu(scOperations, opBiere, availableOperations, argv[0], socket_send);
+                                sendASocket(socket_receive, beerInformations, argv[0]);
+                            }*/
+                            operationMenu(scOperations, opBiere, availableOperations, argv[0], socket_receive);
                             break;
                         case "new":
-                            operationMenu(scOperations, opBiere, availableOperations, argv[0], socket_send);
+                            operationMenu(scOperations, opBiere, availableOperations, argv[0], socket_receive);
                             break;
                         case "cancel":
-                            sendASocket(socket_send, "1", argv[0]);
+                            sendASocket(socket_receive, "1", argv[0]);
                             break;
                         default:
                             System.out.println("This operation doesnt exist.");
