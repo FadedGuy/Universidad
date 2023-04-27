@@ -51,5 +51,7 @@ java Fournisseur localhost - java Commande ipBarman ipFournisseur
 
 
 Barman envoyer nom type
-Waiting apres avoir achete biere et cancel
+Waiting apres avoir achete biere (good) et cancel (good)
+tester le waiting après avoir pris same beer
+après avoir vidé keg 1 rempli keg 1 puis vidé keg 2, error checking keg 1 qui apparait dans barman 
 Tap bug semaphore
