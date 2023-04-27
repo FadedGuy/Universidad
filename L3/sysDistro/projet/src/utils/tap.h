@@ -139,14 +139,39 @@ int initSHM(const int key, const int nTaps, tap_t** taps);
 */
 char* getBeerName(sem_t* sem, tap_t* tap);
 
+/**
+ * Refills a given tap
+ * @param sem Semaphore controlling tap
+ * @param tap Tap to fill back up to capacity
+ * @return New quantity on sucess, -1 for errors
+*/
 int refillTap(sem_t* sem, tap_t* tap);
 
+/**
+ * Setter for tap name
+ * @param sem Semaphore controlling tap
+ * @param tap Tap to change name
+ * @param name Name to set
+ * @return 0 on sucess, -1 for errors
+*/
 int setTapName(sem_t* sem, tap_t* tap, const char* name);
 
-int updateTapNameString(const int id, const char* name);
-
+/**
+ * Setter for tap type
+ * @param sem Semaphore controlling tap
+ * @param tap Tap to change type
+ * @param type New type
+ * @return 0 on sucess, -1 for errors
+*/
 int setTapType(sem_t* sem, tap_t* tap, const beer_type_t type);
 
+/**
+ * Setter for tap name via string
+ * @param sem Semaphore controlling tap
+ * @param Tap Tap to change name
+ * @param type Type as string
+ * @return 0 on sucess, -1 for errors
+*/
 int setTapTypeFromString(sem_t* sem, tap_t* tap, const char* type);
 
 #endif

@@ -4,6 +4,7 @@
 #define CLEAR_TERMINAL printf("\033[2J\033[1;1H");
 #define PROVIDER_SEND_PORT 7777
 #define PROVIDER_RECEIVE_PORT 7778
+#define BUFFER 50
 
 /**
  * Creates a TCP socket
@@ -36,10 +37,9 @@ int connectToTCPSocket(const int sock, const char* serverName, const long server
  * @param localPort Port to listen for server response
  * @param msg Message to send
  * @param response Where the response will be stored
- * @param responseSize Max size of the response buffer
  * @return 0 on sucess, -1 for errors
 */
-int exchangeUDPSocket(const int sock, const char* serverName, const long serverPort, const long localPort, const char* msg, char* response, const int responseSize);
+int exchangeUDPSocket(const int sock, const char* serverName, const long serverPort, const long localPort, const char* msg, char* response);
 
 
 #endif

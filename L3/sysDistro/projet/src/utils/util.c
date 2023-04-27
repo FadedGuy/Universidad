@@ -87,7 +87,7 @@ int connectToTCPSocket(const int sock, const char* serverName, const long server
     return 0;
 }
 
-int exchangeUDPSocket(const int sock, const char* serverName, const long serverPort, const long localPort, const char* msg, char* response, const int responseSize){
+int exchangeUDPSocket(const int sock, const char* serverName, const long serverPort, const long localPort, const char* msg, char* response){
     static struct sockaddr_in serverAddress;
     struct hostent* serverHostname;
     unsigned int lg;
@@ -119,7 +119,7 @@ int exchangeUDPSocket(const int sock, const char* serverName, const long serverP
     }
     logInfo(stdout, "exchangeUDPSocket", "created UDP Socket");
 
-    nbBytes = recvfrom(newSock, buffer, responseSize, 0, NULL, &lg);
+    nbBytes = recvfrom(newSock, buffer, BUFFER, 0, NULL, &lg);
     if(nbBytes == -1){
         logError(stderr,  "exchangeUDPSocket", "Error receiving message");
         return -1;

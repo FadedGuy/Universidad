@@ -41,7 +41,7 @@ int main(){
     }
     logInfo(stdout, "main", "Taps initialized");
 
-    sleep(20000);
+    sleep(200);
         
     if(detachTapSHM(taps) == -1){
         logError(stderr, "main", "Error detaching from tap");

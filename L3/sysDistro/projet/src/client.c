@@ -15,11 +15,6 @@
 
 #define BUFFER 50
 
-/*
-    We could add support for SIGINT or any other for when the program closes
-    so it properly cleans up
-*/
-
 /**
  * Parses the information given when the program was ran
  * @param nbArgs number of arguments given

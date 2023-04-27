@@ -126,7 +126,6 @@ int sendRequest(const requestType_t type, const int sock, const char* payload, r
         statusCode = readRequest(sock, response);
         if(statusCode == -1){
             logError(stderr, "sendRequest", "Error reading packets from server");
-            freeRequestPacket(packet);
             return -1;
         }
     } 

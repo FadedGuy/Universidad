@@ -6,6 +6,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <ctype.h>
 #include <unistd.h>
 
 #include "logger.h"
@@ -14,14 +15,15 @@
 
 #define BUFFER 50
 
-static char* beer_name_string[] = {
+// Initial beer kegs
+static char* beer_name_string[MAX_LENGTH_NAME] = {
     "Paix Dieu",
     "Kwak",
 };
 
 static char* beer_type_string[] = {
-    "Amber",
-    "Lager"
+    "AMBER",
+    "LAGER"
 };
 
 int createTapSHM(int key, int nTaps){
@@ -123,8 +125,9 @@ int initializeTap(sem_t* sem, tap_t* tap, beer_type_t type){
     }
     strcpy(tap->name, beer_name_string[type-1]);
     tap->type = type;
-    tap->quantity = 1.5;
-    // tap->quantity = 0.5;
+    tap->quantity = KEG_CAPACITY;
+    // Change to this if testing control
+    // tap->quantity = 1.0;
     tap->capacity = KEG_CAPACITY;
 
     if(sem_post(sem) == -1){
@@ -202,85 +205,84 @@ int checkKeg(sem_t* sem, tap_t* tap, int id){
         return -1;
     } else if(missing == 0){
         logInfo(stdout, "checkKeg", "More beer is needed for id %d", id);
-        // Here goes controle -> commande
-        sem_wait(sem);
 
-        logInfo(stdout, "checkKeg", "Ordering more beer for %s", tap->name);
-        // tap->quantity = tap->capacity;
+        response = malloc(sizeof(char) * BUFFER); 
+        resName = malloc(sizeof(char) * MAX_LENGTH_NAME);
+        if(response == NULL || resName == NULL){
+            logError(stderr, "controlProcess", "Unable to allocate memory");
+            return -1;
+        }
 
-        //init test with java
         sock = createUDPSocket(0);
         if(sock == -1){
             logError(stderr, "controlProcess", "Unable to create UDP socket");
+            free(response);
+            free(resName);
             return -1;
         }
 
-        response = malloc(sizeof(char) * 50); 
-
-        statusCode = exchangeUDPSocket(sock, "localhost", PROVIDER_SEND_PORT, PROVIDER_RECEIVE_PORT, "acheter Goudale", response, BUFFER);
+        // 
+        statusCode = exchangeUDPSocket(sock, "localhost", PROVIDER_SEND_PORT, PROVIDER_RECEIVE_PORT, "acheter Goudale", response);
         if(statusCode == -1){
             logError(stderr, "controlProcess", "Unable to send message via UDP socket");
+            free(response);
+            free(resName);
             return -1;
-        }
-
-        sem_post(sem);
-
-        if(response == NULL){
+        }else if(response == NULL){
             logError(stderr, "controlProcess", "Response from the server was empty");
+            free(response);
+            free(resName);
             return -1;
         } else if(response[0] == '1'){
             logError(stderr, "controlProcess", "Request to the server was not sucessful");
+            free(response);
+            free(resName);
             return -1;
         }
 
         logInfo(stdout, "controlProcess", "Got from server \"%s\"", response);
-        // sucess (0) echou (1)
-        // refill with sucess 
-
-        resName = malloc(sizeof(char) * MAX_LENGTH_NAME);
-        if(resName == NULL){
-            logError(stderr, "controlProcess", "Unable to allocate memory for resName");
-            return -1;
-        }
 
         for(i = 2; i < strlen(response); i++){
-            // Check if it includes space
             if(response[i] == ' '){
                 strncpy(resName, response+2, i-1);
                 logDebug(stdout, "controlProcess", "%s, %d", response+2, i);
                 break;
             }
         }
-        resName[i-2] = '\0';    
-        
-        logDebug(stdout, "controlProcess", "Name of beer is %s and type %s", resName, response+i+1);
+        resName[i-2] = '\0'; 
 
-        if(updateTapNameString(id, resName) == -1){
-            logError(stderr, "controlProcess", "Unable to update tap name globally");
+        if(i == strlen(response)){
+            logError(stderr, "controlProcess", "Response from server is not recognized");
+            free(response);
+            free(resName);
             return -1;
-        }
+        }  
 
-        if(setTapName(sem, tap, beer_name_string[id]) == -1){
+        if(setTapName(sem, tap, resName) == -1){
             logError(stderr, "controlProcess", "Unable to update tap name");
+            free(response);
+            free(resName);
             return -1;
         }
 
         if(setTapTypeFromString(sem, tap, response+i) == -1){
             logError(stderr, "controlProcess", "Unable to update tap type");
+            free(response);
+            free(resName);
             return -1;
         }
 
         if(refillTap(sem, tap) == -1){
             logError(stderr, "controlProcess", "Unable to refill tap");
+            free(response);
+            free(resName);
             return -1;
         }
 
         free(response);
         free(resName);
 
-        //fin test with java
-        printf("Controle -> Beer has been refilled on tap %d %f\n", id, tap->capacity);
-        logInfo(stdout, "checkKeg", "Beer \"%s\" has been retrieved");
+        logInfo(stdout, "checkKeg", "New keg of beer has been set on tap %d\n", id);
     }
 
     return 0;
@@ -294,7 +296,6 @@ int initSHM(const int key, const int nTaps, tap_t** taps){
         logError(stderr, "initSHM", "Error creating SHM");
         return -1;
     }
-
     
     *taps = attachTapSHM(id);
     if(*taps == NULL){
@@ -306,7 +307,6 @@ int initSHM(const int key, const int nTaps, tap_t** taps){
 }
 
 char* getBeerName(sem_t* sem, tap_t* tap){
-    logDebug(stdout, "getBeerName", "%s %s", beer_name_string[0], beer_name_string[1]);
     char* name = malloc(sizeof(char)*MAX_LENGTH_NAME);
     if(name == NULL){
         logError(stderr, "getBeerName", "Unable to allocate memory for name");
@@ -329,19 +329,22 @@ char* getBeerName(sem_t* sem, tap_t* tap){
 }
 
 int refillTap(sem_t* sem, tap_t* tap){
+    int refilledQty;
+
     if(sem_wait(sem) == -1){
         logError(stderr, "refillTap", "Error waiting for semaphore access");
         return -1;
     }
 
     tap->quantity = tap->capacity;
+    refilledQty = tap->quantity;
 
     if(sem_post(sem) == -1){
         logError(stderr, "refillTap", "Error releasing semaphore");
         return -1;
     }
 
-    return 0;
+    return refilledQty;
 }
 
 int setTapName(sem_t* sem, tap_t* tap, const char* name){
@@ -365,17 +368,6 @@ int setTapName(sem_t* sem, tap_t* tap, const char* name){
     return 0;
 }
 
-int updateTapNameString(const int id, const char* name){
-    if(strlen(name) > MAX_LENGTH_NAME){
-        logError(stderr, "updateTapNameString", "New name size %d is larger than max allowed %d", strlen(name), MAX_LENGTH_NAME);
-        return -1;
-    }
-
-    strcpy(beer_name_string[id], name);
-
-    return 0;
-}
-
 int setTapType(sem_t* sem, tap_t* tap, const beer_type_t type){
     if(sem_wait(sem) == -1){
         logError(stderr, "setTapType", "Error waiting for semaphore access");
@@ -394,14 +386,23 @@ int setTapType(sem_t* sem, tap_t* tap, const beer_type_t type){
 
 int setTapTypeFromString(sem_t* sem, tap_t* tap, const char* type){
     int i;
-    
+    char* typeStrUpper = malloc(sizeof(char) * strlen(type));
+    if(typeStrUpper == NULL){
+        logError(stderr, "setTapTypeFromString", "Unable to allocate memory");
+        return -1;
+    }
+
+    for(i = 0; i < strlen(type); i++){
+        typeStrUpper[i] = toupper(type[i]);
+    }
+
     if(sem_wait(sem) == -1){
         logError(stderr, "setTapTypeFromString", "Error waiting for semaphore access");
         return -1;
     }
 
     for(i = 0; i < N_TAPS; i++){
-        if(strcmp(type, beer_type_string[i]) == 0){
+        if(strcmp(typeStrUpper, beer_type_string[i]) == 0){
             tap->type = i;
         }
     }
@@ -410,6 +411,8 @@ int setTapTypeFromString(sem_t* sem, tap_t* tap, const char* type){
         logError(stderr, "setTapTypeFromString", "Error releasing semaphore");
         return -1;
     }
+
+    free(typeStrUpper);
 
     return 0;
 }
