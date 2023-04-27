@@ -48,3 +48,8 @@ java Fournisseur localhost - java Commande ipBarman ipFournisseur
 ./bin/Tireuses.out
 ./bin/Barman.out 50000
 ./bin/client.out localhost 50000
+
+
+Barman envoyer nom type
+Waiting apres avoir achete biere et cancel
+Tap bug semaphore
