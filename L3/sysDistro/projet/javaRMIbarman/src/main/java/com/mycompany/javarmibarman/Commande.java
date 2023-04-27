@@ -33,7 +33,7 @@ public class Commande {
         return sb.toString().trim();
     }  
     
-    private static void operationMenu(Scanner scOperations, IBiere opBiere, Vector<String> availableOperations) throws RemoteException {
+    private static void operationMenu(Scanner scOperations, IBiere opBiere, Vector<String> availableOperations, String machineName, DatagramSocket socket) throws RemoteException, IOException {
         String operationPick = "";
             
             do {
@@ -53,7 +53,10 @@ public class Commande {
                         printBeerList(amberList);
                         break;
                     case "acheter":
-                        buyABeer(f1, scOperations);
+                        boolean purchaseWentWell = buyABeer(f1, scOperations);
+                        if(purchaseWentWell) {
+                            sendASocket(socket, "0 ", machineName);
+                        }
                         break;
                     case "cancel":
                         break;
@@ -64,8 +67,8 @@ public class Commande {
 
     }
     
-    private static void buyABeer(Fournisseur f1, Scanner sc) throws RemoteException {
-        boolean purchaseWentWell;
+    private static boolean buyABeer(Fournisseur f1, Scanner sc) throws RemoteException {
+        boolean purchaseWentWell = false;
         String beerPick;
         do {
             System.out.println("Which beer do you want to buy? (enter \"none\" to go back to operations menu)");
@@ -77,7 +80,7 @@ public class Commande {
             }
             purchaseWentWell = treatBeerPurchase(beerPick, f1, sc);
         } while(!purchaseWentWell);
-        
+        return purchaseWentWell;
     }
 
     private static boolean treatBeerPurchase(String beerPick, Fournisseur f1, Scanner sc) throws RemoteException {
@@ -102,12 +105,13 @@ public class Commande {
         System.out.println("-------------------\n");
     }
     
-    /*private static void successPacket(DatagramSocket socket, byte[] data, String beerWanted, String beerType, String machineName) throws IOException {
+    private static void sendASocket(DatagramSocket socket, String beerInformations, String machineName) throws IOException {
         InetAddress adr = InetAddress.getByName(machineName);
-        data = (new String("success " + beerWanted + beerType).getBytes());    
+        byte[] data = beerInformations.getBytes();    
         DatagramPacket packetToSend = new DatagramPacket(data, data.length, adr, PORT);     
+        System.out.println(beerInformations);
         socket.send(packetToSend);
-    }*/
+    }
 
     public static void main(String argv[]) throws java.net.SocketException, IOException {
         Scanner scOperations = new Scanner(System.in);
@@ -117,79 +121,78 @@ public class Commande {
         InetAddress adr;
         String receivedData;
         String beerType;
-        String buySameOrNewBeerChoice = "";
+        String buySameOrNewBeerChoice;
         String beerWanted;
 
         socket = new DatagramSocket(PORT); // define PORT later
         byte[] data = new byte[25];
         receivedPacket = new DatagramPacket(data, data.length);
         
-        
-        System.out.println("------------------------\n" + 
-                           "Waiting for a new request");
-        socket.receive(receivedPacket);
-        receivedData = new String(receivedPacket.getData(), 0, receivedPacket.getLength()).trim();            
-        System.out.println("\nREQUEST FOUND\n"
-                         + "You want to buy " + receivedData + ".\n");
+        while(true) {
+            System.out.println("\n------------------------\n" + 
+                                "Waiting for a new request");
+            socket.receive(receivedPacket);
+            receivedData = new String(receivedPacket.getData(), 0, receivedPacket.getLength()).trim();            
+            System.out.println("\nREQUEST FOUND\n"
+                              + "You want to buy " + receivedData + ".\n");
 
-        beerType = receivedData.substring(receivedData.lastIndexOf(" ") + 1);
-        beerWanted = receivedData.replace(beerType, "").trim();
-        
+            beerType = receivedData.substring(receivedData.lastIndexOf(" ") + 1);
+            beerWanted = receivedData.replace(beerType, "").trim();
+            
+            try {
+                f1 = new Fournisseur();
+                // on récupère une référence sur l'objet distant nommé "DedeLaChope" via
+                // le registry de la machine sur laquelle il s'exécute
+                IBiere opBiere = (IBiere) Naming.lookup("rmi://"+argv[0]+"/DedeLaChope"); // argv[0] = pc ip adress on which we execute the server, ifconfig in terminal to get ip
+                Vector<String> availableOperations = new Vector<>();
+                availableOperations.add("liste blondes");
+                availableOperations.add("liste ambrees");
+                availableOperations.add("acheter");
+                availableOperations.add("cancel");
+
+                Vector<String> sameOrNewChoiceVector = new Vector<>();
+                sameOrNewChoiceVector.add("same");
+                sameOrNewChoiceVector.add("new");
+                sameOrNewChoiceVector.add("cancel");
+
+
+                do {
+                    System.out.println("Do you want to buy " + beerWanted + " or buy a new beer ? (same/new/cancel)");
+                    buySameOrNewBeerChoice = "";
+                    buySameOrNewBeerChoice += scOperations.nextLine();
+                    buySameOrNewBeerChoice = buySameOrNewBeerChoice.trim().toLowerCase(); // deleting spaces in the string and lowercase to avoid bugs
+
+                    switch(buySameOrNewBeerChoice) {
+                        case "same":
+                            boolean purchaseWentWell = treatBeerPurchase(beerWanted, f1, scOperations);
+                            if(purchaseWentWell) {
+                                String beerInformations = new String("0 " + beerWanted + " " + beerType);    
+                                sendASocket(socket, beerInformations, argv[0]);
+                            }
+                            operationMenu(scOperations, opBiere, availableOperations, argv[0], socket);
+                            break;
+                        case "new":
+                            operationMenu(scOperations, opBiere, availableOperations, argv[0], socket);
+                            break;
+                        case "cancel":
+                            sendASocket(socket, "1", argv[0]);
+                            break;
+                        default:
+                            System.out.println("This operation doesnt exist.");
+                    }
+
+                 } while (!sameOrNewChoiceVector.contains(buySameOrNewBeerChoice));
+
+
+            } catch (MalformedURLException | NotBoundException | RemoteException e) {
+                    System.err.println("ERROR : " + e);
+            }
+
+        }
         
         /* System.out.println("beerType : " + beerType + "test espace\n"
                           + "nom de la biere : " + beerWanted + "test espace");*/
         
-        try {
-            f1 = new Fournisseur();
-            // on récupère une référence sur l'objet distant nommé "DedeLaChope" via
-            // le registry de la machine sur laquelle il s'exécute
-            IBiere opBiere = (IBiere) Naming.lookup("rmi://"+argv[0]+"/DedeLaChope"); // argv[0] = pc ip adress on which we execute the server, ifconfig in terminal to get ip
-            Vector<String> availableOperations = new Vector<>();
-            availableOperations.add("liste blondes");
-            availableOperations.add("liste ambrees");
-            availableOperations.add("acheter");
-            availableOperations.add("cancel");
-            
-            Vector<String> sameOrNewChoiceVector = new Vector<>();
-            sameOrNewChoiceVector.add("same");
-            sameOrNewChoiceVector.add("new");
-            sameOrNewChoiceVector.add("cancel");
-            
-            
-            do {
-                System.out.println("Do you want to buy " + beerWanted + " or buy a new beer ? (same/new/cancel)");
-                buySameOrNewBeerChoice += scOperations.nextLine();
-                buySameOrNewBeerChoice = buySameOrNewBeerChoice.trim().toLowerCase(); // deleting spaces in the string and lowercase to avoid bugs
-
-                switch(buySameOrNewBeerChoice) {
-                    case "same":
-                        boolean purchaseWentWell = treatBeerPurchase(beerWanted, f1, scOperations);
-                        if(purchaseWentWell) {
-                            /* adr = InetAddress.getByName(argv[0]);
-                            data = (new String("sucess " + beerWanted + beerType).getBytes());    
-                            packetToSend = new DatagramPacket(data, data.length, adr, PORT);     
-                            socket.send(packetToSend);*/ 
-                            
-                            
-                            //successPacket(socket, data, beerWanted, beerType, argv[0]);
-                        }
-                        operationMenu(scOperations, opBiere, availableOperations);
-                        break;
-                    case "new":
-                        operationMenu(scOperations, opBiere, availableOperations);
-                        break;
-                    case "cancel":
-                        break;
-                    default:
-                        System.out.println("This operation doesnt exist.");
-                }
-                
-             } while (!sameOrNewChoiceVector.contains(buySameOrNewBeerChoice));
-            
-            
-        } catch (MalformedURLException | NotBoundException | RemoteException e) {
-                System.err.println("ERROR : " + e);
-        }
-            
+                    
     }
 }
