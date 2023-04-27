@@ -87,14 +87,13 @@ int connectToTCPSocket(const int sock, const char* serverName, const long server
     return 0;
 }
 
-int exchangeUDPSocket(const int sock, const char* serverName, const long serverPort, const long localPort, const char* msg, char** response, const int responseSize){
+int exchangeUDPSocket(const int sock, const char* serverName, const long serverPort, const long localPort, const char* msg, char* response, const int responseSize){
     static struct sockaddr_in serverAddress;
     struct hostent* serverHostname;
     unsigned int lg;
     int nbBytes;
     char* buffer = malloc(sizeof(char)*50);
     int newSock;
-
 
     serverHostname = gethostbyname(serverName);
     if(serverHostname == NULL){
@@ -113,27 +112,22 @@ int exchangeUDPSocket(const int sock, const char* serverName, const long serverP
     }
     logDebug(stdout, "exchangeUDPSocket", "Message sent!");
 
-    // serverHostname = gethostbyname("localhost");
-    // if(serverHostname == NULL){
-    //     logError(stderr,  "exchangeUDPSocket", "Error retrieving server IP for hostname \"%s\"", "localhost");
-    //     return -1;
-    // }
-    // memset(&serverAddress, 0, sizeof(serverAddress));
-    // serverAddress.sin_family = AF_INET;
-    // serverAddress.sin_port = htons(localPort);
-    // newSock = createUDPSocket(0);
-    newSock = createUDPSocket(7778);
+
+    newSock = createUDPSocket(localPort);
+    if(newSock == -1){
+        logError(stderr, "exchangeUDPSocket", "Error creating receiving socket on port %d", localPort);
+    }
     logInfo(stdout, "exchangeUDPSocket", "created UDP Socket");
 
-    nbBytes = 0;
-    while(1) {
+    do{
         nbBytes = recvfrom(newSock, buffer, responseSize, 0, NULL, &lg);
         if(nbBytes == -1){
             logError(stderr,  "exchangeUDPSocket", "Error receiving message");
             return -1;
         }
-        logDebug(stdout, "exchangeUDPSocket", "Received %d bytes from socket", nbBytes);
-    }
+
+        logDebug(stdout, "exchangeUDPSocket", "Received %d bytes from socket saying %s", nbBytes, buffer);        
+    }while(nbBytes != 0 && nbBytes != -1);
     
 
     response = malloc(nbBytes*sizeof(char));
@@ -142,6 +136,8 @@ int exchangeUDPSocket(const int sock, const char* serverName, const long serverP
         return -1;
     }
     memcpy(response, buffer, nbBytes);
+    logDebug(stdout, "exchangeUDPSocket", "Copied from buffer %s to response pointer %s", buffer, response);        
+
 
     close(sock);
 

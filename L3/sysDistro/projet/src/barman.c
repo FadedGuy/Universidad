@@ -294,8 +294,8 @@ void mainProcess(){
     long reqType, chosenBeer, chosenSize;
     int i;
 
-    // int sock;
-    // char* response;
+    int sock;
+    char* response;
 
     // SHM w semaphore 
     shmid = retrieveTapSHM(SHM_KEY, N_TAPS);
@@ -319,21 +319,21 @@ void mainProcess(){
     }
     logInfo(stdout, "mainProcess", "Opened sem for tap");
 
-// 
-    // sock = createUDPSocket(0);
-    // if(sock == -1){
-    //     logError(stderr, "controlProcess", "Unable to create UDP socket");
-    //     exit(EXIT_FAILURE);
-    // }
 
-    // statusCode = exchangeUDPSocket(sock, "localhost", 7777, 50003, "bonjour from C", &response, BUFFER);
-    // if(statusCode == -1){
-    //     logError(stderr, "controlProcess", "Unable to send message via UDP socket");
-    //     exit(EXIT_FAILURE);
-    // }
+    sock = createUDPSocket(0);
+    if(sock == -1){
+        logError(stderr, "controlProcess", "Unable to create UDP socket");
+        exit(EXIT_FAILURE);
+    }
 
-    // logInfo(stdout, "controlProcess", "Got from server \"%s\"", response);
-// 
+    statusCode = exchangeUDPSocket(sock, "localhost", PROVIDER_SEND_PORT, PROVIDER_RECEIVE_PORT, "kwak blonde", &response, BUFFER);
+    if(statusCode == -1){
+        logError(stderr, "controlProcess", "Unable to send message via UDP socket");
+        exit(EXIT_FAILURE);
+    }
+
+    logInfo(stdout, "controlProcess", "Got from server \"%s\"", response);
+
 
     while(statusCode >= 0){
         if(receivePipe(PIPE_CLIENT_MAIN, buffer, BUFFER) == -1){

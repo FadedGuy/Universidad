@@ -216,7 +216,7 @@ int checkKeg(sem_t* sem, tap_t* tap, int id){
             return -1;
         }
 
-        statusCode = exchangeUDPSocket(sock, "localhost", 7777, 7778, "bonjour from C", &response, BUFFER);
+        statusCode = exchangeUDPSocket(sock, "localhost", PROVIDER_SEND_PORT, PROVIDER_RECEIVE_PORT, "bonjour from C", &response, BUFFER);
         if(statusCode == -1){
             logError(stderr, "controlProcess", "Unable to send message via UDP socket");
             return -1;
