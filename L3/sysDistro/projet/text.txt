@@ -39,3 +39,12 @@ ipcrm
 ipcs
 
 -lpthread for semaphore.h in school computers
+
+rmic Fournisseur
+javac *.java
+rmiregistry &
+java Fournisseur - java Commande localhost
+
+./bin/Tireuses.out
+./bin/Barman.out 50000
+./bin/client.out localhost 50000

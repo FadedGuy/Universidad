@@ -119,27 +119,19 @@ int exchangeUDPSocket(const int sock, const char* serverName, const long serverP
     }
     logInfo(stdout, "exchangeUDPSocket", "created UDP Socket");
 
-    do{
-        nbBytes = recvfrom(newSock, buffer, responseSize, 0, NULL, &lg);
-        if(nbBytes == -1){
-            logError(stderr,  "exchangeUDPSocket", "Error receiving message");
-            return -1;
-        }
-
-        logDebug(stdout, "exchangeUDPSocket", "Received %d bytes from socket saying %s", nbBytes, buffer);        
-    }while(nbBytes != 0 && nbBytes != -1);
-    
-
-    response = malloc(nbBytes*sizeof(char));
-    if(response == NULL){
-        logError(stderr,  "exchangeUDPSocket", "Unable to allocate memory");
+    nbBytes = recvfrom(newSock, buffer, responseSize, 0, NULL, &lg);
+    if(nbBytes == -1){
+        logError(stderr,  "exchangeUDPSocket", "Error receiving message");
         return -1;
     }
-    memcpy(response, buffer, nbBytes);
+
+    logDebug(stdout, "exchangeUDPSocket", "Received %d bytes from socket saying %s", nbBytes, buffer);        
+
+    strncpy(response, buffer, nbBytes);
     logDebug(stdout, "exchangeUDPSocket", "Copied from buffer %s to response pointer %s", buffer, response);        
 
-
     close(sock);
+    close(newSock);
 
     return 0;
 }

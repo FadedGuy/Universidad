@@ -123,8 +123,8 @@ int initializeTap(sem_t* sem, tap_t* tap, beer_type_t type){
     }
     strcpy(tap->name, beer_name_string[type-1]);
     tap->type = type;
-    tap->quantity = KEG_CAPACITY;
-    //tap->quantity = 0;
+    tap->quantity = 1.5;
+    // tap->quantity = 0.5;
     tap->capacity = KEG_CAPACITY;
 
     if(sem_post(sem) == -1){
@@ -191,12 +191,11 @@ int getQuantity(sem_t* sem, tap_t* tap){
 
 int checkKeg(sem_t* sem, tap_t* tap, int id){
     float missing;
-    int sock, statusCode, i;
+    int sock, statusCode;
+    int i;
     char* response; 
     char* resName;
-    // beer_type_t resType;
 
-    
     missing = getQuantity(sem, tap);
     if(missing == -1){
         logError(stderr, "checkKeg", "Error retrieving keg levels for tap %d", id);
@@ -216,7 +215,9 @@ int checkKeg(sem_t* sem, tap_t* tap, int id){
             return -1;
         }
 
-        statusCode = exchangeUDPSocket(sock, "localhost", PROVIDER_SEND_PORT, PROVIDER_RECEIVE_PORT, "bonjour from C", &response, BUFFER);
+        response = malloc(sizeof(char) * 50); 
+
+        statusCode = exchangeUDPSocket(sock, "localhost", PROVIDER_SEND_PORT, PROVIDER_RECEIVE_PORT, "acheter Goudale", response, BUFFER);
         if(statusCode == -1){
             logError(stderr, "controlProcess", "Unable to send message via UDP socket");
             return -1;
@@ -245,12 +246,14 @@ int checkKeg(sem_t* sem, tap_t* tap, int id){
         for(i = 2; i < strlen(response); i++){
             // Check if it includes space
             if(response[i] == ' '){
-                strncpy(resName, response+2, i);
+                strncpy(resName, response+2, i-1);
+                logDebug(stdout, "controlProcess", "%s, %d", response+2, i);
                 break;
             }
         }
+        resName[i-2] = '\0';    
         
-        logInfo(stdout, "controlProcess", "Name of beer is %s and type %s", resName, response+i);
+        logDebug(stdout, "controlProcess", "Name of beer is %s and type %s", resName, response+i+1);
 
         if(updateTapNameString(id, resName) == -1){
             logError(stderr, "controlProcess", "Unable to update tap name globally");
@@ -264,6 +267,11 @@ int checkKeg(sem_t* sem, tap_t* tap, int id){
 
         if(setTapTypeFromString(sem, tap, response+i) == -1){
             logError(stderr, "controlProcess", "Unable to update tap type");
+            return -1;
+        }
+
+        if(refillTap(sem, tap) == -1){
+            logError(stderr, "controlProcess", "Unable to refill tap");
             return -1;
         }
 
@@ -298,6 +306,7 @@ int initSHM(const int key, const int nTaps, tap_t** taps){
 }
 
 char* getBeerName(sem_t* sem, tap_t* tap){
+    logDebug(stdout, "getBeerName", "%s %s", beer_name_string[0], beer_name_string[1]);
     char* name = malloc(sizeof(char)*MAX_LENGTH_NAME);
     if(name == NULL){
         logError(stderr, "getBeerName", "Unable to allocate memory for name");
@@ -341,7 +350,7 @@ int setTapName(sem_t* sem, tap_t* tap, const char* name){
         return -1;
     }
 
-    if(strlen(name) < MAX_LENGTH_NAME){
+    if(strlen(name) > MAX_LENGTH_NAME){
         logError(stderr, "setTapName", "New name %s is size %d and the max size allowed is %s", name, strlen(name), MAX_LENGTH_NAME);
         return -1;
     }
@@ -357,7 +366,7 @@ int setTapName(sem_t* sem, tap_t* tap, const char* name){
 }
 
 int updateTapNameString(const int id, const char* name){
-    if(strlen(name) < MAX_LENGTH_NAME){
+    if(strlen(name) > MAX_LENGTH_NAME){
         logError(stderr, "updateTapNameString", "New name size %d is larger than max allowed %d", strlen(name), MAX_LENGTH_NAME);
         return -1;
     }
