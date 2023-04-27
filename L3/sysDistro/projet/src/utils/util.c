@@ -118,8 +118,13 @@ int exchangeUDPSocket(const int sock, const char* serverName, const long serverP
         logError(stderr,  "exchangeUDPSocket", "Error receiving message");
         return -1;
     }
+    logDebug(stdout, "exchangeUDPSocket", "Received %d bytes from socket", nbBytes);
 
     response = malloc(nbBytes*sizeof(char));
+    if(response == NULL){
+        logError(stderr,  "exchangeUDPSocket", "Unable to allocate memory");
+        return -1;
+    }
     memcpy(response, buffer, nbBytes);
 
     close(sock);
