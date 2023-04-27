@@ -107,13 +107,13 @@ public class Commande {
     
     private static void sendASocket(DatagramSocket socket, String beerInformations, String machineName) throws IOException {
         InetAddress adr = InetAddress.getByName(machineName);
-        byte[] data = beerInformations.getBytes();    
-        DatagramPacket packetToSend = new DatagramPacket(data, data.length, adr, PORT);     
+        byte[] data = beerInformations.getBytes();
+        DatagramPacket packetToSend = new DatagramPacket(data, data.length, adr, PORT); // changer port pour renvoyer sinon ça récup direct l'envoi
         System.out.println(beerInformations);
         socket.send(packetToSend);
     }
 
-    public static void main(String argv[]) throws java.net.SocketException, IOException {
+    public static void main(String argv[]) throws java.net.SocketException, IOException, InterruptedException {
         Scanner scOperations = new Scanner(System.in);
         DatagramPacket receivedPacket;
         DatagramSocket socket;
