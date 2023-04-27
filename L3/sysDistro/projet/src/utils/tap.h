@@ -143,6 +143,8 @@ int refillTap(sem_t* sem, tap_t* tap);
 
 int setTapName(sem_t* sem, tap_t* tap, const char* name);
 
+int updateTapNameString(const int id, const char* name);
+
 int setTapType(sem_t* sem, tap_t* tap, const beer_type_t type);
 
 int setTapTypeFromString(sem_t* sem, tap_t* tap, const char* type);

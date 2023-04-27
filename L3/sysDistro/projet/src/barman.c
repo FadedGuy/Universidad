@@ -326,7 +326,7 @@ void mainProcess(){
         exit(EXIT_FAILURE);
     }
 
-    statusCode = exchangeUDPSocket(sock, "localhost", 7777, "bonjour from C", &response, BUFFER);
+    statusCode = exchangeUDPSocket(sock, "localhost", 7777, 7778, "bonjour from C", &response, BUFFER);
     if(statusCode == -1){
         logError(stderr, "controlProcess", "Unable to send message via UDP socket");
         exit(EXIT_FAILURE);

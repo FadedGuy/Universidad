@@ -216,7 +216,7 @@ int checkKeg(sem_t* sem, tap_t* tap, int id){
             return -1;
         }
 
-        statusCode = exchangeUDPSocket(sock, "localhost", 7777, "bonjour from C", &response, BUFFER);
+        statusCode = exchangeUDPSocket(sock, "localhost", 7777, 7778, "bonjour from C", &response, BUFFER);
         if(statusCode == -1){
             logError(stderr, "controlProcess", "Unable to send message via UDP socket");
             return -1;
@@ -262,7 +262,7 @@ int checkKeg(sem_t* sem, tap_t* tap, int id){
             return -1;
         }
 
-        if(setTapType(sem, tap, AMBER) == -1){
+        if(setTapTypeFromString(sem, tap, response+i) == -1){
             logError(stderr, "controlProcess", "Unable to update tap type");
             return -1;
         }
@@ -391,10 +391,12 @@ int setTapTypeFromString(sem_t* sem, tap_t* tap, const char* type){
         return -1;
     }
 
-    for(i = 0; i < beer_name_string)
+    for(i = 0; i < N_TAPS; i++){
+        if(strcmp(type, beer_type_string[i]) == 0){
+            tap->type = i;
+        }
+    }
     
-    tap->type = type;
-
     if(sem_post(sem) == -1){
         logError(stderr, "setTapTypeFromString", "Error releasing semaphore");
         return -1;

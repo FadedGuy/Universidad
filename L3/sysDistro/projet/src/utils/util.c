@@ -87,7 +87,7 @@ int connectToTCPSocket(const int sock, const char* serverName, const long server
     return 0;
 }
 
-int exchangeUDPSocket(const int sock, const char* serverName, const long serverPort, const char* msg, char** response, const int responseSize){
+int exchangeUDPSocket(const int sock, const char* serverName, const long serverPort, const long localPort, const char* msg, char** response, const int responseSize){
     static struct sockaddr_in serverAddress;
     struct hostent* serverHostname;
     unsigned int lg;
@@ -99,11 +99,9 @@ int exchangeUDPSocket(const int sock, const char* serverName, const long serverP
         logError(stderr,  "exchangeUDPSocket", "Error retrieving server IP for hostname \"%s\"", serverName);
         return -1;
     }
-
     memset(&serverAddress, 0, sizeof(serverAddress));
     serverAddress.sin_family = AF_INET;
     serverAddress.sin_port = htons(serverPort);
-    memcpy(&serverAddress.sin_addr.s_addr, serverHostname->h_addr_list[0], serverHostname->h_length);
     
     lg = sizeof(struct sockaddr_in);
     nbBytes = sendto(sock, msg, strlen(msg)+1, 0, (struct sockaddr*)&serverAddress, lg);
@@ -112,6 +110,16 @@ int exchangeUDPSocket(const int sock, const char* serverName, const long serverP
         return -1;
     }
     logDebug(stdout, "exchangeUDPSocket", "Message sent!");
+
+    serverHostname = gethostbyname("localhost");
+    if(serverHostname == NULL){
+        logError(stderr,  "exchangeUDPSocket", "Error retrieving server IP for hostname \"%s\"", "localhost");
+        return -1;
+    }
+    memset(&serverAddress, 0, sizeof(serverAddress));
+    serverAddress.sin_family = AF_INET;
+    serverAddress.sin_port = htons(localPort);
+
 
     nbBytes = recvfrom(sock, buffer, responseSize, 0, (struct sockaddr*)&serverAddress, &lg);
     if(nbBytes == -1){
