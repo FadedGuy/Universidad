@@ -56,7 +56,7 @@ int createUDPSocket(int port){
     serverAddress.sin_port = htons(port);
     serverAddress.sin_addr.s_addr = htonl(INADDR_ANY);
     if(bind(sock, (struct sockaddr*)&serverAddress, sizeof(serverAddress)) == -1){
-        logError(stderr,  "createUDPSocket", "Unable to bind socket to port \"%d\"", port);
+        logError(stderr,  "createUDPSocket", "Unable to bind socket to port \"%d\"%s", port, strerror(errno));
         close(sock);
         return -1;
     }
@@ -92,7 +92,9 @@ int exchangeUDPSocket(const int sock, const char* serverName, const long serverP
     struct hostent* serverHostname;
     unsigned int lg;
     int nbBytes;
-    char buffer[responseSize];
+    char* buffer = malloc(sizeof(char)*50);
+    int newSock;
+
 
     serverHostname = gethostbyname(serverName);
     if(serverHostname == NULL){
@@ -111,22 +113,28 @@ int exchangeUDPSocket(const int sock, const char* serverName, const long serverP
     }
     logDebug(stdout, "exchangeUDPSocket", "Message sent!");
 
-    serverHostname = gethostbyname("localhost");
-    if(serverHostname == NULL){
-        logError(stderr,  "exchangeUDPSocket", "Error retrieving server IP for hostname \"%s\"", "localhost");
-        return -1;
-    }
-    memset(&serverAddress, 0, sizeof(serverAddress));
-    serverAddress.sin_family = AF_INET;
-    serverAddress.sin_port = htons(localPort);
+    // serverHostname = gethostbyname("localhost");
+    // if(serverHostname == NULL){
+    //     logError(stderr,  "exchangeUDPSocket", "Error retrieving server IP for hostname \"%s\"", "localhost");
+    //     return -1;
+    // }
+    // memset(&serverAddress, 0, sizeof(serverAddress));
+    // serverAddress.sin_family = AF_INET;
+    // serverAddress.sin_port = htons(localPort);
+    // newSock = createUDPSocket(0);
+    newSock = createUDPSocket(7778);
+    logInfo(stdout, "exchangeUDPSocket", "created UDP Socket");
 
-
-    nbBytes = recvfrom(sock, buffer, responseSize, 0, (struct sockaddr*)&serverAddress, &lg);
-    if(nbBytes == -1){
-        logError(stderr,  "exchangeUDPSocket", "Error receiving message");
-        return -1;
+    nbBytes = 0;
+    while(1) {
+        nbBytes = recvfrom(newSock, buffer, responseSize, 0, NULL, &lg);
+        if(nbBytes == -1){
+            logError(stderr,  "exchangeUDPSocket", "Error receiving message");
+            return -1;
+        }
+        logDebug(stdout, "exchangeUDPSocket", "Received %d bytes from socket", nbBytes);
     }
-    logDebug(stdout, "exchangeUDPSocket", "Received %d bytes from socket", nbBytes);
+    
 
     response = malloc(nbBytes*sizeof(char));
     if(response == NULL){

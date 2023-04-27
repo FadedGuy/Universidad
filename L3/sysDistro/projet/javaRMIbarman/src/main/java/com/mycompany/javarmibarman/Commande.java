@@ -17,8 +17,8 @@ import java.util.Arrays;
 
 public class Commande {
     private static Fournisseur f1;
-    public static final int PORT = 7777;
-    
+    public static final int PORT_RECEIVE = 7777;
+    public static final int PORT_SEND = 7778;
     
     // found on https://stackoverflow.com/questions/1892765/how-to-capitalize-the-first-character-of-each-word-in-a-string
     // could not find a way to import and use WordUtils.capitalizeFully(string)
@@ -108,7 +108,7 @@ public class Commande {
     private static void sendASocket(DatagramSocket socket, String beerInformations, String machineName) throws IOException {
         InetAddress adr = InetAddress.getByName(machineName);
         byte[] data = beerInformations.getBytes();
-        DatagramPacket packetToSend = new DatagramPacket(data, data.length, adr, PORT); // changer port pour renvoyer sinon ça récup direct l'envoi
+        DatagramPacket packetToSend = new DatagramPacket(data, data.length, adr, PORT_SEND); // changer port pour renvoyer sinon ça récup direct l'envoi
         System.out.println(beerInformations);
         socket.send(packetToSend);
     }
@@ -116,7 +116,7 @@ public class Commande {
     public static void main(String argv[]) throws java.net.SocketException, IOException, InterruptedException {
         Scanner scOperations = new Scanner(System.in);
         DatagramPacket receivedPacket;
-        DatagramSocket socket;
+        DatagramSocket socket_receive, socket_send;
         DatagramPacket packetToSend;
         InetAddress adr;
         String receivedData;
@@ -124,14 +124,15 @@ public class Commande {
         String buySameOrNewBeerChoice;
         String beerWanted;
 
-        socket = new DatagramSocket(PORT); // define PORT later
+        socket_receive = new DatagramSocket(PORT_RECEIVE);
+        socket_send = new DatagramSocket(PORT_SEND);
         byte[] data = new byte[25];
         receivedPacket = new DatagramPacket(data, data.length);
         
         while(true) {
             System.out.println("\n------------------------\n" + 
                                 "Waiting for a new request");
-            socket.receive(receivedPacket);
+            socket_receive.receive(receivedPacket);
             receivedData = new String(receivedPacket.getData(), 0, receivedPacket.getLength()).trim();            
             System.out.println("\nREQUEST FOUND\n"
                               + "You want to buy " + receivedData + ".\n");
@@ -167,15 +168,15 @@ public class Commande {
                             boolean purchaseWentWell = treatBeerPurchase(beerWanted, f1, scOperations);
                             if(purchaseWentWell) {
                                 String beerInformations = new String("0 " + beerWanted + " " + beerType);    
-                                sendASocket(socket, beerInformations, argv[0]);
+                                sendASocket(socket_send, beerInformations, argv[0]);
                             }
-                            operationMenu(scOperations, opBiere, availableOperations, argv[0], socket);
+                            operationMenu(scOperations, opBiere, availableOperations, argv[0], socket_send);
                             break;
                         case "new":
-                            operationMenu(scOperations, opBiere, availableOperations, argv[0], socket);
+                            operationMenu(scOperations, opBiere, availableOperations, argv[0], socket_send);
                             break;
                         case "cancel":
-                            sendASocket(socket, "1", argv[0]);
+                            sendASocket(socket_send, "1", argv[0]);
                             break;
                         default:
                             System.out.println("This operation doesnt exist.");

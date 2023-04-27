@@ -123,8 +123,8 @@ int initializeTap(sem_t* sem, tap_t* tap, beer_type_t type){
     }
     strcpy(tap->name, beer_name_string[type-1]);
     tap->type = type;
-    // tap->quantity = KEG_CAPACITY;
-    tap->quantity = 0;
+    tap->quantity = KEG_CAPACITY;
+    //tap->quantity = 0;
     tap->capacity = KEG_CAPACITY;
 
     if(sem_post(sem) == -1){
