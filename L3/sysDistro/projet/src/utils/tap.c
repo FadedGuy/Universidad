@@ -182,7 +182,7 @@ int getQuantity(sem_t* sem, tap_t* tap){
 
 int checkKeg(sem_t* sem, tap_t* tap, int id){
     float missing;
-    int sock, statusCode;
+    // int sock, statusCode;
 
     
     missing = getQuantity(sem, tap);

@@ -27,8 +27,8 @@
 #define MAX_REQUESTS 5
 #define NUM_PROC 3
 #define QUANTUM 10
-#define PIPE_MAIN_CLIENT "pipeMainClient"
-#define PIPE_CLIENT_MAIN "pipeClientMain"
+#define PIPE_MAIN_CLIENT "/tmp/pipeMainClient"
+#define PIPE_CLIENT_MAIN "/tmp/pipeClientMain"
 
 /**
  * Parses the information given when the program was ran
