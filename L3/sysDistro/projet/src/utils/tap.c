@@ -222,7 +222,7 @@ int checkKeg(sem_t* sem, tap_t* tap, int id){
         }
 
         // 
-        statusCode = exchangeUDPSocket(sock, "localhost", PROVIDER_SEND_PORT, PROVIDER_RECEIVE_PORT, "acheter Goudale", response);
+        statusCode = exchangeUDPSocket(sock, "localhost", PROVIDER_SEND_PORT, PROVIDER_RECEIVE_PORT, getBeerName(sem, tap), response);
         if(statusCode == -1){
             logError(stderr, "controlProcess", "Unable to send message via UDP socket");
             free(response);

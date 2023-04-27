@@ -71,7 +71,7 @@ public class Fournisseur extends UnicastRemoteObject implements IBiere {
     public static void main(String argv[]) {
         
         try {
-            System.setProperty("java.rmi.server.hostname", "localhost");
+            System.setProperty("java.rmi.server.hostname", "scinfe172"); // 2nd argument being the ip of Fournisseur pc
             Fournisseur fournisseur = new Fournisseur();
 	    Naming.rebind("DedeLaChope", fournisseur);
         } catch (MalformedURLException | RemoteException ex) {
