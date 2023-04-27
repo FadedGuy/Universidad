@@ -146,7 +146,7 @@ public class Commande {
                 f1 = new Fournisseur();
                 // on récupère une référence sur l'objet distant nommé "DedeLaChope" via
                 // le registry de la machine sur laquelle il s'exécute
-                IBiere opBiere = (IBiere) Naming.lookup("rmi://"+argv[0]+"/DedeLaChope"); // argv[0] = pc ip adress on which we execute the server, ifconfig in terminal to get ip
+                IBiere opBiere = (IBiere) Naming.lookup("rmi://"+argv[1]+"/DedeLaChope"); // argv[0] = pc ip adress on which we execute the server, ifconfig in terminal to get ip
                 Vector<String> availableOperations = new Vector<>();
                 availableOperations.add("liste blondes");
                 availableOperations.add("liste ambrees");

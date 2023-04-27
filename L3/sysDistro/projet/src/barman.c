@@ -26,7 +26,7 @@
 #define BUFFER 50
 #define MAX_REQUESTS 5
 #define NUM_PROC 3
-#define QUANTUM 10
+#define QUANTUM 5
 #define PIPE_MAIN_CLIENT "/tmp/pipeMainClient"
 #define PIPE_CLIENT_MAIN "/tmp/pipeClientMain"
 

@@ -155,6 +155,7 @@ int clientMenu(const int sock){
         switch(choice){
             case C_AVAILABLE_BEER:
                 requestPayload = getAvailableBeerPayload();
+		logInfo(stdout, "clientMenu", "Your beer is on the way");
                 break;
             case C_ORDER_BEER:
                 requestPayload = getOrderBeerPayload();

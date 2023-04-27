@@ -43,7 +43,7 @@ ipcs
 rmic Fournisseur
 javac *.java
 rmiregistry &
-java Fournisseur - java Commande localhost
+java Fournisseur localhost - java Commande ipBarman ipFournisseur
 
 ./bin/Tireuses.out
 ./bin/Barman.out 50000
