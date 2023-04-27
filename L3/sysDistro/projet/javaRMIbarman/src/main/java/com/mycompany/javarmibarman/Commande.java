@@ -175,7 +175,7 @@ public class Commande {
                     switch(buySameOrNewBeerChoice) {
                         case "same":
                             boolean purchaseWentWell = treatBeerPurchase(beerWanted, f1, scOperations, socket_receive, argv[0]);
-                            operationMenu(scOperations, opBiere, availableOperations, argv[0], socket_receive);
+                            // operationMenu(scOperations, opBiere, availableOperations, argv[0], socket_receive);
                             break;
                         case "new":
                             operationMenu(scOperations, opBiere, availableOperations, argv[0], socket_receive);

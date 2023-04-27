@@ -174,8 +174,8 @@ int serveBeer(sem_t* sem, tap_t* tap, const float qty){
     return remaining;
 }
 
-int getQuantity(sem_t* sem, tap_t* tap){
-    float remaining = 0;
+float getQuantity(sem_t* sem, tap_t* tap){
+    float remaining;
 
     if(sem_wait(sem) == -1){
         logError(stderr, "getQuantity", "Error waiting for semaphore access");
@@ -196,7 +196,8 @@ int checkKeg(sem_t* sem, tap_t* tap, int id){
     float missing;
     int sock, statusCode;
     int i;
-    char* response; 
+    char* response;
+    char* message; 
     char* resName;
 
     missing = getQuantity(sem, tap);
@@ -208,81 +209,100 @@ int checkKeg(sem_t* sem, tap_t* tap, int id){
 
         response = malloc(sizeof(char) * BUFFER); 
         resName = malloc(sizeof(char) * MAX_LENGTH_NAME);
-        if(response == NULL || resName == NULL){
-            logError(stderr, "controlProcess", "Unable to allocate memory");
+        message = malloc(sizeof(char) * BUFFER);
+        if(response == NULL || resName == NULL || message == NULL){
+            logError(stderr, "checkKeg", "Unable to allocate memory");
             return -1;
         }
 
         sock = createUDPSocket(0);
         if(sock == -1){
-            logError(stderr, "controlProcess", "Unable to create UDP socket");
+            logError(stderr, "checkKeg", "Unable to create UDP socket");
             free(response);
             free(resName);
             return -1;
         }
+
+        strcpy(message, getBeerName(sem, tap));
+        strcat(message, " ");
+        strcat(message, beer_type_string[getBeerType(sem, tap)-1]);
 
         // 
-        statusCode = exchangeUDPSocket(sock, "localhost", PROVIDER_SEND_PORT, PROVIDER_RECEIVE_PORT, getBeerName(sem, tap), response);
+        statusCode = exchangeUDPSocket(sock, "localhost", PROVIDER_SEND_PORT, PROVIDER_RECEIVE_PORT, message, response);
         if(statusCode == -1){
-            logError(stderr, "controlProcess", "Unable to send message via UDP socket");
+            logError(stderr, "checkKeg", "Unable to send message via UDP socket");
             free(response);
             free(resName);
-            return -1;
+            free(message);
+            logInfo(stdout, "checkKeg", "Trying request again in 2 seconds");
+            sleep(2);
+            return checkKeg(sem, tap, id);
         }else if(response == NULL){
-            logError(stderr, "controlProcess", "Response from the server was empty");
+            logError(stderr, "checkKeg", "Response from the server was empty");
             free(response);
             free(resName);
-            return -1;
+            free(message);
+            logInfo(stdout, "checkKeg", "Trying request again in 2 seconds");
+            sleep(2);
+            return checkKeg(sem, tap, id);
         } else if(response[0] == '1'){
-            logError(stderr, "controlProcess", "Request to the server was not sucessful");
+            logError(stderr, "checkKeg", "Request to the server was not sucessful");
             free(response);
             free(resName);
-            return -1;
+            free(message);
+            logInfo(stdout, "checkKeg", "Trying request again in 2 seconds");
+            sleep(2);
+            return checkKeg(sem, tap, id);
         }
 
-        logInfo(stdout, "controlProcess", "Got from server \"%s\"", response);
+        logInfo(stdout, "checkKeg", "Got from server \"%s\"", response);
 
-        for(i = 2; i < strlen(response); i++){
+        for(i = strlen(response)-1; i >= 0; i--){
             if(response[i] == ' '){
                 strncpy(resName, response+2, i-1);
-                logDebug(stdout, "controlProcess", "%s, %d", response+2, i);
+                logDebug(stdout, "checkKeg", "%s, %d", response+2, i);
                 break;
             }
         }
         resName[i-2] = '\0'; 
 
-        if(i == strlen(response)){
-            logError(stderr, "controlProcess", "Response from server is not recognized");
+        if(i == -1){
+            logError(stderr, "checkKeg", "Response from server is not recognized");
             free(response);
             free(resName);
+            free(message);
             return -1;
         }  
 
         if(setTapName(sem, tap, resName) == -1){
-            logError(stderr, "controlProcess", "Unable to update tap name");
+            logError(stderr, "checkKeg", "Unable to update tap name");
             free(response);
             free(resName);
+            free(message);
             return -1;
         }
 
         if(setTapTypeFromString(sem, tap, response+i) == -1){
-            logError(stderr, "controlProcess", "Unable to update tap type");
+            logError(stderr, "checkKeg", "Unable to update tap type");
             free(response);
             free(resName);
+            free(message);
             return -1;
         }
 
         if(refillTap(sem, tap) == -1){
-            logError(stderr, "controlProcess", "Unable to refill tap");
+            logError(stderr, "checkKeg", "Unable to refill tap");
             free(response);
             free(resName);
+            free(message);
             return -1;
         }
 
+        logInfo(stdout, "checkKeg", "New keg of beer has been set on tap %d with name %s", id, resName);
         free(response);
         free(resName);
+        free(message);
 
-        logInfo(stdout, "checkKeg", "New keg of beer has been set on tap %d\n", id);
     }
 
     return 0;
@@ -326,6 +346,23 @@ char* getBeerName(sem_t* sem, tap_t* tap){
     }
 
     return name;
+}
+
+int getBeerType(sem_t* sem, tap_t* tap){
+    beer_type_t type;
+    if(sem_wait(sem) == -1){
+        logError(stderr, "getBeerType", "Error waiting for semaphore access");
+        return -1;
+    }
+
+    type = tap->type;
+
+    if(sem_post(sem) == -1){
+        logError(stderr, "getBeerType", "Error releasing semaphore");
+        return -1;
+    }
+    
+    return type;
 }
 
 int refillTap(sem_t* sem, tap_t* tap){

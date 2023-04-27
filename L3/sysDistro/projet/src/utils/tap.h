@@ -111,7 +111,7 @@ int serveBeer(sem_t* sem, tap_t* tap, const float qty);
  * @param tap Tap to check
  * @return Quantity >= 0, -1 for errors
 */
-int getQuantity(sem_t* sem, tap_t* tap);
+float getQuantity(sem_t* sem, tap_t* tap);
 
 /**
  * Verifies a given keg
@@ -138,6 +138,14 @@ int initSHM(const int key, const int nTaps, tap_t** taps);
  * @return Pointer to name on sucess, null otherwise
 */
 char* getBeerName(sem_t* sem, tap_t* tap);
+
+/**
+ * Getter for beer type
+ * @param sem Semaphore controlling tap
+ * @param tap Tap to use
+ * @return Beer type on sucess, -1 for errors
+*/
+int getBeerType(sem_t* sem, tap_t* tap);
 
 /**
  * Refills a given tap
