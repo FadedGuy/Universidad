@@ -64,6 +64,5 @@ pid_t launchNewProcess(const char* funcName, void (*func)(), ...){
         logInfo("Process initialized");        
     }
 
-
     return pid;
 }

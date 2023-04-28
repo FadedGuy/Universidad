@@ -35,6 +35,7 @@ RequestPacket* mallocRequest(){
     RequestPacket* request;
 
     request = malloc(sizeof *request);
+
     return request;
 }
 
@@ -69,6 +70,7 @@ int writeRequest(const int sock, const RequestPacket* packet){
     }
 
     free(buffer);
+
     return 0;
 }
 
@@ -100,6 +102,7 @@ int readRequest(const int sock, RequestPacket* packet){
     }
 
     packet->payload[packet->payloadLength] = '\0';
+
     return 0;
 }
 
@@ -143,6 +146,7 @@ int sendRequest(const RequestType type, const int sock, const char* payload, Req
     } 
 
     freeRequestPacket(packet);
+    
     return 0;
 }
 

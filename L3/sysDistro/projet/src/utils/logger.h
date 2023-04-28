@@ -50,7 +50,7 @@
 #define logInfoWithArgs(message, ...) logInfoMessage(stdout, __func__, __FILE__, __LINE__, message, __VA_ARGS__)
 
 /**
- * Logs an debug message to stdout
+ * Logs a debug message to stdout
  * @param message Message to show
  * @note The use of this function is recommended over logDebugMessage if writing to stdout, if log is 
  * any other file, its management is let to the user
@@ -58,7 +58,7 @@
 #define logDebug(message) logDebugMessage(stdout, __func__, __FILE__, __LINE__, message)
 
 /**
- * Logs an debug message to stdout
+ * Logs a debug message to stdout
  * @param message Message to show
  * @param ... Arguments for formatted message
  * @note The use of this function is recommended over logDebugMessage if writing to stdout, if log is 

@@ -21,17 +21,17 @@ typedef enum requestType_t{
 typedef struct requestPacket_t RequestPacket;
 
 /**
- * Returns a packet type containing it's type, payload and payload's size
+ * Returns a packet type containing its type, payload and payload's size
  * @param type Request type
  * @param payload Payload to be set in the request
  * @param payloadSize Payload size
- * @return Packet on sucess, NULL otherwise
+ * @return Packet on success, NULL otherwise
 */
 RequestPacket* createRequestPacket(const RequestType type, const char* payload, const size_t payloadSize);
 
 /**
  * Attemps to allocate memory for a request packet
- * @return Pointer on sucess, NULL otherwise
+ * @return Pointer on success, NULL otherwise
 */
 RequestPacket* mallocRequest();
 
@@ -45,7 +45,7 @@ void freeRequestPacket(RequestPacket* packet);
  * Send a packet to the socket
  * @param sock Socket to which the packet will be sent to
  * @param packet Packet to be sent
- * @return 0 on sucess, -1 for errors
+ * @return 0 on success, -1 for errors
 */
 int writeRequest(const int sock, const RequestPacket* packet);
 
@@ -53,7 +53,7 @@ int writeRequest(const int sock, const RequestPacket* packet);
  * Reads the incoming packet from socket
  * @param sock Socket where data is received
  * @param packet Packet where data will be stored
- * @return 0 on sucess, -1 for errors
+ * @return 0 on success, -1 for errors
 */
 int readRequest(const int sock, RequestPacket* packet);
 
@@ -61,7 +61,7 @@ int readRequest(const int sock, RequestPacket* packet);
  * Sends a packet to the given socket
  * @param type Type of request packet to be sent
  * @param sock Socket to which packet will be sent 
- * @return 0 on sucess, -1 for errors
+ * @return 0 on success, -1 for errors
 */
 int sendRequest(const RequestType type, const int sock, const char* payload, RequestPacket* response);
 
@@ -72,6 +72,11 @@ int sendRequest(const RequestType type, const int sock, const char* payload, Req
 */
 char* getRequestPayload(const RequestPacket* request);
 
+/**
+ * Getter for the type in request
+ * @param request RequestPacket to get payload
+ * @return Type from request
+*/
 RequestType getRequestType(const RequestPacket* request);
 
 

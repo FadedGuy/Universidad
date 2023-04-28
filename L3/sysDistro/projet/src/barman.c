@@ -31,11 +31,11 @@
 #define PIPE_CLIENT_MAIN "/tmp/pipeClientMain"
 
 /**
- * Parses the information given when the program was ran
+ * Parses the information given when the program was run
  * @param argc number of arguments given
  * @param argv arguments given
  * @param port server port to open and listen
- * @return 0 on sucess, -1 for errors
+ * @return 0 on success, -1 for errors
 */
 int parseArgInfo(int argc, char** argv, long* port){
     char *end;
@@ -110,6 +110,7 @@ char* getExitBarPayload(){
     }
 
     strcpy(str, "Come back afterwards!"); 
+
     return str;
 }
 
@@ -164,7 +165,7 @@ int clientCommunication(const int sock){
             logErrorWithArgs("Error sending response to client# %d", pid);
             return -1;
         }
-        logInfoWithArgs("Reponse sent to client #%d\n", pid);
+        logInfoWithArgs("Response sent to client #%d\n", pid);
         
         if(getRequestType(request) == C_EXIT_BAR){
             logInfoWithArgs("Client #%d exited bar\n", pid);
@@ -264,7 +265,7 @@ void controlProcess(){
     }
     logInfo("Opened Tap semaphore");
 
-    logInfo("Keg's are being now monitored");
+    logInfo("Kegs' are being now monitored");
     while(statusCode == 0){
         for(i = 0; i < N_TAPS; i++){
             statusCode = checkKeg(semaphore[i], getTapFromIndex(taps, i), i);
@@ -285,7 +286,6 @@ void controlProcess(){
         logError("Error closing semaphores");
         exit(EXIT_FAILURE);
     }
-
 
     exit(EXIT_SUCCESS);
 }
@@ -442,7 +442,7 @@ int main(int argc, char** argv){
         exit(EXIT_FAILURE);
     }
 
-    // Controle
+    // Control
     pidProcesses[2] = launchNewProcess("Control", &controlProcess);
     if(pidProcesses[2] == -1){
         logError("Error launching control process");

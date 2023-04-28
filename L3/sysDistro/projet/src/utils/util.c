@@ -62,7 +62,6 @@ int createUDPSocket(int port){
     }
 
     return sock;
-
 }
 
 int connectToTCPSocket(const int sock, const char* serverName, const long serverPort){

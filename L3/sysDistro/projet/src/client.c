@@ -17,11 +17,11 @@
 
 /**
  * Parses the information given when the program was ran
- * @param nbArgs number of arguments given
- * @param args arguments given
- * @param name server address name
- * @param port server port
- * @return 0 on sucess, -1 for errors
+ * @param nbArgs Number of arguments given
+ * @param args Arguments given
+ * @param name Server address name
+ * @param port Server port
+ * @return 0 on success, -1 for errors
 */
 int parseArgInfo(int nbArgs, char** args, char** name, long* port){
     char *end;
@@ -47,16 +47,16 @@ int parseArgInfo(int nbArgs, char** args, char** name, long* port){
 }
 
 /**
- * Prompts the user for an integer and checks it's within range
+ * Prompts the user for an integer and checks if it's within range
  * @param prompt Text user will see
  * @param upper Choice upper limit inclusive
  * @param lower Choice lower limit inclusive
- * @return Choice on sucess, -1 if error
+ * @return Choice on success, -1 if error
 */
 long getMenuChoice(const char* prompt, const long lower, const long upper){
     char input[1024];
     char* endptr;    
-    int sucess;
+    int success;
     long choice;
 
     do{
@@ -74,18 +74,18 @@ long getMenuChoice(const char* prompt, const long lower, const long upper){
             continue;
         } else if(endptr == input){
             logError("No characters were read");
-            sucess = 0;
+            success = 0;
         } else if(*endptr && *endptr != '\n'){
             logError("Unable to convert all input");
-            sucess = 0;
+            success = 0;
         } else if(choice < lower || choice > upper){
             logErrorWithArgs("Choice is not within menu range of %d-%d", lower, upper);
-            sucess = 0;
+            success = 0;
         } else{
-            sucess = 1;
+            success = 1;
         }
 
-    }while(!sucess);
+    }while(!success);
 
     return choice;
 }
@@ -134,6 +134,7 @@ char* getExitBarPayload(){
     }
 
     strcpy(str, "Goodbye"); 
+
     return str;
 }
 
@@ -142,7 +143,6 @@ int clientMenu(const int sock){
     long choice;
     char* requestPayload;
     RequestPacket* response;
-
 
     while(1){
         printf("-------------------------\n\tMENU\n");
@@ -232,7 +232,7 @@ int main(int argc, char** argv){
     }
     printf("You've exited successfully!\n");
     
-
     close(sock);
+    
     return EXIT_SUCCESS;
 }   
