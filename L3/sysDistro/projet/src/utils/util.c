@@ -1,11 +1,11 @@
-#include <unistd.h>
-#include <stdlib.h>
-#include <netdb.h>
 #include <errno.h>
+#include <netdb.h>
+#include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
-#include "util.h"
 #include "logger.h"
+#include "util.h"
 
 int createTCPSocket(int port){
     static struct sockaddr_in serverAddress;

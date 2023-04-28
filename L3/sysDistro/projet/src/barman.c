@@ -1,23 +1,24 @@
 #include <errno.h>
 #include <netdb.h>
-#include <semaphore.h>
-#include <signal.h>
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 
+#include <semaphore.h>
+#include <signal.h>
+
+#include "utils/logger.h"
 #include "utils/pipe.h"
 #include "utils/process.h"
 #include "utils/request.h"
 #include "utils/tap.h"
 #include "utils/util.h"
-#include "utils/logger.h"
 
 #define BUFFER 50
 #define MAX_REQUESTS 5
 #define NUM_PROC 3
-#define QUANTUM 5
+#define QUANTUM 1
 #define PIPE_MAIN_CLIENT "/tmp/pipeMainClient"
 #define PIPE_CLIENT_MAIN "/tmp/pipeClientMain"
 
@@ -440,6 +441,7 @@ int main(int argc, char** argv){
         exit(EXIT_FAILURE);
     }
 
+    // logDebugWithArgs("Main: %d\nComms: %d\nControl: %d\n\n", pidProcesses[0], pidProcesses[1], pidProcesses[2]);
 
     sleep(2);
     currentPidIndex = 0;

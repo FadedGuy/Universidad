@@ -1,10 +1,11 @@
-#include <unistd.h>
-#include <sys/wait.h>
-#include <stdlib.h>
-#include <signal.h>
 #include <errno.h>
-#include <string.h>
 #include <stdarg.h>
+#include <stdlib.h>
+#include <string.h>
+
+#include <signal.h>
+#include <sys/wait.h>
+#include <unistd.h>
 
 #include "logger.h"
 #include "process.h"

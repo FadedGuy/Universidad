@@ -1,9 +1,10 @@
-#include <semaphore.h>
 #include <stdlib.h>
 #include <unistd.h>
 
-#include "utils/tap.h"
+#include <semaphore.h>
+
 #include "utils/logger.h"
+#include "utils/tap.h"
 
 int main(){
     Tap* taps;

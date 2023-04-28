@@ -62,9 +62,10 @@ long getMenuChoice(const char* prompt, const long lower, const long upper){
             return -1;
         }
 
+        // Convert string to long int
         endptr = NULL;
-        errno = 0;
         choice = strtol(input, &endptr, 10);
+        errno = 0;
         if(errno == ERANGE){
             logError("Number is outside of long range");
             continue;
@@ -105,7 +106,6 @@ char* getOrderBeerPayload(){
     choiceBeer = getMenuChoice("What beer do you want to order? Enter a positive number: ", 1, LONG_MAX);
     snprintf(choiceBeerStr, BUFFER, "%ld", choiceBeer);
     
-    // Change from pint or half-pint? There are more options?
     choicePint = getMenuChoice("Pint(1) or Half-Pint(2): ", 1, 2);
     snprintf(choicePintStr, BUFFER, "%ld", choicePint);
 
@@ -154,7 +154,6 @@ int clientMenu(const int sock){
                 break;
             case C_ORDER_BEER:
                 requestPayload = getOrderBeerPayload();
-                // logInfo("Your beer is on the way");
                 break;
             case C_EXIT_BAR:
                 requestPayload = getExitBarPayload();
