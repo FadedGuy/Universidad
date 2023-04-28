@@ -6,17 +6,23 @@
 #include "logger.h"
 #include "request.h"
 
-requestPacket_t* createRequestPacket(const requestType_t type, const char* payload, const size_t payloadSize){
-    requestPacket_t* packet = malloc(sizeof(requestPacket_t));
+struct requestPacket_t{
+    RequestType   requestType;
+    size_t        payloadLength;
+    char*         payload;
+};
+
+RequestPacket* createRequestPacket(const RequestType type, const char* payload, const size_t payloadSize){
+    RequestPacket* packet = malloc(sizeof(RequestPacket));
     if(packet == NULL){
-        logError(stderr, "createRequestPacket", "Error allocating memory for packet");
+        logError("Error allocating memory for packet");
         return NULL;
     }
 
     packet->requestType = type;
     packet->payload = malloc(payloadSize);
     if(packet->payload == NULL){
-        logError(stderr, "createRequestPacket", "Error allocating memory for payload in packet");
+        logError("Error allocating memory for payload in packet");
         return NULL;
     }
     packet->payloadLength = payloadSize;
@@ -25,7 +31,14 @@ requestPacket_t* createRequestPacket(const requestType_t type, const char* paylo
     return packet;
 }
 
-void freeRequestPacket(requestPacket_t* packet){
+RequestPacket* mallocRequest(){
+    RequestPacket* request;
+
+    request = malloc(sizeof *request);
+    return request;
+}
+
+void freeRequestPacket(RequestPacket* packet){
     if(packet == NULL){
         return;
     }
@@ -34,23 +47,23 @@ void freeRequestPacket(requestPacket_t* packet){
     free(packet);
 }
 
-int writeRequest(const int sock, const requestPacket_t* packet){
-    int totalSize = sizeof(requestType_t) + sizeof(size_t) + packet->payloadLength;
+int writeRequest(const int sock, const RequestPacket* packet){
+    int totalSize = sizeof(RequestType) + sizeof(size_t) + packet->payloadLength;
     int nbBytes;
     char* buffer = malloc(totalSize);
     
     if(buffer == NULL){
-        logError(stderr, "writeRequest", "Unable to allocate \"%d\" bytes for request packet", totalSize);
+        logErrorWithArgs("Unable to allocate \"%d\" bytes for request packet", totalSize);
         return -1;
     }
 
-    memcpy(buffer, &(packet->requestType), sizeof(requestType_t));
-    memcpy(buffer + sizeof(requestType_t), &(packet->payloadLength), sizeof(size_t));
-    memcpy(buffer + sizeof(requestType_t) + sizeof(size_t), packet->payload, packet->payloadLength);
+    memcpy(buffer, &(packet->requestType), sizeof(RequestType));
+    memcpy(buffer + sizeof(RequestType), &(packet->payloadLength), sizeof(size_t));
+    memcpy(buffer + sizeof(RequestType) + sizeof(size_t), packet->payload, packet->payloadLength);
 
     nbBytes = send(sock, buffer, totalSize, 0);
     if(nbBytes == -1 || nbBytes != totalSize){
-        logError(stderr, "writeRequest", "Error sending message to server: only %d/%d bytes were sent", nbBytes, totalSize);
+        logErrorWithArgs("Error sending message to server: only %d/%d bytes were sent", nbBytes, totalSize);
         free(buffer);
         return -1;
     }
@@ -59,30 +72,30 @@ int writeRequest(const int sock, const requestPacket_t* packet){
     return 0;
 }
 
-int readRequest(const int sock, requestPacket_t* packet){
+int readRequest(const int sock, RequestPacket* packet){
     int nbBytes;
 
-    nbBytes = recv(sock, &(packet->requestType), sizeof(requestType_t), 0);
-    if(nbBytes != sizeof(requestType_t)){
-        logError(stderr, "readRequest", "requestType error");
+    nbBytes = recv(sock, &(packet->requestType), sizeof(RequestType), 0);
+    if(nbBytes != sizeof(RequestType)){
+        logError("requestType error");
         return -1;
     }
 
     nbBytes = recv(sock, &(packet->payloadLength), sizeof(size_t), 0);
     if(nbBytes != sizeof(size_t)){
-        logError(stderr, "readRequest", "payloadLength error");
+        logError("payloadLength error");
         return -1;
     }
 
     packet->payload = malloc(packet->payloadLength + 1);
     if(packet->payload == NULL){
-        logError(stderr, "readRequest", "Unable to allocate for payload");
+        logError("Unable to allocate for payload");
         return -1;
     }
 
     nbBytes = recv(sock, packet->payload, packet->payloadLength, 0);
     if(nbBytes != packet->payloadLength){
-        logError(stderr, "readRequest", "payload error");
+        logError("payload error");
         return -1;
     }
 
@@ -90,8 +103,8 @@ int readRequest(const int sock, requestPacket_t* packet){
     return 0;
 }
 
-int sendRequest(const requestType_t type, const int sock, const char* payload, requestPacket_t* response){
-    requestPacket_t* packet;
+int sendRequest(const RequestType type, const int sock, const char* payload, RequestPacket* response){
+    RequestPacket* packet;
     int statusCode;
 
     switch(type){
@@ -104,19 +117,19 @@ int sendRequest(const requestType_t type, const int sock, const char* payload, r
             packet = createRequestPacket(type, payload, strlen(payload));
             break;
         default:
-            logError(stderr, "sendRequest", "Request type given not recognised: \"%d\"", type);
+            logErrorWithArgs("Request type given not recognised: \"%d\"", type);
             statusCode = -1;
             break;
     };
     
     if(packet == NULL){
-        logError(stderr, "sendRequest", "Error creating request");
+        logError("Error creating request");
         return -1;
     }
 
     statusCode = writeRequest(sock, packet);
     if(statusCode == -1){
-        logError(stderr, "sendRequest", "Error sending packet");
+        logError("Error sending packet");
         freeRequestPacket(packet);
         return -1;
     }
@@ -125,7 +138,8 @@ int sendRequest(const requestType_t type, const int sock, const char* payload, r
         // Client request type
         statusCode = readRequest(sock, response);
         if(statusCode == -1){
-            logError(stderr, "sendRequest", "Error reading packets from server");
+            logError("Error reading packets from server");
+            freeRequestPacket(packet);
             return -1;
         }
     } 
@@ -134,4 +148,11 @@ int sendRequest(const requestType_t type, const int sock, const char* payload, r
     return 0;
 }
 
+char* getRequestPayload(const RequestPacket* request){
+    return request->payload;
+}
+
+RequestType getRequestType(const RequestPacket* request){
+    return request->requestType;
+}
 

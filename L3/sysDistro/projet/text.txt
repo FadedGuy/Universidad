@@ -49,5 +49,3 @@ java Fournisseur localhost - java Commande ipBarman ipFournisseur
 ./bin/Barman.out 50000
 ./bin/client.out localhost 50000
 
-
-Tap bug semaphore

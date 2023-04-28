@@ -9,20 +9,16 @@
 #define SERVER_LOWER S_AVAILABLE_BEER
 #define SERVER_UPPER S_EXIT_BAR
 
-typedef enum {
+typedef enum requestType_t{
     C_AVAILABLE_BEER = 1,
     C_ORDER_BEER,
     C_EXIT_BAR,
     S_AVAILABLE_BEER,
     S_ORDER_BEER,
     S_EXIT_BAR,
-} requestType_t;
+} RequestType;
 
-typedef struct{
-    requestType_t requestType;
-    size_t        payloadLength;
-    char*         payload;
-} requestPacket_t;
+typedef struct requestPacket_t RequestPacket;
 
 /**
  * Returns a packet type containing it's type, payload and payload's size
@@ -31,13 +27,19 @@ typedef struct{
  * @param payloadSize Payload size
  * @return Packet on sucess, NULL otherwise
 */
-requestPacket_t* createRequestPacket(const requestType_t type, const char* payload, const size_t payloadSize);
+RequestPacket* createRequestPacket(const RequestType type, const char* payload, const size_t payloadSize);
+
+/**
+ * Attemps to allocate memory for a request packet
+ * @return Pointer on sucess, NULL otherwise
+*/
+RequestPacket* mallocRequest();
 
 /**
  * Frees all memory allocated in packet
  * @param packet Packet to be freed
 */
-void freeRequestPacket(requestPacket_t* packet);
+void freeRequestPacket(RequestPacket* packet);
 
 /**
  * Send a packet to the socket
@@ -45,7 +47,7 @@ void freeRequestPacket(requestPacket_t* packet);
  * @param packet Packet to be sent
  * @return 0 on sucess, -1 for errors
 */
-int writeRequest(const int sock, const requestPacket_t* packet);
+int writeRequest(const int sock, const RequestPacket* packet);
 
 /**
  * Reads the incoming packet from socket
@@ -53,7 +55,7 @@ int writeRequest(const int sock, const requestPacket_t* packet);
  * @param packet Packet where data will be stored
  * @return 0 on sucess, -1 for errors
 */
-int readRequest(const int sock, requestPacket_t* packet);
+int readRequest(const int sock, RequestPacket* packet);
 
 /**
  * Sends a packet to the given socket
@@ -61,7 +63,16 @@ int readRequest(const int sock, requestPacket_t* packet);
  * @param sock Socket to which packet will be sent 
  * @return 0 on sucess, -1 for errors
 */
-int sendRequest(const requestType_t type, const int sock, const char* payload, requestPacket_t* response);
+int sendRequest(const RequestType type, const int sock, const char* payload, RequestPacket* response);
+
+/**
+ * Getter for the payload in a RequestPacket
+ * @param request RequestPacket to get payload
+ * @return Payload from request
+*/
+char* getRequestPayload(const RequestPacket* request);
+
+RequestType getRequestType(const RequestPacket* request);
 
 
 #endif

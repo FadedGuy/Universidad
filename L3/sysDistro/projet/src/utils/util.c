@@ -17,7 +17,7 @@ int createTCPSocket(int port){
 
     sock = socket(AF_INET, SOCK_STREAM, 0);
     if(sock == -1){
-        logError(stderr,  "createTCPSocket", "Unable to create TCP socket");
+        logError("Unable to create TCP socket");
         return -1;
     }
 
@@ -29,7 +29,7 @@ int createTCPSocket(int port){
     serverAddress.sin_family = AF_INET;
     serverAddress.sin_port = htons(port);
     if(bind(sock, (struct sockaddr*)&serverAddress, sizeof(serverAddress)) == -1){
-        logError(stderr,  "createTCPSocket", "Unable to bind socket to port \"%d\"", port);
+        logErrorWithArgs("Unable to bind socket to port \"%d\"", port);
         close(sock);
         return -1;
     }
@@ -43,7 +43,7 @@ int createUDPSocket(int port){
 
     sock = socket(AF_INET, SOCK_DGRAM, 0);
     if(sock == -1){
-        logError(stderr,  "createUDPSocket", "Unable to create UDP socket");
+        logError("Unable to create UDP socket");
         return -1;
     }
 
@@ -56,7 +56,7 @@ int createUDPSocket(int port){
     serverAddress.sin_port = htons(port);
     serverAddress.sin_addr.s_addr = htonl(INADDR_ANY);
     if(bind(sock, (struct sockaddr*)&serverAddress, sizeof(serverAddress)) == -1){
-        logError(stderr,  "createUDPSocket", "Unable to bind socket to port \"%d\"%s", port, strerror(errno));
+        logErrorWithArgs("Unable to bind socket to port \"%d\"%s", port, strerror(errno));
         close(sock);
         return -1;
     }
@@ -71,7 +71,7 @@ int connectToTCPSocket(const int sock, const char* serverName, const long server
 
     serverHostname = gethostbyname(serverName);
     if(serverHostname == NULL){
-        logError(stderr,  "connectToTCPSocket", "Error retrieving server IP for hostname \"%s\"", serverName);
+        logErrorWithArgs("Error retrieving server IP for hostname \"%s\"", serverName);
         return -1;
     }
 
@@ -80,7 +80,7 @@ int connectToTCPSocket(const int sock, const char* serverName, const long server
     serverAddress.sin_port = htons(serverPort);
     memcpy(&serverAddress.sin_addr.s_addr, serverHostname->h_addr_list[0], serverHostname->h_length);
     if(connect(sock, (struct sockaddr*)&serverAddress, sizeof(struct sockaddr_in)) == -1){
-        logError(stderr,  "connectToTCPSocket", "Error connecting to server");
+        logError("Error connecting to server");
         return -1;
     }
 
@@ -97,7 +97,7 @@ int exchangeUDPSocket(const int sock, const char* serverName, const long serverP
 
     serverHostname = gethostbyname(serverName);
     if(serverHostname == NULL){
-        logError(stderr,  "exchangeUDPSocket", "Error retrieving server IP for hostname \"%s\"", serverName);
+        logErrorWithArgs("Error retrieving server IP for hostname \"%s\"", serverName);
         return -1;
     }
     memset(&serverAddress, 0, sizeof(serverAddress));
@@ -107,29 +107,22 @@ int exchangeUDPSocket(const int sock, const char* serverName, const long serverP
     lg = sizeof(struct sockaddr_in);
     nbBytes = sendto(sock, msg, strlen(msg)+1, 0, (struct sockaddr*)&serverAddress, lg);
     if(nbBytes == -1){
-        logError(stderr,  "exchangeUDPSocket", "Error sending message to %d", sock);
+        logErrorWithArgs("Error sending message to %d", sock);
         return -1;
     }
-    logDebug(stdout, "exchangeUDPSocket", "Message sent!");
-
 
     newSock = createUDPSocket(localPort);
     if(newSock == -1){
-        logError(stderr, "exchangeUDPSocket", "Error creating receiving socket on port %d", localPort);
+        logErrorWithArgs("Error creating receiving socket on port %d", localPort);
     }
-    logInfo(stdout, "exchangeUDPSocket", "created UDP Socket");
 
     nbBytes = recvfrom(newSock, buffer, BUFFER, 0, NULL, &lg);
     if(nbBytes == -1){
-        logError(stderr,  "exchangeUDPSocket", "Error receiving message");
+        logError("Error receiving message");
         return -1;
     }
 
-    logDebug(stdout, "exchangeUDPSocket", "Received %d bytes from socket saying %s", nbBytes, buffer);        
-
     strncpy(response, buffer, nbBytes);
-    logDebug(stdout, "exchangeUDPSocket", "Copied from buffer %s to response pointer %s", buffer, response);        
-
     close(sock);
     close(newSock);
 

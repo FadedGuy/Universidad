@@ -19,12 +19,12 @@ int checkProcessStatus(const pid_t pids[], const int nPids){
     for(i = 0; i < nPids; i++){
         if(terminated == pids[i]){
             if(WIFEXITED(status) && WEXITSTATUS(status) == EXIT_FAILURE){
-                logError(stderr, "checkProcessStatus", "Process #%d with pid %d has failed", i, pids[i]);
+                logErrorWithArgs("Process #%d with pid %d has failed", i, pids[i]);
                 terminateAll(pids, nPids);
                 return -1;
             }
         } else if(terminated == -1){
-            logError(stderr, "checkProcessStatus", "Error waiting for processes");
+            logError("Error waiting for processes");
             return -1;
         }
     }
@@ -38,7 +38,7 @@ void terminateAll(const pid_t pids[], const int nPids){
     for(i = 0; i < nPids; i++){
         if(kill(pids[i], SIGTERM) == -1){
             if(errno != ESRCH){
-                logError(stderr, "terminateAll", "Error sending signal to process #%d with pid %d: %s", i, pids[i], strerror(errno));
+                logErrorWithArgs("Error sending signal to process #%d with pid %d: %s", i, pids[i], strerror(errno));
             }
         }
     }
@@ -54,14 +54,14 @@ pid_t launchNewProcess(const char* funcName, void (*func)(), ...){
 
     pid = fork();
     if(pid == -1){
-        logError(stderr, "launchNewProcess", "Unable to start process named \"%s\"", funcName);
+        logErrorWithArgs("Unable to start process named \"%s\"", funcName);
         return -1;
     } else if(pid == 0){
-        logInfo(stdout, "launchNewProcess", "Initializing process named \"%s\"\n", funcName);
+        logInfoWithArgs("Initializing process named \"%s\"\n", funcName);
         va_start(args, func);
         func(args);
         va_end(args);
-        logInfo(stdout, "launchNewProcess", "Process initialized");        
+        logInfo("Process initialized");        
     }
 
 

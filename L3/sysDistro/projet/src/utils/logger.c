@@ -1,10 +1,8 @@
-#include <stdio.h>
 #include <time.h>
-#include <stdarg.h>
 
 #include "logger.h"
 
-void logMsg(FILE* fd, uint8_t options, const char* proc, const char* message, va_list args){
+void logMsg(FILE* fd, uint8_t options, const char* proc, const char* file, const int line, const char* message, va_list args){
     time_t timeVal;
     char timestamp[TIME_BUFFER];
     char datestamp[TIME_BUFFER];
@@ -22,37 +20,37 @@ void logMsg(FILE* fd, uint8_t options, const char* proc, const char* message, va
         fprintf(fd, "%s", timestamp);
 
     if(options & LOG_ERROR)
-        fprintf(fd, "ERROR -- \"%s\": ", proc);
+        fprintf(fd, "ERROR -- %s:%d in funtion: \"%s\": ", file, line, proc);
     if(options & LOG_INFO)
-        fprintf(fd, "INFO -- \"%s\": ", proc);
+        fprintf(fd, "INFO -- %s:%d in funtion: \"%s\": ", file, line, proc);
     if(options & LOG_DEBUG)
-        fprintf(fd, "DEBUG -- \"%s\": ", proc);
+        fprintf(fd, "DEBUG -- %s:%d in funtion: \"%s\": ", file, line, proc);
 
     vfprintf(fd, message, args);
 
     fprintf(fd, "\n");
 }
 
-void logError(FILE* fd, const char* proc, const char* message, ...){
+void logErrorMessage(FILE* fd, const char* func, const char* file, int line, const char* message, ...){
     va_list args;
-    
+
     va_start(args, message);
-    logMsg(fd, LOG_DATE | LOG_TIME | LOG_ERROR, proc, message, args);
+    logMsg(fd, LOG_DATE | LOG_TIME | LOG_ERROR, func, file, line, message, args);
     va_end(args);
 }
 
-void logInfo(FILE* fd, const char* proc, const char* message, ...){
+void logInfoMessage(FILE* fd, const char* func, const char* file, int line, const char* message, ...){
     va_list args;
 
     va_start(args, message);
-    logMsg(fd, LOG_DATE | LOG_TIME | LOG_INFO, proc, message, args);
+    logMsg(fd, LOG_DATE | LOG_TIME | LOG_INFO, func, file, line, message, args);
     va_end(args);
 }
 
-void logDebug(FILE* fd, const char* proc, const char* message, ...){
+void logDebugMessage(FILE* fd, const char* func, const char* file, int line, const char* message, ...){
     va_list args;
 
     va_start(args, message);
-    logMsg(fd, LOG_DATE | LOG_TIME | LOG_DEBUG, proc, message, args);
+    logMsg(fd, LOG_DATE | LOG_TIME | LOG_DEBUG, func, file, line, message, args);
     va_end(args);
 }

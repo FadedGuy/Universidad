@@ -15,6 +15,13 @@
 
 #define BUFFER 50
 
+struct tap_t{
+    BeerType type;
+    char        name[MAX_LENGTH_NAME];
+    float       quantity;
+    float       capacity;
+};
+
 // Initial beer kegs
 static char* beer_name_string[MAX_LENGTH_NAME] = {
     "Paix Dieu",
@@ -29,15 +36,15 @@ static char* beer_type_string[] = {
 int createTapSHM(int key, int nTaps){
     int shmid;
 
-    shmid = shmget(key, nTaps*sizeof(tap_t), IPC_CREAT|IPC_EXCL|0666);
+    shmid = shmget(key, nTaps*sizeof(Tap), IPC_CREAT|IPC_EXCL|0666);
     if(shmid == -1){
         if(errno == EEXIST){
             shmid = retrieveTapSHM(key, nTaps);
             removeTapSHM(shmid);
-            logError(stderr, "createTapSHM", "Removed shm because it existed, creating a new one");
+            logError("Removed shm because it existed, creating a new one");
             return createTapSHM(key, nTaps);
         } else{
-            logError(stderr, "createTapSHM", "Error while creating SHM with key \"%d\": %s", key, strerror(errno));
+            logErrorWithArgs("Error while creating SHM with key \"%d\": %s", key, strerror(errno));
             return -1;
         }
     }
@@ -47,30 +54,30 @@ int createTapSHM(int key, int nTaps){
 int retrieveTapSHM(int key, int nTaps){
     int id;
 
-    id = shmget(key, nTaps*sizeof(tap_t), 0);
+    id = shmget(key, nTaps*sizeof(Tap), 0);
     if(id == -1){
-        logError(stderr, "retrieveTapSHM", "Error while retrieving SHM with key \"%d\": %s", key, strerror(errno));
+        logErrorWithArgs("Error while retrieving SHM with key \"%d\": %s", key, strerror(errno));
         return -1;
     }
 
     return id;
 }
 
-tap_t* attachTapSHM(const int shmid){
-    tap_t* value;
+Tap* attachTapSHM(const int shmid){
+    Tap* value;
 
     value = shmat(shmid, NULL, 0);
-    if(value == (tap_t*) -1){
-        logError(stderr, "attachTapSHM", "Unable to attach to SHM with id: \"%d\". Code: %s", shmid, strerror(errno));
+    if(value == (Tap*) -1){
+        logErrorWithArgs("Unable to attach to SHM with id: \"%d\". Code: %s", shmid, strerror(errno));
         return NULL;
     }
 
     return value;
 }
 
-int detachTapSHM(tap_t* taps){
+int detachTapSHM(Tap* taps){
     if(shmdt(taps) == -1){
-        logError(stderr, "detachTapSHM", "Error detaching from SHM: %s", strerror(errno));
+        logErrorWithArgs("Error detaching from SHM: %s", strerror(errno));
         return -1;
     }
 
@@ -79,7 +86,7 @@ int detachTapSHM(tap_t* taps){
 
 int removeTapSHM(const int shmid){
     if(shmctl(shmid, IPC_RMID, NULL) == -1){
-        logError(stderr, "removeTapSHM", "Unable to remove SHM: %s", strerror(errno));
+        logErrorWithArgs("Unable to remove SHM: %s", strerror(errno));
         return -1;
     }
 
@@ -92,7 +99,7 @@ int openTapSemaphore(sem_t* semaphore[], const int semSize, const char* key){
     for(i = 0; i < semSize; i++){
         semaphore[i] = sem_open(key, O_CREAT, 0666, 1);
         if(semaphore[i] == SEM_FAILED){
-            logError(stderr, "openTapSemaphore", "Error opening semaphore \"%s\" in index \"%d\"", key, i);
+            logErrorWithArgs("Error opening semaphore \"%s\" in index \"%d\"", key, i);
             return -1;
         }
     }
@@ -105,7 +112,7 @@ int closeTapSemaphore(sem_t* semaphore[], const int semSize){
 
     for(i = 0; i < semSize; i++){
         if(sem_close(semaphore[i]) == -1){
-            logError(stderr, "closeTapSemaphore", "Error closing semaphore index \"%d\": %s", i, strerror(errno));
+            logErrorWithArgs("Error closing semaphore index \"%d\": %s", i, strerror(errno));
             return -1;
         }
     }
@@ -113,14 +120,14 @@ int closeTapSemaphore(sem_t* semaphore[], const int semSize){
     return 0;
 }
 
-int initializeTap(sem_t* sem, tap_t* tap, beer_type_t type){
+int initializeTap(sem_t* sem, Tap* tap, BeerType type){
     if(sem_wait(sem) == -1){
-        logError(stderr, "initializeTap", "Error waiting for semaphore access");
+        logError("Error waiting for semaphore access");
         return -1;
     }
 
     if(strlen(beer_name_string[type-1]) >= MAX_LENGTH_NAME){
-        logError(stderr, "initializeTap", "Unable to assign tap name size %d because max size is %d", strlen(beer_name_string[type-1]), MAX_LENGTH_NAME);
+        logErrorWithArgs("Unable to assign tap name size %d because max size is %d", strlen(beer_name_string[type-1]), MAX_LENGTH_NAME);
         return -1;
     }
     strcpy(tap->name, beer_name_string[type-1]);
@@ -131,25 +138,25 @@ int initializeTap(sem_t* sem, tap_t* tap, beer_type_t type){
     tap->capacity = KEG_CAPACITY;
 
     if(sem_post(sem) == -1){
-        logError(stderr, "initializeTap", "Error releasing semaphore");
+        logError("Error releasing semaphore");
         return -1;
     }
 
     return 0;
 }
 
-int serveBeer(sem_t* sem, tap_t* tap, const float qty){
+int serveBeer(sem_t* sem, Tap* tap, const float qty){
     float remaining = 0;
     int sleepTime = 0;
 
     if(sem_wait(sem) == -1){
-        logError(stderr, "serveBeer", "Error waiting for semaphore access");
+        logError("Error waiting for semaphore access");
         return -1;
     }
 
-    logInfo(stdout, "serveBeer", "Preparing to serve beer...");
+    logInfo("Preparing to serve beer...");
     if(tap->quantity - qty < 0){
-        logError(stderr, "serveBeer", "Not enough beer left");
+        logError("Not enough beer left");
         return -1;
     }
 
@@ -164,35 +171,35 @@ int serveBeer(sem_t* sem, tap_t* tap, const float qty){
     }
 
     sleep(sleepTime);
-    logInfo(stdout, "serveBeer", "Served \"%f\". Remaining in %d type keg: \"%f\"\n", qty, tap->type, remaining);
+    logInfoWithArgs("Served \"%f\". Remaining in %d type keg: \"%f\"\n", qty, tap->type, remaining);
 
     if(sem_post(sem) == -1){
-        logError(stderr, "serveBeer", "Error releasing semaphore");
+        logError("Error releasing semaphore");
         return -1;
     }
 
     return remaining;
 }
 
-float getQuantity(sem_t* sem, tap_t* tap){
+float getQuantity(sem_t* sem, Tap* tap){
     float remaining;
 
     if(sem_wait(sem) == -1){
-        logError(stderr, "getQuantity", "Error waiting for semaphore access");
+        logError("Error waiting for semaphore access");
         return -1;
     }
 
     remaining = tap->quantity;
 
     if(sem_post(sem) == -1){
-        logError(stderr, "getQuantity", "Error releasing semaphore");
+        logError("Error releasing semaphore");
         return -1;
     }
 
     return remaining;
 }
 
-int checkKeg(sem_t* sem, tap_t* tap, int id){
+int checkKeg(sem_t* sem, Tap* tap, int id){
     float missing;
     int sock, statusCode;
     int i;
@@ -202,22 +209,22 @@ int checkKeg(sem_t* sem, tap_t* tap, int id){
 
     missing = getQuantity(sem, tap);
     if(missing == -1){
-        logError(stderr, "checkKeg", "Error retrieving keg levels for tap %d", id);
+        logErrorWithArgs("Error retrieving keg levels for tap %d", id);
         return -1;
     } else if(missing == 0){
-        logInfo(stdout, "checkKeg", "More beer is needed for id %d", id);
+        logInfoWithArgs("More beer is needed for tap with id %d", id);
 
         response = malloc(sizeof(char) * BUFFER); 
         resName = malloc(sizeof(char) * MAX_LENGTH_NAME);
         message = malloc(sizeof(char) * BUFFER);
         if(response == NULL || resName == NULL || message == NULL){
-            logError(stderr, "checkKeg", "Unable to allocate memory");
+            logError("Unable to allocate memory");
             return -1;
         }
 
         sock = createUDPSocket(0);
         if(sock == -1){
-            logError(stderr, "checkKeg", "Unable to create UDP socket");
+            logError("Unable to create UDP socket");
             free(response);
             free(resName);
             return -1;
@@ -227,47 +234,43 @@ int checkKeg(sem_t* sem, tap_t* tap, int id){
         strcat(message, " ");
         strcat(message, beer_type_string[getBeerType(sem, tap)-1]);
 
-        // 
         statusCode = exchangeUDPSocket(sock, "localhost", PROVIDER_SEND_PORT, PROVIDER_RECEIVE_PORT, message, response);
         if(statusCode == -1){
-            logError(stderr, "checkKeg", "Unable to send message via UDP socket");
+            logError("Unable to send message via UDP socket");
             free(response);
             free(resName);
             free(message);
-            logInfo(stdout, "checkKeg", "Trying request again in 2 seconds");
+            logInfo("Trying request again in 2 seconds");
             sleep(2);
             return checkKeg(sem, tap, id);
         }else if(response == NULL){
-            logError(stderr, "checkKeg", "Response from the server was empty");
+            logError("Response from the server was empty");
             free(response);
             free(resName);
             free(message);
-            logInfo(stdout, "checkKeg", "Trying request again in 2 seconds");
+            logInfo("Trying request again in 2 seconds");
             sleep(2);
             return checkKeg(sem, tap, id);
         } else if(response[0] == '1'){
-            logError(stderr, "checkKeg", "Request to the server was not sucessful");
+            logError("Request to the server was not sucessful");
             free(response);
             free(resName);
             free(message);
-            logInfo(stdout, "checkKeg", "Trying request again in 2 seconds");
+            logInfo("Trying request again in 2 seconds");
             sleep(2);
             return checkKeg(sem, tap, id);
         }
 
-        logInfo(stdout, "checkKeg", "Got from server \"%s\"", response);
-
         for(i = strlen(response)-1; i >= 0; i--){
             if(response[i] == ' '){
                 strncpy(resName, response+2, i-1);
-                logDebug(stdout, "checkKeg", "%s, %d", response+2, i);
                 break;
             }
         }
         resName[i-2] = '\0'; 
 
         if(i == -1){
-            logError(stderr, "checkKeg", "Response from server is not recognized");
+            logError("Response from server is not recognized");
             free(response);
             free(resName);
             free(message);
@@ -275,7 +278,7 @@ int checkKeg(sem_t* sem, tap_t* tap, int id){
         }  
 
         if(setTapName(sem, tap, resName) == -1){
-            logError(stderr, "checkKeg", "Unable to update tap name");
+            logError("Unable to update tap name");
             free(response);
             free(resName);
             free(message);
@@ -283,7 +286,7 @@ int checkKeg(sem_t* sem, tap_t* tap, int id){
         }
 
         if(setTapTypeFromString(sem, tap, response+i) == -1){
-            logError(stderr, "checkKeg", "Unable to update tap type");
+            logError("Unable to update tap type");
             free(response);
             free(resName);
             free(message);
@@ -291,14 +294,14 @@ int checkKeg(sem_t* sem, tap_t* tap, int id){
         }
 
         if(refillTap(sem, tap) == -1){
-            logError(stderr, "checkKeg", "Unable to refill tap");
+            logError("Unable to refill tap");
             free(response);
             free(resName);
             free(message);
             return -1;
         }
 
-        logInfo(stdout, "checkKeg", "New keg of beer has been set on tap %d with name %s", id, resName);
+        logInfoWithArgs("New keg of beer has been set on tap %d with name %s", id, resName);
         free(response);
         free(resName);
         free(message);
@@ -308,68 +311,68 @@ int checkKeg(sem_t* sem, tap_t* tap, int id){
     return 0;
 }
 
-int initSHM(const int key, const int nTaps, tap_t** taps){
+int initSHM(const int key, const int nTaps, Tap** taps){
     int id;
 
     id = createTapSHM(key, nTaps);
     if(id == -1){
-        logError(stderr, "initSHM", "Error creating SHM");
+        logError("Error creating SHM");
         return -1;
     }
     
     *taps = attachTapSHM(id);
     if(*taps == NULL){
-        logError(stderr, "initSHM", "Unable to attach to SHM");
+        logError("Unable to attach to SHM");
         return -1;
     }
 
     return id;
 }
 
-char* getBeerName(sem_t* sem, tap_t* tap){
+char* getBeerName(sem_t* sem, Tap* tap){
     char* name = malloc(sizeof(char)*MAX_LENGTH_NAME);
     if(name == NULL){
-        logError(stderr, "getBeerName", "Unable to allocate memory for name");
+        logError("Unable to allocate memory for name");
         return NULL;
     }
 
     if(sem_wait(sem) == -1){
-        logError(stderr, "getBeerName", "Error waiting for semaphore access");
+        logError("Error waiting for semaphore access");
         return NULL;
     }
 
     strcpy(name, tap->name);
 
     if(sem_post(sem) == -1){
-        logError(stderr, "getBeerName", "Error releasing semaphore");
+        logError("Error releasing semaphore");
         return NULL;
     }
 
     return name;
 }
 
-int getBeerType(sem_t* sem, tap_t* tap){
-    beer_type_t type;
+int getBeerType(sem_t* sem, Tap* tap){
+    BeerType type;
     if(sem_wait(sem) == -1){
-        logError(stderr, "getBeerType", "Error waiting for semaphore access");
+        logError("Error waiting for semaphore access");
         return -1;
     }
 
     type = tap->type;
 
     if(sem_post(sem) == -1){
-        logError(stderr, "getBeerType", "Error releasing semaphore");
+        logError("Error releasing semaphore");
         return -1;
     }
     
     return type;
 }
 
-int refillTap(sem_t* sem, tap_t* tap){
+int refillTap(sem_t* sem, Tap* tap){
     int refilledQty;
 
     if(sem_wait(sem) == -1){
-        logError(stderr, "refillTap", "Error waiting for semaphore access");
+        logError("Error waiting for semaphore access");
         return -1;
     }
 
@@ -377,55 +380,55 @@ int refillTap(sem_t* sem, tap_t* tap){
     refilledQty = tap->quantity;
 
     if(sem_post(sem) == -1){
-        logError(stderr, "refillTap", "Error releasing semaphore");
+        logError("Error releasing semaphore");
         return -1;
     }
 
     return refilledQty;
 }
 
-int setTapName(sem_t* sem, tap_t* tap, const char* name){
+int setTapName(sem_t* sem, Tap* tap, const char* name){
     if(sem_wait(sem) == -1){
-        logError(stderr, "setTapName", "Error waiting for semaphore access");
+        logError("Error waiting for semaphore access");
         return -1;
     }
 
     if(strlen(name) > MAX_LENGTH_NAME){
-        logError(stderr, "setTapName", "New name %s is size %d and the max size allowed is %s", name, strlen(name), MAX_LENGTH_NAME);
+        logErrorWithArgs("New name %s is size %d and the max size allowed is %s", name, strlen(name), MAX_LENGTH_NAME);
         return -1;
     }
 
     strcpy(tap->name, name);
 
     if(sem_post(sem) == -1){
-        logError(stderr, "setTapName", "Error releasing semaphore");
+        logError("Error releasing semaphore");
         return -1;
     }
 
     return 0;
 }
 
-int setTapType(sem_t* sem, tap_t* tap, const beer_type_t type){
+int setTapType(sem_t* sem, Tap* tap, const BeerType type){
     if(sem_wait(sem) == -1){
-        logError(stderr, "setTapType", "Error waiting for semaphore access");
+        logError("Error waiting for semaphore access");
         return -1;
     }
 
     tap->type = type;
 
     if(sem_post(sem) == -1){
-        logError(stderr, "setTapType", "Error releasing semaphore");
+        logError("Error releasing semaphore");
         return -1;
     }
 
     return 0;
 }
 
-int setTapTypeFromString(sem_t* sem, tap_t* tap, const char* type){
+int setTapTypeFromString(sem_t* sem, Tap* tap, const char* type){
     int i;
     char* typeStrUpper = malloc(sizeof(char) * strlen(type));
     if(typeStrUpper == NULL){
-        logError(stderr, "setTapTypeFromString", "Unable to allocate memory");
+        logError("Unable to allocate memory");
         return -1;
     }
 
@@ -434,7 +437,7 @@ int setTapTypeFromString(sem_t* sem, tap_t* tap, const char* type){
     }
 
     if(sem_wait(sem) == -1){
-        logError(stderr, "setTapTypeFromString", "Error waiting for semaphore access");
+        logError("Error waiting for semaphore access");
         return -1;
     }
 
@@ -445,11 +448,19 @@ int setTapTypeFromString(sem_t* sem, tap_t* tap, const char* type){
     }
     
     if(sem_post(sem) == -1){
-        logError(stderr, "setTapTypeFromString", "Error releasing semaphore");
+        logError("Error releasing semaphore");
         return -1;
     }
 
     free(typeStrUpper);
 
     return 0;
+}
+
+Tap* getTapFromIndex(Tap* taps, const int index){
+    if(index >= 0 && index < N_TAPS){
+        return &taps[index];
+    }
+
+    return NULL;
 }
