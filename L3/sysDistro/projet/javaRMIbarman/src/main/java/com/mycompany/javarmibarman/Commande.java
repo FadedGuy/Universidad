@@ -22,7 +22,7 @@ public class Commande {
     // found on https://stackoverflow.com/questions/1892765/how-to-capitalize-the-first-character-of-each-word-in-a-string
     // could not find a way to import and use WordUtils.capitalizeFully(string)
     private static String toTitleCase(String givenString) {
-        String givenStringLower = givenString.toLowerCase();
+        String givenStringLower = givenString.toLowerCase(); // added to make sure everything else is lowercase
         String[] arr = givenStringLower.split(" ");
         StringBuffer sb = new StringBuffer();
 
@@ -90,11 +90,12 @@ public class Commande {
 
     private static boolean treatBeerPurchase(String beerPick, Fournisseur f1, DatagramSocket socket, String machineName) throws RemoteException, IOException {        
         String beerType;
-        Biere beerBought = f1.acheterBiere(toTitleCase(beerPick));
+        String titleCaseBeerPick = toTitleCase(beerPick);
+        Biere beerBought = f1.acheterBiere(titleCaseBeerPick);
         if(beerBought != null) {
             System.out.println("Beer " + beerPick + " bought!");
             beerType = f1.ambrees.contains(beerBought) ? "ambree" : "blonde";
-            sendPacket(socket, "0 " + beerPick + " " + beerType, machineName);
+            sendPacket(socket, "0 " + titleCaseBeerPick + " " + beerType, machineName);
             return true;
         } else {
             System.err.println("The beer doesnt or no longer exists.");
