@@ -73,9 +73,15 @@ int sendRequest(const RequestType type, const int sock, const char* payload, Req
 char* getRequestPayload(const RequestPacket* request);
 
 /**
+<<<<<<< HEAD
  * Getter for the type in request
  * @param request RequestPacket to get payload
  * @return Type from request
+=======
+ * Getter for the type in a RequestPacket
+ * @param request RequestPacket to get type
+ * @return Type of request
+>>>>>>> 9c69c65261de0ee6c17977d8bdbfb8e2264074af
 */
 RequestType getRequestType(const RequestPacket* request);
 
