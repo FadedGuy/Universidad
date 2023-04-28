@@ -40,12 +40,12 @@ ipcs
 
 -lpthread for semaphore.h in school computers
 
-rmic Fournisseur
-javac *.java
-rmiregistry &
-java Fournisseur localhost - java Commande ipBarman ipFournisseur
+rmic Fournisseur // client side
+javac *.java // to compile java files
+rmiregistry & // server side to start rmiregistry
+java Fournisseur ipFournisseur - java Commande ipFournisseur
 
 ./bin/Tireuses.out
 ./bin/Barman.out 50000
-./bin/client.out localhost 50000
+./bin/client.out ipBarman 50000
 

@@ -71,11 +71,15 @@ public class Fournisseur extends UnicastRemoteObject implements IBiere {
     public static void main(String argv[]) {
         try {
             if(argv.length > 0) {
-                System.setProperty("java.rmi.server.hostname", argv[0]); // 2nd argument being the ip of Fournisseur pc
+                System.setProperty("java.rmi.server.hostname", argv[0]); // argument being the actual ip of Fournisseur pc (not localhost)
                 Fournisseur fournisseur = new Fournisseur();
                 Naming.rebind("DedeLaChope", fournisseur);
+            } else if ("localhost".equals(argv[0])) {
+                System.err.println("execution argument has to be the ip address, not localhost");
+                System.exit(1);
             } else {
-                System.err.println("Missing host name");
+                System.err.println("Missing host ip address");
+                System.exit(1);
             }
         } catch (MalformedURLException | RemoteException ex) {
 	    System.err.println("Impossible de lancer le fournisseur");
