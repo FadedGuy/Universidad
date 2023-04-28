@@ -3,7 +3,6 @@ import java.rmi.Naming;
 import java.net.InetAddress;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
-import java.net.MalformedURLException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.util.Scanner;
@@ -15,7 +14,7 @@ import java.util.Vector;
 
 
 public class Commande {
-    public static Fournisseur f1;
+    private static Fournisseur f1;
     private static final int PORT_RECEIVE = 7777;
     private static final int PORT_SEND = 7778;
     
@@ -91,7 +90,6 @@ public class Commande {
     private static boolean treatBeerPurchase(String beerPick, Fournisseur f1, DatagramSocket socket, String machineName) throws RemoteException, IOException {        
         String beerType;
         String titleCaseBeerPick = toTitleCase(beerPick);
-        System.out.println(titleCaseBeerPick);
         Biere beerBought = f1.acheterBiere(titleCaseBeerPick);
         if(beerBought != null) {
             System.out.println("Beer " + titleCaseBeerPick + " bought!");
@@ -127,10 +125,13 @@ public class Commande {
         String beerType;
         String buySameOrNewBeerChoice;
         String beerWanted;
+        String localMachine = "localhost";
         
+        
+        f1 = new Fournisseur();        
         // on récupère une référence sur l'objet distant nommé "DedeLaChope" via
         // le registry de la machine sur laquelle il s'exécute
-        IBiere opBiere = (IBiere) Naming.lookup("rmi://"+argv[1]+"/DedeLaChope"); // argv[1] = pc ip adress on which we execute the server, ifconfig in terminal to get ip
+        IBiere opBiere = (IBiere) Naming.lookup("rmi://"+argv[0]+"/DedeLaChope"); // argv[0] = pc ip adress on which we execute the fournisseur, ifconfig in terminal to get ip
         Vector<String> availableOperations = new Vector<>();
         availableOperations.add("liste blondes");
         availableOperations.add("liste ambrees");
@@ -159,13 +160,13 @@ public class Commande {
                     buySameOrNewBeerChoice = returnScanner(scOperations);
                     switch(buySameOrNewBeerChoice) {
                         case "same":
-                            treatBeerPurchase(beerWanted, f1, socket_receive, argv[0]);
+                            treatBeerPurchase(beerWanted, f1, socket_receive, localMachine);
                             break;
                         case "new":
-                            operationMenu(scOperations, opBiere, availableOperations, argv[0], socket_receive);
+                            operationMenu(scOperations, opBiere, availableOperations, localMachine, socket_receive);
                             break;
                         case "cancel":
-                            sendPacket(socket_receive, "1", argv[0]);
+                            sendPacket(socket_receive, "1", localMachine);
                             break;
                         default:
                             System.out.println("This operation doesnt exist.");
@@ -178,18 +179,15 @@ public class Commande {
     public static void main(String argv[]) throws java.net.SocketException, IOException, InterruptedException, NotBoundException {
         DatagramPacket receivedPacket;
         DatagramSocket socket_receive;
-        f1 = new Fournisseur();
-        System.out.println("ARGV0: "+  argv[0]);
-        System.out.println("ARGV1: " + argv[1]);
 
         socket_receive = new DatagramSocket(PORT_RECEIVE);
         byte[] data = new byte[25];
         receivedPacket = new DatagramPacket(data, data.length);
                      
-        if(argv.length > 0) {
+        if(argv.length == 1) {
             processRequest(socket_receive, receivedPacket, argv);  
         } else {
-            System.err.println("Missing arguments (first: barman ip, second: fournisseur ip)");
+            System.err.println("Missing arguments (first: fournisseur ip)");
             System.exit(1);
         }
     }
