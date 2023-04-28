@@ -96,7 +96,7 @@ int initializeTap(sem_t* sem, Tap* tap, BeerType type);
  * @param sem Semaphore that controls the tap
  * @param tap Tap that is being used to serve
  * @param qty Quantity of beer to serve
- * @return Remaining beer quantity on sucess, -1 for errors
+ * @return Remaining beer quantity on sucess, -1 for errors, -2 if no beer is left
 */
 int serveBeer(sem_t* sem, Tap* tap, const float qty);
 

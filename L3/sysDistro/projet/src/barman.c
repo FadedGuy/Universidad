@@ -293,7 +293,7 @@ void controlProcess(){
 void mainProcess(){
     Tap* taps;
     sem_t* semaphore[N_TAPS];
-    int shmid, statusCode; 
+    int shmid, statusCode, aux; 
     char buffer[BUFFER];
     char* beerName;
     char* end;
@@ -376,12 +376,17 @@ void mainProcess(){
                     break;
                 }
 
-                if(serveBeer(semaphore[chosenBeer-1], getTapFromIndex(taps, chosenBeer-1), (chosenSize == 1) ? PINT_QTY : HALF_PINT_QTY) == -1){
+                aux = serveBeer(semaphore[chosenBeer-1], getTapFromIndex(taps, chosenBeer-1), (chosenSize == 1) ? PINT_QTY : HALF_PINT_QTY);
+                if(aux == -1){
                     logError("Unable to serve given beer");
                     exit(EXIT_FAILURE);
+                } else if(aux == -2){
+                    logError("Unable to serve beer since there is no more left");
+                    strcat(buffer, "No more available!");
+                } else{
+                    strcat(buffer, "Beer served!");
                 }
 
-                strcat(buffer, "Beer served!");
                 break;
             default:
                 logErrorWithArgs("Request not recognised #d", reqType);

@@ -132,9 +132,9 @@ int initializeTap(sem_t* sem, Tap* tap, BeerType type){
     }
     strcpy(tap->name, beer_name_string[type-1]);
     tap->type = type;
-    tap->quantity = KEG_CAPACITY;
+    // tap->quantity = KEG_CAPACITY;
     // Change to this if testing control
-    // tap->quantity = 1.0;
+    tap->quantity = 1.0;
     tap->capacity = KEG_CAPACITY;
 
     if(sem_post(sem) == -1){
@@ -157,7 +157,11 @@ int serveBeer(sem_t* sem, Tap* tap, const float qty){
     logInfo("Preparing to serve beer...");
     if(tap->quantity - qty < 0){
         logError("Not enough beer left");
-        return -1;
+        if(sem_post(sem) == -1){
+            logError("Error releasing semaphore");
+            return -1;
+        }
+        return -2;
     }
 
     tap->quantity -= qty;
