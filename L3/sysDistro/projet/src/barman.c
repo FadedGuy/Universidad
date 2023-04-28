@@ -1,19 +1,10 @@
 #include <errno.h>
-#include <fcntl.h>
 #include <netdb.h>
-#include <netinet/in.h>
 #include <semaphore.h>
 #include <signal.h>
 #include <stdarg.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/ipc.h>
-#include <sys/shm.h>
-#include <sys/socket.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <sys/wait.h>
 #include <unistd.h>
 
 #include "utils/pipe.h"

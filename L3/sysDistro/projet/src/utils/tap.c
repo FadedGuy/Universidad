@@ -1,11 +1,9 @@
-#include <sys/ipc.h>
 #include <sys/shm.h>
 #include <errno.h>
 #include <semaphore.h>
 #include <fcntl.h>
 #include <string.h>
 #include <stdlib.h>
-#include <stdio.h>
 #include <ctype.h>
 #include <unistd.h>
 

@@ -3,7 +3,6 @@
 
 #include <stdarg.h>
 #include <stdio.h>
-#include <stdint.h>
 
 // Log options
 #define LOG_DATE    0x01 //0b00000001
@@ -79,7 +78,7 @@
  * *__FILE__ Always supported
  * *__LINE__ Always supported
 */
-void logMsg(FILE* fd, uint8_t options, const char* proc, const char* file, const int line, const char* message, va_list args);
+void logMsg(FILE* fd, unsigned int options, const char* proc, const char* file, const int line, const char* message, va_list args);
 
 /**
  * Logs an error message to FILE

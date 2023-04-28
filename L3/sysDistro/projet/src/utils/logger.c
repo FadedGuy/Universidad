@@ -2,7 +2,7 @@
 
 #include "logger.h"
 
-void logMsg(FILE* fd, uint8_t options, const char* proc, const char* file, const int line, const char* message, va_list args){
+void logMsg(FILE* fd, unsigned int options, const char* proc, const char* file, const int line, const char* message, va_list args){
     time_t timeVal;
     char timestamp[TIME_BUFFER];
     char datestamp[TIME_BUFFER];
