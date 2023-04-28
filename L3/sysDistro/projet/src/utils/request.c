@@ -130,7 +130,6 @@ int sendRequest(const RequestType type, const int sock, const char* payload, Req
     statusCode = writeRequest(sock, packet);
     if(statusCode == -1){
         logError("Error sending packet");
-        freeRequestPacket(packet);
         return -1;
     }
 
@@ -139,7 +138,6 @@ int sendRequest(const RequestType type, const int sock, const char* payload, Req
         statusCode = readRequest(sock, response);
         if(statusCode == -1){
             logError("Error reading packets from server");
-            freeRequestPacket(packet);
             return -1;
         }
     } 
