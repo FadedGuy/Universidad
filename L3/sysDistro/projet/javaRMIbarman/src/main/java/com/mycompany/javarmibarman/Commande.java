@@ -22,7 +22,8 @@ public class Commande {
     // found on https://stackoverflow.com/questions/1892765/how-to-capitalize-the-first-character-of-each-word-in-a-string
     // could not find a way to import and use WordUtils.capitalizeFully(string)
     private static String toTitleCase(String givenString) {
-        String[] arr = givenString.split(" ");
+        String givenStringLower = givenString.toLowerCase();
+        String[] arr = givenStringLower.split(" ");
         StringBuffer sb = new StringBuffer();
 
         for (int i = 0; i < arr.length; i++) {
@@ -115,7 +116,6 @@ public class Commande {
         InetAddress adr = InetAddress.getByName(machineName);
         byte[] data = beerInformations.getBytes();
         DatagramPacket packetToSend = new DatagramPacket(data, data.length, adr, PORT_SEND); // 2 different ports to send and receive otherwise it receives its own packet
-        System.out.println(beerInformations);
         socket.send(packetToSend);
     }
     
