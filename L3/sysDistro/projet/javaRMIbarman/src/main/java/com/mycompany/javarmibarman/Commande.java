@@ -15,7 +15,7 @@ import java.util.Vector;
 
 
 public class Commande {
-    private static Fournisseur f1;
+    public static Fournisseur f1;
     private static final int PORT_RECEIVE = 7777;
     private static final int PORT_SEND = 7778;
     
@@ -91,9 +91,10 @@ public class Commande {
     private static boolean treatBeerPurchase(String beerPick, Fournisseur f1, DatagramSocket socket, String machineName) throws RemoteException, IOException {        
         String beerType;
         String titleCaseBeerPick = toTitleCase(beerPick);
+        System.out.println(titleCaseBeerPick);
         Biere beerBought = f1.acheterBiere(titleCaseBeerPick);
         if(beerBought != null) {
-            System.out.println("Beer " + beerPick + " bought!");
+            System.out.println("Beer " + titleCaseBeerPick + " bought!");
             beerType = f1.ambrees.contains(beerBought) ? "ambree" : "blonde";
             sendPacket(socket, "0 " + titleCaseBeerPick + " " + beerType, machineName);
             return true;
@@ -178,7 +179,8 @@ public class Commande {
         DatagramPacket receivedPacket;
         DatagramSocket socket_receive;
         f1 = new Fournisseur();
-        
+        System.out.println("ARGV0: "+  argv[0]);
+        System.out.println("ARGV1: " + argv[1]);
 
         socket_receive = new DatagramSocket(PORT_RECEIVE);
         byte[] data = new byte[25];
@@ -188,6 +190,7 @@ public class Commande {
             processRequest(socket_receive, receivedPacket, argv);  
         } else {
             System.err.println("Missing arguments (first: barman ip, second: fournisseur ip)");
+            System.exit(1);
         }
     }
 }

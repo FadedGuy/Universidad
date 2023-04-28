@@ -76,6 +76,7 @@ public class Fournisseur extends UnicastRemoteObject implements IBiere {
                 Naming.rebind("DedeLaChope", fournisseur);
             } else {
                 System.err.println("Missing host name");
+                System.exit(1);
             }
         } catch (MalformedURLException | RemoteException ex) {
 	    System.err.println("Impossible de lancer le fournisseur");
