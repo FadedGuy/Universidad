@@ -1,0 +1,142 @@
+module traitementMessages
+exports all
+
+definitions
+--aucun--
+
+types
+Message = <msg1> | <msg2> | <msg3> | <msg4> | <msg5> | <msg6> |
+						<msg7> | <msg8> | <msg9>;
+Priorite = <prio1> | <prio2> | <prio3> | <prio4> | <prio5> | 
+						<prio6> | <prio7> | <prio8>;
+Robot = <rob1> | <rob2> | <rob3> | <rob4> | <rob5> | <rob6> | 
+					<rob7>;
+
+
+
+state ETAT of
+	 messageEdites: set of Message
+	 ordrePriorite: set of Priorite
+	 listeRobots: set of Robot
+	 boiteMessages: inmap Message to Priorite
+	 messageEnCours: inmap Message to Robot
+	 robotOcupees: set of Robot
+inv mk_ETAT(messagesEdites,ordrePriorite, listeRobots, boiteMessages,
+							messageEnCours, robotOcupees) == 
+							--dom boiteMessages subset messageEdites
+							--and rng boiteMessages subset ordrePriorite
+							--and robotOcupees subset listeRobots
+							--and dom messageEnCours subset Message
+							--and rng messageEnCours subset listeRobots 
+							robotOcupees subset listeRobots
+							
+init etatInitial == 
+	etatInitial = mk_ETAT(messagesEdites0,
+												ordrePriorite0,
+												listeRobots0,
+												boiteMessages0,
+												messageEnCours0,
+												robotOcupees0)
+end
+
+operations
+	editer: Message ==> ETAT
+	editer(message) == 
+	(
+		messageEdites := messageEdites union{message};
+		return mk_ETAT(messageEdites, ordrePriorite, listeRobots, 
+										boiteMessages, messageEnCours, robotOcupees)
+	)
+	pre message subset messageEdites
+	post messageEdites = messageEdites~union{message};
+	
+	
+	ranger: Message * Priorite ==> ETAT
+	ranger(message, priorite) == 
+	(
+		boiteMessages := boiteMessages munion{message|->priorite};
+		return mk_ETAT(messagesEdites, ordrePriorite, listeRobots, 
+										boiteMessage, messageEnCours, robotOcupees)
+	)
+	pre 
+		message subset dom boiteMessages
+		and priorite subset ordrePriorite
+		and message not in set dom boiteMessages
+	post boiteMessages = boiteMessages~munion{messages|->priorite};
+	
+	
+	preempter: Message * Robot ==> ETAT
+	preempter(message, robot) == 
+	(
+	-- reviser--
+		messageEnCours := messageEnCours munion{message|->robot};
+		robotOcupees := robotOcupees union{robot};
+		return mk_ETAT(messagesEdites, ordrePriorite, listeRobots, 
+										boiteMessage, messageEnCours, robotOcupees)
+	)
+	pre 
+		message subset dom boiteMessages
+		and robot subset robotOcupees
+		and message subset dom messageEnCours
+	post messageEnCours = messageEnCours~munion{message|->robot};
+	
+	
+	retirerMessage: Message ==> ETAT
+	retirerMessage(message) == 
+	(
+	--reviser--
+		boiteMessages := {message}<-:boiteMessages;
+		return mk_ETAT(messagesEdites, ordrePriorite, listeRobots,
+										boiteMessage, messageEnCours, robotOcupees)
+	)
+	pre message subset dom messageEnCours
+	post boiteMessages = boiteMessages~\{message};
+
+
+	-- operation pour observer
+	edites: () ==> set of Message
+	edites() == return messagesEdites
+	pre true
+	post RESULT = messagesEdites;
+	
+	
+	enAttente: () ==> inmap Message to Priorite
+	enAttente() == return boiteMessage
+	pre true
+	post RESULT = boiteMessage;
+	
+	
+	plusPrioritaire: () ==> Message
+	plusPrioritaire() == return --
+	pre true
+	post RESULT = dom boiteMessage;
+	
+	
+	enCours: () ==> inmap Message to Robot
+	enCours() == return messageEnCours
+	pre true
+	post RESULT = messageEnCours;
+	
+	
+	quel_message: Robot ==> Message
+	quel_message(robot) == return messageEnCours(robot)
+	pre robot subset robotOcupees
+	post RESULT = messageEnCours(robot);
+	
+	quel_robot: Message ==> Robot
+	quel_robot(message) == return messageEnCours(message)
+	pre message subset messageEnCours
+	post message = messageEnCours(RESULT);
+
+values
+messagesEdites0: set of Message = {<msg1>, <msg2>, <msg3>, <msg4>, <msg5>, <msg6>};
+ordrePriorite0: set of Priorite = {<prio1>, <prio2>, <prio3>, <prio4>, <prio5>};
+listeRobots0: set of Robot = {<rob1>, <rob2>, <rob3>, <rob4>, <rob5>, <rob6>, <rob7>};
+boiteMessages0: inmap Message to Priorite = {<msg1>|-><prio1>, 
+																							<msg2>|-><prio2>, 
+																							<msg3>|-><prio2>,
+																							<msg4>|-><prio5>};
+messageEnCours0: inmap Message to Robot = {<msg5>|-><rob2>, <msg6>|-><rob5>};
+robotOcupees0: set of Robot = {<rob2>, <rob5>};
+
+end traitementMessages

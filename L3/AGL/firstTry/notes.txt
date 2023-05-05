@@ -1,0 +1,44 @@
+Anomalies -> Max niveau 5 sur 8
+L'objectif: 
+	Augmenter la securite des personnels
+	Renforcer surete de fonctionnement
+
+Sous-systemes independants:	
+	1. SDC: Controle par IA
+		Determiner a partir des capteurs, la nature de la 
+			-tache d'intervention-
+		Editer un message d'intervention
+		Transmettre message a OTI
+	2. OTI: Controle par algo d'ordonnancement
+		Range au fur et a mesure selon un -ordre de priorite- les
+			messages transmis
+	3. Boite mails: Chargee de distribuer aux robots d'intervention les 
+				messages de OTI
+		Les messages doivent etre consultes dans l'ordre de priorite 
+			determine par OTI
+		Retire automatiquement un message des qu'il est consulte
+	4. Groupe de 7 robot: Executer des taches d'intervention. Controles par
+				un algo qui permet
+		Designer un robot disponible
+		Garantir qu'un robot n'a qu'un seul message a la fois
+		
+Deroulement:
+	SDC: Diagnostique anomalie -> Edite message d'intervention -> Transmis a OTI
+	OTI: Range selon un ordre de priorite, le message recu dans la boite mails
+	Robot: Selectionne parmi l'ensemble des robot dispo -> Preempter le message prio -> Traiter 
+		message en demarrant la tache -> Dispo de nouveau apres tache fini
+
+Application:
+	Fonctions:
+		- Editer un message
+		- Ranger un message selon un ordre de priorite
+		- Preempter (prendre) le message prioritaire, en attente, dans la boite mails
+		- Retirer de la boite le message qui vient d'etre preempte
+
+	Informations:
+		- Ensemble des messages edites
+		- Ensemble des message en attente dans la boite mail, dans leur ordre
+		- Le message prioritaire actuel
+		- Liste de tous les messages en cours de traitement
+		- Robot -> Quel est le message preempte
+		- Message -> Quel est le robot qui a pris
